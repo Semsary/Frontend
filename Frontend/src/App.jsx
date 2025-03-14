@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <div className="bg-gray-800 text-white text-center">
-        sddsd
+        Front End Test
         </div>
     </>
   )
