@@ -1,1 +1,5 @@
-const useFetch = () => { return {}; }; export default useFetch;
+const useFetch = () => {
+  return {};
+};
+export default useFetch;
+    

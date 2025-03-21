@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import AppRouter from "./routes/AppRouter";
+import { Toaster } from "sonner";
 
 function App() {
-
   return (
     <>
-      <div className="bg-gray-800 text-white text-center">
-        Front End Test
-        </div>
+      <AppRouter />
+      <Toaster richColors position="top-center" />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
