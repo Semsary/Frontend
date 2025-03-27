@@ -1,1 +1,4 @@
-const useAuth = () => { return {}; }; export default useAuth;
+const useAuth = () => {
+  return {};
+};
+export default useAuth;

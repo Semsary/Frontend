@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import axiosInstance from "../config/api/axiosInstance";
 
 const AuthContext = createContext();
@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await axiosInstance.post("/auth/login", credentials);
       await checkAuth();
-      navigate("/dashboard");
+      // navigate("/dashboard");
     } catch (error) {
       console.error(
         "فشل تسجيل الدخول:",
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       await axiosInstance.post("/auth/logout");
       setUser(null);
       setRole(null);
-      navigate("/login");
+      // navigate("/login");
     } catch (error) {
       console.error(
         "خطأ أثناء تسجيل الخروج:",
