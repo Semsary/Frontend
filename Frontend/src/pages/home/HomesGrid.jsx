@@ -16,10 +16,10 @@ const HomesGrid = ({ homes }) => {
                 alt={home.name}
                 className="w-full h-64 object-cover"
               />
-              <button className="absolute top-4 left-4 bg-white/70 p-2 rounded-full hover:bg-white transition-colors">
+              <button className="absolute top-2 left-2 bg-white/70 p-2 rounded-full hover:bg-white transition-colors">
                 <Heart
                   className="text-gray-700 hover:text-red-500"
-                  size={24}
+                  size={17}
                   strokeWidth={1.5}
                 />
               </button>

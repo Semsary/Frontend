@@ -104,7 +104,6 @@ c) the landlord can accept or reject the rent request
 
 
 
-
 Dashboard website
 ===================
 
