@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
-@plugin "tailwindcss-animate";
+@plugin "tailwindcss-animate";  
 
 @custom-variant dark (&:is(.dark *));
+
+
 
 :root {
   --radius: 0.625rem;
@@ -122,4 +124,5 @@
 
 body {
   font-family: "Tajawal", serif;
+  direction: ltr;
 }

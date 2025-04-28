@@ -5,7 +5,7 @@ import HomesGrid from "./HomesGrid";
 
 const HomePage = () => {
   return (
-    <div className="">
+    <div className=" ">
       <Navbar />
       <HomesGrid homes={homes} />
     </div>
