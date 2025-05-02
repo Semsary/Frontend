@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
+import useAuthStore from "../../store/auth.store";
+import Loading from "../../components/loading/Loading";
 
 export default function ArabicLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,18 +12,21 @@ export default function ArabicLoginPage() {
     formState: { errors },
   } = useForm();
 
+  const { login, loading, error } = useAuthStore();
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handelLogin = (data) => {
+  const handleLogin = (data) => {
     console.log("Form submitted:", data);
-    // Handle login logic here
+    login(data.email, data.password);
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="flex flex-col md:flex-row-reverse h-screen w-full overflow-hidden bg-gray-50">
-      {/* Right side - Login Form (now on top on mobile) */}
       <div className="w-full md:w-1/2 bg-white p-4 sm:p-8 flex flex-col justify-center overflow-y-auto">
         <div className="max-w-md mx-auto w-full">
           <div className="text-right">
@@ -34,7 +39,7 @@ export default function ArabicLoginPage() {
           </div>
 
           <form
-            onSubmit={handleSubmit(handelLogin)}
+            onSubmit={handleSubmit(handleLogin)}
             className="space-y-4 sm:space-y-6"
           >
             <div className="space-y-2">
@@ -106,6 +111,12 @@ export default function ArabicLoginPage() {
                 </a>
               </div>
             </div>
+
+            {error && (
+              <div className="mt-4 text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"

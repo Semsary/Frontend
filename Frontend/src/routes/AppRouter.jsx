@@ -11,6 +11,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import VerifyCode from "../pages/auth/VerifyCode.jsx";
 import ResetPassword from "../pages/auth/ResetPassword.jsx";
 import SignUp from "../pages/auth/SignUp.jsx";
+import Testing from "../temp-testing/Testing.jsx";
 
 
 const router = createBrowserRouter([
@@ -50,7 +51,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/signup",
-    element:<SignUp/>
+    element: <SignUp />,
+  },
+  {
+    path: "/test",
+    element: <Testing />,
   },
 ]);
 
