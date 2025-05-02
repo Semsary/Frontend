@@ -1,198 +1,154 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { motion } from "framer-motion"
-import { Loader2, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react'
-// import axiosInstance from "../config/axiosInstance"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import axiosInstance from "./../../config/api/axiosInstance";
-import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
-// import GoogleLoginButton from "./GoogleLoginButton"
- 
-const Login = () => {
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const { login } = useAuth();
-  const navigate = useNavigate()
+import { useState } from "react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useForm } from "react-hook-form";
 
+export default function ArabicLoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm()
+  } = useForm();
 
-  const onSubmit = async (data) => {
-    setLoading(true)
-    setError("")
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
-    try {
-      const response = await axiosInstance.post("/auth/signin", data);
-      
-      console.log("Login successful:", data)
-      localStorage.setItem("token", response.data.token);
-      console.log("token", response.data.token);
-      login(response.data.data);
-      toast.success("تم تسجيل الدخول بنجاح");
-      navigate("/");
-      
-    } catch (err) {
-      console.log(err)
-
-      if (err.response?.data?.message === "Your account is blocked") {
-        setError("حسابك محظور. يرجى الاتصال بالدعم.")
-        return
-      }
-
-      if (err.response?.data?.message) {
-        console.log("Backend error:", err.response.data.message)
-      } else {
-        console.log("Error:", err.message)
-      }
-
-
-      setError("فشل تسجيل الدخول.   يرجى التحقق من بياناتك البريد وكلمة المرور.")
-      // setError( JSON.stringify(err) )
-      toast.error("فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك.")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const handelLogin = (data) => {
+    console.log("Form submitted:", data);
+    // Handle login logic here
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-200 via-white to-blue-300">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-8 rounded-2xl shadow-2xl backdrop-blur-md bg-white/70"
-        style={{
-          directioin: "rtl",
-          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-        }}
-      >
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          مرحباً بك
-        </h2>
-        <p className="text-gray-600 text-center mb-8">تسجيل الدخول الى حسابك</p>
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 text-right"
-          style={{ direction: "rtl" }} 
-        >
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-700">
-              البريد
-            </Label>
-            <div className="relative">
-              <Input
-                id="email"
-                type="email"
-                placeholder="ادخل بريدك الالكتروني"
-                {...register("email", { required: "Email is required" })}
-                className={`pr-10 bg-white/50 border-gray-300 text-gray-800 text-right ${
-                  errors.email ? "border-red-500" : ""
-                }`} // Changed padding to 'pr-10' for RTL
-              />
-              <Mail
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={18}
-              />{" "}
-              {/* Changed to 'right-3' */}
-            </div>
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.email.message}
-              </p>
-            )}
+    <div className="flex flex-col md:flex-row-reverse h-screen w-full overflow-hidden bg-gray-50">
+      {/* Right side - Login Form (now on top on mobile) */}
+      <div className="w-full md:w-1/2 bg-white p-4 sm:p-8 flex flex-col justify-center overflow-y-auto">
+        <div className="max-w-md mx-auto w-full">
+          <div className="text-right">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              تسجيل الدخول
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
+              مرحبًا بعودتك! يرجى تسجيل الدخول للوصول إلى حسابك
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-700">
-              كلمة المرور
-            </Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type="password"
-                placeholder="ادخل كلمة المرور"
-                {...register("password", { required: "Password is required" })}
-                className={`pr-10 bg-white/50 border-gray-300 text-gray-800 text-right ${
-                  errors.password ? "border-red-500" : ""
-                }`} // Changed padding to 'pr-10' for RTL
-              />
-              <Lock
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={18}
-              />{" "}
-              {/* Changed to 'right-3' */}
-            </div>
-            {errors.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {error && <p className="text-red-500 text-center">{error}</p>}
-
-          <Button
-            type="submit"
-            className="w-full bg-primary hover:bg-primary2 text-white transition-colors duration-300"
-            disabled={loading}
+          <form
+            onSubmit={handleSubmit(handelLogin)}
+            className="space-y-4 sm:space-y-6"
           >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                جاري تسجيل الدخول...
-              </>
-            ) : (
-              <>
-                <ArrowLeft className="ml-2 h-4 w-4" />
-                تسجيل الدخول
-              </>
-            )}
-          </Button>
-        </form>
+            <div className="space-y-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 text-right"
+              >
+                البريد الإلكتروني
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  required
+                  {...register("email")}
+                  className="block w-full rounded-lg border border-gray-300 px-4 py-2 sm:py-3 text-right pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  placeholder="أدخل بريدك الإلكتروني"
+                  dir="rtl"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+              </div>
+            </div>
 
-        {/* <GoogleLoginButton /> */}
+            <div className="space-y-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 text-right"
+              >
+                كلمة المرور
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  {...register("password")}
+                  className="block w-full rounded-lg border border-gray-300 px-4 py-2 sm:py-3 text-right pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  placeholder="أدخل كلمة المرور"
+                  dir="rtl"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+                  )}
+                </button>
+              </div>
+            </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600 ">
-            ليس لديك حساب؟
-            <a href="/signup" className="text-blue-600 hover:underline px-1">
-              سجل الان
-            </a>
-          </p>
-        </div>
-        <div className="mt- text-center">
-          <p className="text-sm text-gray-600">
-            هل نسيت كلمة المرور ؟
-            <a
-              href="/forgot-password"
-              className="text-blue-600 hover:underline px-1"
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-sm">
+                <a
+                  href="#"
+                  className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
+                >
+                  نسيت كلمة المرور؟
+                </a>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 sm:py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
             >
-              تغير كلمة المرور
-            </a>
-          </p>
-        </div>
+              تسجيل الدخول
+            </button>
+          </form>
 
-        <div className="mt-8 pt-8 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            عند تسجيل الدخول، فأنت توافق على{" "}
-            <a href="/privacy-policy" className="text-blue-600 hover:underline">
-              شروط الخدمة
-            </a>{" "}
-            .
+          <div className="mt-6 sm:mt-8 text-center">
+            <p className="text-sm text-gray-600">
+              ليس لديك حساب؟{" "}
+              <a
+                href="#"
+                className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
+              >
+                إنشاء حساب جديد
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden md:flex md:w-1/2 bg-blue-600 items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-700 opacity-90"></div>
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-blue-500 rounded-full opacity-50"></div>
+        <div className="absolute -top-8 -right-8 w-48 h-48 bg-blue-500 rounded-full opacity-50"></div>
+        <div className="relative z-10 text-center px-8">
+          <div className="w-36 h-36 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <img
+              src="/public/images/logo/white-square.png"
+              alt="Logo"
+              className="w-24 h-24"
+            />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 sm:mb-6">
+            أهلا بك في سمساري
+          </h2>
+          <p className="text-lg sm:text-xl text-white opacity-90">
+            منصة متكاملة لتسهيل تأجير الشقق والعقارات
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
-
-export default Login
-
