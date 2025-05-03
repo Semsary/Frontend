@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
-import useAuthStore from "../../store/auth.store";
-import Loading from "../../components/loading/Loading";
+import useAuthStore from "../../store/auth.store.js";
+import Loading from "../../components/loading/Loading.jsx";
 
 export default function ArabicLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit } = useForm();
 
   const { login, loading, error } = useAuthStore();
 

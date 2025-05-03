@@ -10,15 +10,34 @@ import Login from "../pages/auth/Login.jsx";
 import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import VerifyCode from "../pages/auth/VerifyCode.jsx";
 import ResetPassword from "../pages/auth/ResetPassword.jsx";
-import SignUp from "../pages/auth/SignUp.jsx";
 import Testing from "../temp-testing/Testing.jsx";
-
+import SignupPage_tenant from "../pages/auth/tenant/SignUp.jsx";
+import SignUp_landlord from "../pages/auth/landlord/SignUp.jsx";
+import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
   },
+  {
+    path: "/signup",
+    children: [
+      {
+        index: true,
+        element: <SignupPage_tenant />,
+      },
+      {
+        path: "landlord",
+        element: <SignUp_landlord type="landlord" />,
+      },
+    ],
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
+  },
+
   {
     path: "/dashboard",
     element: (
@@ -49,10 +68,7 @@ const router = createBrowserRouter([
     element: <ResetPassword />,
     // errorElement: <ErrorElement errorMessage="Password reset failed" />,
   },
-  {
-    path: "/signup",
-    element: <SignUp />,
-  },
+
   {
     path: "/test",
     element: <Testing />,
