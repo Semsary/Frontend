@@ -1,101 +1,102 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { motion } from "framer-motion";
-import { Loader2, Mail, ArrowLeft } from "lucide-react";
-import axiosInstance from "./../../config/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Mail } from "lucide-react";
+import useAuthStore from "../../store/auth.store.js";
+import Loading from "../../components/loading/Loading.jsx";
+import { Link, useNavigate } from "react-router-dom";
+import Error from "../../components/errors/Error.jsx";
+
 const ForgotPassword = () => {
-  const [loading, setLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
+  const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+  const { loading, error, forgotPassword } = useAuthStore();
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      await axiosInstance.post("/auth/forgotpassword", data);
-      toast.success("تم إرسال كود استعادة كلمة المرور إلى بريدك الإلكتروني");
+  const handleResetPassword = async (data) => {
+    console.log("Reset password submitted:", data);
+    const res = await forgotPassword(data.email);
+    console.log("Response from forgot password:", res);
+    if (res) {
 
-      navigate("/verify-code");
-    } catch (err) {
-      toast.error("حدث خطأ. يرجى المحاولة مرة أخرى");
-    } finally {
-      setLoading(false);
+      navigate("/reset-password", { state: { email: data.email } });
     }
+    
   };
 
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-teal-300 via-white to-teal-500 p-6">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-10 rounded-3xl shadow-2xl backdrop-blur-md bg-white/80 border border-gray-200"
-      >
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
-          استعادة كلمة المرور
-        </h2>
-        <p className="text-gray-700 text-center mb-8 text-lg">
-          أدخل بريدك الإلكتروني لإرسال كود إعادة تعيين كلمة المرور
-        </p>
+  if (loading) return <Loading />;
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 text-right"
-        >
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-700 text-lg">
-              البريد الإلكتروني
-            </Label>
-            <div className="relative">
-              <Input
-                id="email"
-                type="email"
-                placeholder="ادخل بريدك الإلكتروني"
-                {...register("email", { required: "البريد الإلكتروني مطلوب" })}
-                className={`pr-12 bg-white/70 border-gray-300 text-gray-900 text-right rounded-xl py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all duration-300 ${
-                  errors.email ? "border-red-500" : ""
-                }`}
-              />
-              <Mail
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
-                size={20}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1 font-medium">
-                {errors.email.message}
-              </p>
-            )}
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="p-8 text-center">
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              إعادة تعيين كلمة المرور
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600">
+              أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور
+            </p>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white text-lg py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
-            disabled={loading}
+          {error && ( 
+            <Error 
+              error={error}
+              title="خطأ في إعادة تعيين كلمة المرور"
+            />
+          )}
+
+          <form
+            onSubmit={handleSubmit(handleResetPassword)}
+            className="space-y-6"
           >
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" size={20} />
-                جاري الإرسال...
-              </>
-            ) : (
-              <>
-                <ArrowLeft size={20} />
-                إرسال رابط الاستعادة
-              </>
-            )}
-          </Button>
-        </form>
-      </motion.div>
+            <div className="relative">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <Mail className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                {...register("email")}
+                className="block w-full px-10 rounded-lg border border-gray-300   py-3 pl-10 text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="أدخل بريدك الإلكتروني"
+                dir="rtl"
+              />
+            </div>
+
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200"
+            >
+              إرسال كود إعادة تعيين
+            </button>
+          </form>
+
+          <div className="mt-6 text-sm text-gray-600">
+            تذكرت كلمة المرور؟{" "}
+            <Link
+              to="/login"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              العودة لتسجيل الدخول
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-blue-600 p-6 text-center text-white">
+          <div className="w-20 h-20 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm mb-4">
+            <img
+              src="/public/images/logo/white-square.png"
+              alt="Logo"
+              className="w-12 h-12"
+            />
+          </div>
+          <h2 className="text-xl font-bold mb-2"> سمساري</h2>
+          <p className="text-sm opacity-90">
+            منصة متكاملة لتسهيل تأجير الشقق والعقارات
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

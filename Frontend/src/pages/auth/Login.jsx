@@ -3,7 +3,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import useAuthStore from "../../store/auth.store.js";
 import Loading from "../../components/loading/Loading.jsx";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ArabicLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -102,12 +102,12 @@ export default function ArabicLoginPage() {
 
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="text-sm">
-                <a
-                  href="#"
+                <Link
+                  to="/forgot-password"
                   className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
                 >
                   نسيت كلمة المرور؟
-                </a>
+                </Link>
               </div>
             </div>
 

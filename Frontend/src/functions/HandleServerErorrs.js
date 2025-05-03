@@ -4,6 +4,8 @@ const errorMessages = {
   "User not found": "المستخدم غير موجود",
   "Something went wrong": "حدث خطأ ما",
   "Invalid OTP or OTP has expired.": "رمز التحقق غير صالح أو منتهي الصلاحية",
+  "Email not found": "البريد الإلكتروني غير موجود",
+  "expired otp" : "رمز التحقق منتهي الصلاحية",
 };
 
 const translateError = (englishMsg) => {

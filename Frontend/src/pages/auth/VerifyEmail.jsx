@@ -18,9 +18,9 @@ import { useNavigate } from "react-router-dom";
 const VerifyEmail = () => {
   const { register, handleSubmit } = useForm();
   const { verifyEmail, loading, error } = useAuthStore();
-  const [email, setEmail] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
+  const [email, setEmail] = useState(null);
 
   useEffect(() => {
     let stored = localStorage.getItem("auth-storage");

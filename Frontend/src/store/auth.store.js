@@ -12,15 +12,16 @@ const useAuthStore = create(
       loading: false,
       error: null,
       email: null,
+      rest_pass_email: null,
 
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
           const response = await axiosInstance.post("/Auth/login", {
             email,
-            password
+            password,
           });
-       
+
           const { data } = response;
           set({ token: data, user: "one", loading: false });
           return true;
@@ -55,12 +56,11 @@ const useAuthStore = create(
             err?.message ||
             "حدث خطأ أثناء إنشاء الحساب";
           set({
-            error: message,  
+            error: message,
             loading: false,
           });
         }
         return false;
-
       },
 
       register_landlord: async (name, email, password) => {
@@ -105,6 +105,60 @@ const useAuthStore = create(
         }
       },
 
+      forgotPassword: async (email) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get("/Auth/UpdatePasword", {
+            params: { email },
+          });
+
+          console.log("Response from forgot password:", response);
+          set({
+            loading: false,
+            rest_pass_email: email,
+          });
+          return true;
+        } catch (err) {
+          console.log("Error in forgot password", err);
+          const translated = translateError(err?.response?.data);
+          const message =
+            (typeof translated === "string" && translated) ||
+            "حدث خطأ أثناء إرسال رابط الاسترجاع";
+          set({
+            error: message,
+            loading: false,
+          });
+          return false;
+        }
+      },
+
+      resetPassword: async (email, otp, newPassword) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.post("/Auth/resetpassword", {
+            email,
+            otp,
+            password: newPassword,
+          });
+          console.log("Response from reset password:", response);
+          set({ loading: false });
+          
+          return true;
+        } catch (err) {
+          console.log("Error in reset password", err);
+          const translated = translateError(err?.response?.data);
+          const message =
+            (typeof translated === "string" && translated) ||
+            "حدث خطأ أثناء إعادة تعيين كلمة المرور";
+          set({
+            error: message,
+            loading: false,
+          });
+          return false;
+        }
+      },
+
+
       loadUserFromToken: async () => {
         const token = get().token;
         if (!token) return;
@@ -124,20 +178,20 @@ const useAuthStore = create(
         }
       },
 
-      resetPassword: async (email) => {
-        set({ loading: true, error: null });
-        try {
-          await axios.post("https://your-api-url.com/reset-password", {
-            email,
-          });
-          set({ loading: false });
-        } catch (err) {
-          set({
-            error: "فشل في إرسال رابط الاسترجاع",
-            loading: false,
-          });
-        }
-      },
+      // resetPassword: async (email) => {
+      //   set({ loading: true, error: null });
+      //   try {
+      //     await axios.post("https://your-api-url.com/reset-password", {
+      //       email,
+      //     });
+      //     set({ loading: false });
+      //   } catch (err) {
+      //     set({
+      //       error: "فشل في إرسال رابط الاسترجاع",
+      //       loading: false,
+      //     });
+      //   }
+      // },
 
       logout: () => {
         set({ token: null, user: null });
@@ -149,6 +203,7 @@ const useAuthStore = create(
         token: state.token,
         user: state.user,
         email: state.email,
+        rest_pass_email: state.rest_pass_email,
       }),
     }
   )
