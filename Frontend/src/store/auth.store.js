@@ -16,18 +16,21 @@ const useAuthStore = create(
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
-          const response = await axios.post("https://your-api-url.com/login", {
+          const response = await axiosInstance.post("/Auth/login", {
             email,
-            password,
+            password
           });
-
-          const { token, user } = response.data;
-          set({ token, user, loading: false });
+       
+          const { data } = response;
+          set({ token: data, user: "one", loading: false });
+          return true;
         } catch (err) {
+          console.log("Error loging response", err);
           set({
             error: err.response?.data?.message || "حدث خطأ أثناء تسجيل الدخول",
             loading: false,
           });
+          return false;
         }
       },
 

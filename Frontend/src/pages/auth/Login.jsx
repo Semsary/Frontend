@@ -3,10 +3,12 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import useAuthStore from "../../store/auth.store.js";
 import Loading from "../../components/loading/Loading.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function ArabicLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
 
   const { login, loading, error } = useAuthStore();
 
@@ -14,9 +16,10 @@ export default function ArabicLoginPage() {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = (data) => {
+  const handleLogin = async(data) => {
     console.log("Form submitted:", data);
-    login(data.email, data.password);
+    const res = await login(data.email, data.password);
+    {res && navigate("/profile")}
   };
 
   if (loading) return <Loading />;

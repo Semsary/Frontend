@@ -14,11 +14,14 @@ import Testing from "../temp-testing/Testing.jsx";
 import SignupPage_tenant from "../pages/auth/tenant/SignUp.jsx";
 import SignUp_landlord from "../pages/auth/landlord/SignUp.jsx";
 import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
+import ErrorElement from "../pages/errors/ErrorElement.jsx";
+import Profile from "../pages/profile/profile.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+    errorElement: <ErrorElement />,
   },
   {
     path: "/signup",
@@ -26,18 +29,30 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <SignupPage_tenant />,
+        errorElement: <ErrorElement />,
       },
       {
         path: "landlord",
         element: <SignUp_landlord type="landlord" />,
+        errorElement: <ErrorElement />,
       },
     ],
   },
   {
     path: "/verify-email",
     element: <VerifyEmail />,
+    errorElement: <ErrorElement />,
   },
 
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorElement />,
+  },
   {
     path: "/dashboard",
     element: (
@@ -45,6 +60,7 @@ const router = createBrowserRouter([
         <Dashboard />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorElement />,
   },
   {
     path: "/login",
@@ -52,26 +68,31 @@ const router = createBrowserRouter([
     // errorElement: (
     //   <ErrorElement errorMessage="Login failed" title="Authentication Error" />
     // ),
+    errorElement: <ErrorElement />,
   },
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
     // errorElement: <ErrorElement errorMessage="Password recovery failed" />,
+    errorElement: <ErrorElement />,
   },
   {
     path: "/verify-code",
     element: <VerifyCode />,
     // errorElement: <ErrorElement errorMessage="Verification failed" />,
+    errorElement: <ErrorElement />,
   },
   {
     path: "/reset-password",
     element: <ResetPassword />,
     // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    errorElement: <ErrorElement />,
   },
 
   {
     path: "/test",
     element: <Testing />,
+    errorElement: <ErrorElement />,
   },
 ]);
 
