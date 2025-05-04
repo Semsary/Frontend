@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import useAuthStore from "../../../store/auth.store.js";
 import Loading from "../../../components/loading/Loading";
 import { useNavigate } from "react-router-dom";
+import Error from "../../../components/errors/Error.jsx";
 
 const Signup = () => {
   const { register_tenant, loading, error } = useAuthStore();
@@ -13,19 +14,12 @@ const Signup = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-
     if (error) {
-      setErrorMessage(
-        error === "Email already exists"
-          ? "البريد الإلكتروني مستخدم بالفعل."
-          : "حدث خطأ أثناء إنشاء الحساب."
-      );
+      // تأكد أن error هو سلسلة نصية قبل تعيينه
+      const message = typeof error === "string" ? error : "حدث خطأ غير متوقع";
+      setErrorMessage(message);
     }
-
-
   }, [error]);
-
-
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -44,7 +38,7 @@ const Signup = () => {
       navigate("/verify-email", { state: { email: data.email } });
     }
   };
-  
+
   if (loading) return <Loading />;
 
   return (
@@ -60,8 +54,15 @@ const Signup = () => {
             </p>
           </div>
 
-          {errorMessage && <Error error={errorMessage} />}
-
+          {errorMessage && (
+            <Error
+              error={
+                typeof errorMessage === "string"
+                  ? errorMessage
+                  : "حدث خطأ غير متوقع"
+              }
+            />
+          )}
           <form
             onSubmit={handleSubmit(handleSignup)}
             className="space-y-4 sm:space-y-6"
@@ -181,7 +182,6 @@ const Signup = () => {
               إنشاء حساب
             </button>
           </form>
-
           <div className="mt-6 sm:mt-8 text-center">
             <p className="text-sm text-gray-600">
               لديك حساب بالفعل؟{" "}
@@ -274,5 +274,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
-

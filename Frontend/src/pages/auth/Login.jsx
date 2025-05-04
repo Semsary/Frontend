@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import useAuthStore from "../../store/auth.store.js";
 import Loading from "../../components/loading/Loading.jsx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function ArabicLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit,
+    reset,
+   } = useForm();
   const navigate = useNavigate();
+ const location = useLocation();
+  const email = location.state?.email || "";
+
+  useEffect(() => {
+    if (email) {
+      reset({ email });
+    }
+  }, [email, reset]);
+  
+
+
 
   const { login, loading, error } = useAuthStore();
 

@@ -21,7 +21,7 @@ const useAuthStore = create(
             email,
             password,
           });
-
+          console.log("Login response:", response);
           const { data } = response;
           set({ token: data, user: "one", loading: false });
           return true;
@@ -50,11 +50,9 @@ const useAuthStore = create(
 
           return true;
         } catch (err) {
+          console.log("Error in register tenant", err);
           const translated = translateError(err?.response?.data);
-          const message =
-            (typeof translated === "string" && translated) ||
-            err?.message ||
-            "حدث خطأ أثناء إنشاء الحساب";
+          const message = translated || "حدث خطأ أثناء إنشاء الحساب";
           set({
             error: message,
             loading: false,
@@ -63,20 +61,19 @@ const useAuthStore = create(
         return false;
       },
 
-      register_landlord: async (name, email, password) => {
+      register_landlord: async (firstname, lastname, email, password) => {
         set({ loading: true, error: null });
         try {
-          const response = await axios.post(
-            "https://your-api-url.com/register",
-            {
-              name,
-              email,
-              password,
-            }
-          );
-
+          const response = await axiosInstance.post("/Auth/Landlord/register", {
+            firstname,
+            lastname,
+            email,
+            password,
+          });
+          console.log("Response from register landlord:", response);
           const { token, user } = response.data;
-          set({ token, user, loading: false });
+          set({ token, user, loading: false, email });
+          return true;
         } catch (err) {
           set({
             error: err.response?.data?.message || "حدث خطأ أثناء إنشاء الحساب",
@@ -88,10 +85,11 @@ const useAuthStore = create(
       verifyEmail: async (email, code) => {
         set({ loading: true, error: null });
         try {
-          await axiosInstance.post("/Auth/verifyEmail", {
+          const res = await axiosInstance.post("/Auth/verifyEmail", {
             email,
             otp: code,
           });
+
           set({ loading: false });
           return true;
         } catch (err) {
@@ -141,8 +139,11 @@ const useAuthStore = create(
             password: newPassword,
           });
           console.log("Response from reset password:", response);
-          set({ loading: false });
-          
+          set({
+            loading: false,
+            rest_pass_email: null,
+          });
+
           return true;
         } catch (err) {
           console.log("Error in reset password", err);
@@ -157,7 +158,6 @@ const useAuthStore = create(
           return false;
         }
       },
-
 
       loadUserFromToken: async () => {
         const token = get().token;

@@ -16,6 +16,9 @@ import SignUp_landlord from "../pages/auth/landlord/SignUp.jsx";
 import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 import ErrorElement from "../pages/errors/ErrorElement.jsx";
 import Profile from "../pages/profile/profile.jsx";
+import Chat from "../temp-testing/Chat.jsx";
+import ChatComponent2 from "../temp-testing/Chat copy.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -92,6 +95,16 @@ const router = createBrowserRouter([
   {
     path: "/test",
     element: <Testing />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/Chat",
+    element: <Chat />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/Chat2",
+    element: <ChatComponent2 />,
     errorElement: <ErrorElement />,
   },
 ]);

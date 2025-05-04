@@ -3,30 +3,33 @@ import { Eye, EyeOff, Mail, Lock, User, Building, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Loading from "../../../components/loading/Loading";
 import useAuthStore from "../../../store/auth.store.js";
+import { useNavigate } from 'react-router-dom';
 
 export default function ArabicSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const { signup, loading, error } = useAuthStore();
+  const { register_landlord, loading, error } = useAuthStore();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignup = (data) => {
+  const handleSignup =async (data) => {
     console.log("Form submitted:", data);
-    const signupData = {
-      firstname: data.firstname,
-      lastname: data.lastname,
-      email: data.email,
-      password: data.password,
-    };
-    signup(signupData);
+
+    const res = await register_landlord(data.firstname, data.lastname, data.email, data.password);
+    if (res) {
+      navigate("/verify-email");
+    }
+    else {
+      console.log("Registration failed.");
+    }
   };
 
   if (loading) return <Loading />;
@@ -299,8 +302,6 @@ export default function ArabicSignupPage() {
             </div>
           </div>
         </div>
-
-        
       </div>
     </div>
   );

@@ -38,7 +38,12 @@ const VerifyEmail = () => {
 
   const handleSignup = async (data) => {
     const success = await verifyEmail(email, data.code);
-    console.log("success "+success);
+    // console.log("success "+success);
+    if (success) {
+      navigate("/login", { state: { email } });
+    } else {
+      setErrorMessage("Invalid code. Please try again.");
+    }
   };
 
   if (loading) return <Loading />;
