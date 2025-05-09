@@ -1,60 +1,42 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import useChatStore from "./../store/chat.store.js";
 
 const socket = io("http://localhost:3000", {
-  reconnectionDelay: 1000,
-  reconnectionAttempts: 5,
   transports: ["websocket"],
 });
 
-const ChatComponent2 = ({ currentUserId = "5454", targetUserId = "32321" }) => {
+const ChatComponent2 = ({ currentUserId = "54554", targetUserId = "32321" }) => {
   const {
     message,
     messages,
     isLoading,
-    setLoading,
     addMessage,
-    setMessage,
     sendMessage,
+    fetchMessages,
   } = useChatStore();
+  const messageEndRef = useRef();
 
-  const messageEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
-
-  const fetchMessages = useCallback(async () => {
-    try {
-      setLoading(true);
-      await useChatStore.getState().fetchMessages(currentUserId, targetUserId);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentUserId, targetUserId, setLoading]);
-
+  // Socket and message effects
   useEffect(() => {
     socket.emit("add-user", currentUserId);
-    fetchMessages();
+    fetchMessages(currentUserId, targetUserId);
 
-    const handleMessageReceive = (data) => {
-      addMessage(data);
+    const handleNewMessage = (newMessage) => {
+      addMessage(newMessage);
     };
 
-    socket.on("msg-receive", handleMessageReceive);
+    socket.on("msg-receive", handleNewMessage);
+    return () => socket.off("msg-receive", handleNewMessage);
+  }, [currentUserId, targetUserId]);
 
-    return () => {
-      socket.off("msg-receive", handleMessageReceive);
-    };
-  }, [currentUserId, fetchMessages, addMessage]);
-
+  // Auto-scroll effect
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
+  const handleSend = async (e) => {
     e?.preventDefault();
-
     if (!message.trim()) return;
 
     const newMessage = {
@@ -64,111 +46,131 @@ const ChatComponent2 = ({ currentUserId = "5454", targetUserId = "32321" }) => {
       timestamp: new Date().toISOString(),
     };
 
-    addMessage(newMessage); // تحديث الحالة في Zustand على الفور
-    socket.emit("send-msg", newMessage); // إرسال الرسالة عبر WebSocket
-    sendMessage(newMessage); // إرسال الرسالة عبر axios
-
-    // إعادة تعيين الرسالة
-    setMessage("");
+    addMessage(newMessage);
+    socket.emit("send-msg", newMessage);
+    await sendMessage(newMessage);
+    useChatStore.getState().clearMessage();
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handleSend();
     }
   };
 
   return (
-    <div className="flex flex-col h-full max-w-lg mx-auto bg-gray-100 rounded-lg shadow-lg">
-      <div className="bg-indigo-600 text-white p-4 rounded-t-lg">
-        <h3 className="font-bold">Chat</h3>
+    <div className="flex flex-col h-[500px] w-full max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white">
+        <h2 className="text-xl font-bold">Chat with User</h2>
       </div>
 
-      <div
-        ref={chatContainerRef}
-        className="flex-1 p-4 overflow-y-auto max-h-96 scroll-smooth"
-        style={{ direction: "rtl" }}
-      >
-        {isLoading ? (
+      {/* Messages Area */}
+      <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+        {false ? (
           <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            No messages yet. Start the conversation!
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <svg
+              className="w-12 h-12 mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            <p>No messages yet</p>
+            <p className="text-sm">Start the conversation!</p>
           </div>
         ) : (
-          <div style={{ direction: "ltr" }}>
-            {messages.map((msg, index) => {
-              const isMine = msg.senderId === currentUserId;
-              return (
+          <div className="space-y-3">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  msg.senderId === currentUserId
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
                 <div
-                  key={index}
-                  className={`flex mb-4 ${
-                    isMine ? "justify-end" : "justify-start"
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    msg.senderId === currentUserId
+                      ? "bg-indigo-600 text-white rounded-br-none"
+                      : "bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-200"
                   }`}
                 >
-                  <div
-                    className={`px-4 py-2 rounded-lg max-w-xs lg:max-w-md ${
-                      isMine
-                        ? "bg-indigo-500 text-white rounded-br-none"
-                        : "bg-white text-gray-800 rounded-bl-none shadow"
+                  <p className="text-sm">{msg.content}</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      msg.senderId === currentUserId
+                        ? "text-indigo-200"
+                        : "text-gray-500"
                     }`}
                   >
-                    {msg.content}
-                    <div
-                      className={`text-xs mt-1 ${
-                        isMine ? "text-indigo-100" : "text-gray-500"
-                      }`}
-                    >
-                      {msg.timestamp
-                        ? new Date(msg.timestamp).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : ""}
-                    </div>
-                  </div>
+                    {/* {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })} */}
+                    {new Date(msg.timestamp).toLocaleString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour12: true,
+                    })}
+                  </p>
                 </div>
-              );
-            })}
+              </div>
+            ))}
             <div ref={messageEndRef} />
           </div>
         )}
       </div>
 
-      <form
-        onSubmit={handleSendMessage}
-        className="bg-white p-4 border-t border-gray-200 rounded-b-lg"
-      >
-        <div className="flex space-x-2">
+      {/* Input Area */}
+      <div className="border-t border-gray-200 p-4 bg-white">
+        <form onSubmit={handleSend} className="flex items-center gap-2">
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) =>
+              useChatStore.getState().updateMessage(e.target.value)
+            }
             onKeyDown={handleKeyPress}
-            placeholder="أكتب رسالة..."
-            className="flex-1 py-2 px-4 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            dir="rtl"
+            placeholder="Type your message..."
+            className="flex-1 py-2 px-4 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
           />
           <button
             type="submit"
             disabled={!message.trim()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-2 w-12 h-12 flex items-center justify-center transition-colors disabled:opacity-50"
+            className="p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
               fill="currentColor"
-              viewBox="0 0 16 16"
             >
-              <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
+                clipRule="evenodd"
+              />
             </svg>
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

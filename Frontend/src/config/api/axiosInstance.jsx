@@ -8,9 +8,29 @@ const axiosInstance = axios.create({
   timeout: 5000, 
 });
 
+
+export const axiosInstanceFile = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+  timeout: 5000, 
+});
+
+
+
+
+
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    let data = localStorage.getItem("auth-storage");
+
+    if (data) {
+      data = JSON.parse(data);
+    }
+    const token = data?.state?.token;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -39,3 +59,5 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+
+

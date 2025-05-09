@@ -23,7 +23,7 @@ const useAuthStore = create(
           });
           console.log("Login response:", response);
           const { data } = response;
-          set({ token: data, user: "one", loading: false });
+          set({ token: data, loading: false });
           return true;
         } catch (err) {
           console.log("Error loging response", err);
@@ -93,6 +93,7 @@ const useAuthStore = create(
           set({ loading: false });
           return true;
         } catch (err) {
+          console.log("Error in verify email", err);
           set({
             error:
               translateError(err.response?.data) ||
@@ -161,15 +162,16 @@ const useAuthStore = create(
 
       loadUserFromToken: async () => {
         const token = get().token;
+        console.log("Loading user from token:", token);
         if (!token) return;
 
         set({ loading: true, error: null });
         try {
-          const response = await axios.get("https://your-api-url.com/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response1 = await axiosInstance.get("/Auth/GetUserInfo");
 
-          set({ user: response.data, loading: false });
+          console.log("User data response:", response1);
+
+          set({ user: response1.data, loading: false });
         } catch (err) {
           set({
             error: "فشل تحميل بيانات المستخدم",

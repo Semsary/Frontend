@@ -1,37 +1,45 @@
-import {create} from "zustand";
+import { create } from "zustand";
 import axiosChat from "./../config/api/axiosChat.jsx";
-const useChatStore = create((set) => ({
+
+const useChatStore = create((set, get) => ({
   messages: [],
   isLoading: false,
   message: "",
-  addMessage: (message) =>
-  set((state) => ({ messages: [...state.messages, message] })),
-  setMessages: (messages) => set({ messages }),
-  setLoading: (loading) => set({ isLoading: loading }),
-  setMessage: (message) => set({ message }),
 
-   sendMessage: async (messageData) => {
+  // Actions
+  addMessage: (newMessage) => {
+    set({ messages: [...get().messages, newMessage] });
+  },
+
+  updateMessage: (text) => {
+    set({ message: text });
+  },
+
+  clearMessage: () => {
+    set({ message: "" });
+  },
+
+  sendMessage: async (messageData) => {
     try {
       set({ isLoading: true });
-       await axiosChat.post("/messages", messageData);
-      set({ isLoading: false });
-    } catch (err) {
-      console.error("Error sending message:", err);
+      await axiosChat.post("/messages", messageData);
+    } catch (error) {
+      console.error("Message send error:", error);
+    } finally {
       set({ isLoading: false });
     }
   },
 
-  // جلب الرسائل
-  fetchMessages: async (currentUserId, targetUserId) => {
+  fetchMessages: async (senderId, receiverId) => {
     try {
       set({ isLoading: true });
-      const response = await axiosChat.get(
-        `/messages?senderId=${currentUserId}&receiverId=${targetUserId}`
+      const { data } = await axiosChat.get(
+        `/messages?senderId=${senderId}&receiverId=${receiverId}`
       );
-      set({ messages: response.data });
-      set({ isLoading: false });
-    } catch (err) {
-      console.error("Error fetching messages:", err);
+      set({ messages: data });
+    } catch (error) {
+      console.error("Fetch messages error:", error);
+    } finally {
       set({ isLoading: false });
     }
   },
