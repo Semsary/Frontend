@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
 import axiosInstance from "./../config/api/axiosInstance";
 import { translateError } from "../functions/HandleServerErorrs";
 
