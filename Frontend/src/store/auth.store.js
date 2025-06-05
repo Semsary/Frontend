@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axiosInstance from "./../config/api/axiosInstance";
 import { translateError } from "../functions/HandleServerErorrs";
+import useNotificationStore from "./notification.store";
+
+const fcmStore = useNotificationStore.getState();
+const DeviceTokens = fcmStore.FCMToken || "";
+// console.log("Device Token form auth store:", DeviceTokens);
 
 const useAuthStore = create(
   persist(
@@ -19,10 +24,12 @@ const useAuthStore = create(
           const response = await axiosInstance.post("/Auth/login", {
             email,
             password,
+            deviceToken:DeviceTokens
+
           });
-          console.log("Login response:", response);
+          // console.log("Login response:", response);
           const { data } = response;
-          set({ token: data, loading: false });
+          set({ token: data.token, loading: false });
           return true;
         } catch (err) {
           console.log("Error loging response", err);
@@ -43,6 +50,7 @@ const useAuthStore = create(
             lastName,
             email,
             password,
+          DeviceTokens: "" 
           });
           console.log(response);
           set({ loading: false, email: email });
@@ -110,7 +118,6 @@ const useAuthStore = create(
             params: { email },
           });
 
-          console.log("Response from forgot password:", response);
           set({
             loading: false,
             rest_pass_email: email,
@@ -138,7 +145,6 @@ const useAuthStore = create(
             otp,
             password: newPassword,
           });
-          console.log("Response from reset password:", response);
           set({
             loading: false,
             rest_pass_email: null,
@@ -161,14 +167,12 @@ const useAuthStore = create(
 
       loadUserFromToken: async () => {
         const token = get().token;
-        console.log("Loading user from token:", token);
         if (!token) return;
 
         set({ loading: true, error: null });
         try {
           const response1 = await axiosInstance.get("/Auth/GetUserInfo");
 
-          console.log("User data response:", response1);
 
           set({ user: response1.data, loading: false });
         } catch (err) {

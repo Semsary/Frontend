@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   User,
   Home,
@@ -27,10 +27,62 @@ import ProfileTab from "./tabs/ProfileTab";
 import HomesTabs from "./tabs/HomesTabs";
 import SecurityTab from "./tabs/Security";
 import SettingsTab from "./tabs/Settings";
+import useUserStore from "../../store/user.store";
+import { toast } from "sonner";
+import useNotificationStore from "../../store/notification.store";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
   const [showNotification, setShowNotification] = useState(false);
+  const { loadUserFromToken, user } = useUserStore()
+  const { allNotifications } = useNotificationStore()
+
+  const [userData, setUserData] = useState(
+    {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      image: "/placeholder-avatar.jpg",
+      accountStatus: "نشط",
+      verificationStatus: "تم التحقق",
+      memberSince: "2023",
+      completionRate: 85,
+    }
+  );
+
+
+  useEffect(() => {
+    if (true) {
+       allNotifications()
+    }
+  }, []);
+
+
+
+  useEffect(() => {
+    loadUserFromToken();
+    console.log("User data loaded:", user);
+
+    if (user) {
+      setUserData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "01000000000",
+        address: user.address || "غير محدد",
+        image: user.picture || "/placeholder-avatar.jpg",
+        accountStatus: user.accountStatus || "نشط",
+        verificationStatus: user.verificationStatus || "تم التحقق",
+        memberSince: user.memberSince || "2023",
+        completionRate: user.completionRate || 85,
+      });
+    }
+  }, [loadUserFromToken]);
+
+  
+
   const [homesList, setHomesList] = useState([
     {
       id: 1,
@@ -53,19 +105,11 @@ export default function ProfilePage() {
     setTimeout(() => setShowNotification(false), 3000);
   };
 
-  const userData = {
-    firstName: "محمد",
-    lastName: "أحمد",
-    email: "mohamed.ahmed@example.com",
-    phone: "01234567890",
-    address: "شارع النصر، القاهرة، مصر",
-    image: "/placeholder-avatar.jpg",
-    accountStatus: "نشط",
-    verificationStatus: "تم التحقق",
-    memberSince: "2023",
-    completionRate: 85,
-  };
 
+
+
+
+  
   return (
     <div
       dir="rtl"

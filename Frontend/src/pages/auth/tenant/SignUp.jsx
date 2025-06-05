@@ -13,6 +13,14 @@ const Signup = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
 
+
+
+
+
+
+  
+
+
   useEffect(() => {
     if (error) {
       // تأكد أن error هو سلسلة نصية قبل تعيينه

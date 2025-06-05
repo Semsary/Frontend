@@ -12,3 +12,102 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxSlRWOUc1REtaSDdUOVZYUTE
 
 0x.Badawy@gmail.com
 P@sswold1
+
+
+
+public enum UserType
+{
+    Admin,
+    Tenant,
+    landlord,
+    Customerservice
+
+}
+
+public enum RentalStatus
+{
+    Bending,
+    Accepted,
+    Rejected,
+    ArrivalRequest,
+    ArrivalAccept,
+    ArrivalReject
+}
+public enum InspectionStatus
+{
+    Bending,
+    InProgress,
+    Aproved        
+}
+public enum IdentityStatus
+{
+    Pending,
+    Verified,
+    Rejected
+}
+    [Flags]
+    public enum HouseFeature
+    {
+        HaveNearHospital,
+     HaveNearGym ,
+     HaveNearPlayGround ,
+     HaveNearSchool ,
+     HaveNearUniversity ,
+     HaveNearSupermarket ,
+    HaveNearRestaurant ,
+     HaveNearBusStation ,
+     HaveNearBank ,
+     HaveWiFi ,
+     HaveTV ,
+     Havekitchen ,
+     HaveElevator ,
+     HaveWashingMachine ,
+     HaveCooker ,
+     HaveFridge ,
+     HaveHeater ,
+     HaveSalon ,
+     DiningRoom ,
+
+}
+
+public enum Governorate
+{
+    Cairo,
+    Giza,
+    Alexandria,
+    Qalyubia,
+    PortSaid,
+    Suez,
+    Ismailia,
+    SouthSinai,
+    NorthSinai,
+    RedSea,
+    Beheira,
+    KafrElSheikh,
+    Gharbia,
+    Monufia,
+    Dakahlia,
+    Damietta,
+    Sharqia,
+    Fayoum,
+    BeniSuef,
+    Minya,
+    Assiut,
+    Sohag,
+    Qena,
+    Luxor,
+    Aswan,
+    NewValley,
+    Matrouh
+}
+public enum ComplainStatus
+{
+    Bending,
+    InProgress,
+    Aproved,
+
+    // judging
+    BlockTenant,
+    BlockLandlord,
+    NoBlock
+}
