@@ -18,7 +18,6 @@ import ErrorElement from "../pages/errors/ErrorElement.jsx";
 import Profile from "../pages/profile/profile.jsx";
 import Chat from "../temp-testing/Chat.jsx";
 import ChatComponent2 from "../temp-testing/Chat copy.jsx";
-import IdentityVerificationForm from "../pages/profile/pages/IdentityVerification.jsx";
 
 
 const router = createBrowserRouter([
@@ -57,15 +56,7 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorElement />,
   },
-  {
-    path: "/identity-verification",
-    element: (
-      <ProtectedRoute>
-        <IdentityVerificationForm />
-      </ProtectedRoute>
-    ),
-    errorElement: <ErrorElement />,
-  },
+  
   {
     path: "/dashboard",
     element: (

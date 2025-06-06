@@ -27,6 +27,9 @@ import ProfileTab from "./tabs/ProfileTab";
 import HomesTabs from "./tabs/HomesTabs";
 import SecurityTab from "./tabs/Security";
 import SettingsTab from "./tabs/Settings";
+import IdentityVerification from "./tabs/IdentityVerification";
+
+
 import useUserStore from "../../store/user.store";
 import { toast } from "sonner";
 import useNotificationStore from "../../store/notification.store";
@@ -242,6 +245,32 @@ export default function ProfilePage() {
                     )}
                   </button>
                 </li>
+
+                <li>
+                  <button
+                    onClick={() => setActiveTab("identity")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
+                      activeTab === "identity"
+                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                    } transition-colors`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <Shield className="h-5 w-5" />
+                      <span>التحقق من الهوية</span>
+                    </span>
+                    {activeTab === "identity" && (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </button>
+                </li>
+
+
+
+
+
+
+
                 <li>
                   <button
                     onClick={() => setActiveTab("settings")}
@@ -280,6 +309,14 @@ export default function ProfilePage() {
             )}
 
             {activeTab === "settings" && <SettingsTab />}
+
+            {activeTab === "identity" && (
+              <IdentityVerification
+                userData={userData}
+                showSuccess={showSuccess}
+              />
+            )}
+            
           </div>
         </div>
       </main>
