@@ -3,9 +3,10 @@ import { persist } from "zustand/middleware";
 import axiosInstance from "../config/api/axiosInstance";
 import { Verified } from "lucide-react";
 
-// ----------------------------------
-// User Store to manage user Profile Data
-
+/**
+ *  User Store to manage user Profile Data
+ *  handel User Data GET - SET
+*/
 
 const useProfileStore = create(
   persist(
