@@ -3,7 +3,11 @@ import { persist } from "zustand/middleware";
 import axiosInstance from "../config/api/axiosInstance";
 import { Verified } from "lucide-react";
 
-const useUserStore = create(
+// ----------------------------------
+// User Store to manage user Profile Data
+
+
+const useProfileStore = create(
   persist(
     (set, get) => ({    
       user: null, 
@@ -43,4 +47,4 @@ const useUserStore = create(
   )
 );
 
-export default useUserStore;
+export default useProfileStore;

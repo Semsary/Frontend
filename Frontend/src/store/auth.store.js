@@ -4,6 +4,15 @@ import axiosInstance from "./../config/api/axiosInstance";
 import { translateError } from "../functions/HandleServerErorrs";
 import useNotificationStore from "./notification.store";
 
+
+// ----------------------------------
+// Auth Store to manage user authentication and profile data
+// This store handles login, registration, password reset, and user data loading
+
+
+
+
+
 const fcmStore = useNotificationStore.getState();
 const DeviceTokens = fcmStore.FCMToken || "";
 // console.log("Device Token form auth store:", DeviceTokens);

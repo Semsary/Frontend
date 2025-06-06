@@ -30,14 +30,14 @@ import SettingsTab from "./tabs/Settings";
 import IdentityVerification from "./tabs/IdentityVerification";
 
 
-import useUserStore from "../../store/user.store";
+import useProfileStore from "../../store/profile.store";
 import { toast } from "sonner";
 import useNotificationStore from "../../store/notification.store";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
   const [showNotification, setShowNotification] = useState(false);
-  const { loadUserFromToken, user } = useUserStore()
+  const { loadUserFromToken, user } = useProfileStore()
   const { allNotifications } = useNotificationStore()
 
   const [userData, setUserData] = useState(
