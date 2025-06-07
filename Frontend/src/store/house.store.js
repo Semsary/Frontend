@@ -23,13 +23,13 @@ const useHouseStore = create(
             houseData
           );
           set({ loading: false });
-          return response.data;
+          return true;
         } catch (err) {
           set({
             error: err.response?.data?.message || "حدث خطأ أثناء إنشاء المنزل",
             loading: false,
           });
-          return null;
+          return false;
         }
       },
     }),

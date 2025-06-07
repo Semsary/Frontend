@@ -22,7 +22,7 @@ import {
   Eye,
 } from "lucide-react";
 
-const HomesTabs = ({ homesList }) => {
+const HomesTabs = ({ homesList, setActiveTab }) => {
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">
@@ -32,7 +32,9 @@ const HomesTabs = ({ homesList }) => {
             <span>قائمة العقارات</span>
           </h2>
           <button
-            // onClick={showSuccess}
+            onClick={
+              () => setActiveTab("addHome")
+            }
             className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md hover:shadow-indigo-200"
           >
             <Plus className="h-4 w-4" />

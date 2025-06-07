@@ -28,6 +28,7 @@ import HomesTabs from "./tabs/HomesTabs";
 import SecurityTab from "./tabs/Security";
 import SettingsTab from "./tabs/Settings";
 import IdentityVerification from "./tabs/IdentityVerification";
+import AddHomeTab from "./tabs/AddHomeTab";
 
 
 import useProfileStore from "../../store/profile.store";
@@ -227,6 +228,29 @@ export default function ProfilePage() {
                     )}
                   </button>
                 </li>
+
+                <li>
+                  <button
+                    onClick={() => setActiveTab("addHome")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
+                      activeTab === "addHome"
+                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <Plus className="h-5 w-5" />
+                      <span>إضافة عقار</span>
+                    </span>
+                    {activeTab === "addHome" && (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </button>
+                </li>
+
+
+
+
                 <li>
                   <button
                     onClick={() => setActiveTab("security")}
@@ -297,7 +321,9 @@ export default function ProfilePage() {
           <div className="lg:col-span-3">
             {activeTab === "profile" && <ProfileTab userData={userData} />}
             {activeTab === "homes" && (
-              <HomesTabs homesList={homesList} setHomesList={setHomesList} />
+              <HomesTabs homesList={homesList} setHomesList={setHomesList}
+                setActiveTab={setActiveTab}
+              />
             )}
 
             {activeTab === "security" && (
@@ -317,6 +343,13 @@ export default function ProfilePage() {
               />
             )}
             
+            {activeTab === "addHome" && (
+              <AddHomeTab
+                homesList={homesList}
+                setHomesList={setHomesList}
+                showSuccess={showSuccess}
+              />
+            )}
           </div>
         </div>
       </main>
