@@ -51,6 +51,7 @@ const AddHomeTab = () => {
       city: data.city,
       location: data.location,
     });
+    console.log("Save Result:", save);
     if (save) {
       closeModal();
       toast.success("تم إضافة العقار بنجاح");

@@ -18,13 +18,20 @@ const useHouseStore = create(
       createHouse: async (houseData) => {
         set({ loading: true, error: null });
         try {
-          const response = await axiosInstance.post(
-            "/LandLord/create/house",
-            houseData
-          );
+          const data = {
+            address: {
+              id: 0,
+              _gover: Number(houseData.governorate),
+              _city: houseData.city,
+              street: houseData.location,
+            },
+          };
+          const response = await axiosInstance.post("/LandLord/create/house", data) 
+          console.log("House created successfully:", response);
           set({ loading: false });
           return true;
         } catch (err) {
+          console.error("Error creating house:", err);
           set({
             error: err.response?.data?.message || "حدث خطأ أثناء إنشاء المنزل",
             loading: false,
