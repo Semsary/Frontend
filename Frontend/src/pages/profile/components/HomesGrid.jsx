@@ -1,130 +1,122 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapPin, Building2, MoreVertical } from 'lucide-react';
 import { getAllGovernorates } from 'egylist'
+import useHouseStore from '../../../store/house.store';
 
 const HomesGrid = () => {
-    // Sample data based on your JSON structure
 
-    const Cities = getAllGovernorates();
+  const { getHouses } = useHouseStore();
 
-    const getCitiesByGovernorateId = (governorateId) => {
-        const city = Cities.find(city => city.id == governorateId);
-        return city ? city.name_ar : "غير معروف";
-    }
+  const Cities = getAllGovernorates();
 
-    const homesList = [
-        {
-            id: 1,
-            _gover: 3,
-            _city: "الرياض",
-            street: "شارع الملك فهد",
-            status: 1
-        },
-        {
-            id: 2,
-            _gover: 1,
-            _city: "جدة",
-            street: "شارع التحلية",
-            status: 0
-        },
-        {
-            id: 3,
-            _gover: 2,
-            _city: "الدمام",
-            street: "شارع الأمير محمد بن فهد",
-            status: 1
-        },
-        {
-            id: 4,
-            _gover: 6,
-            _city: "الرياض",
-            street: "شارع العليا",
-            status: 1
-        },
-        {
-            id: 5,
-            _gover: 1,
-            _city: "جدة",
-            street: "شارع الكورنيش",
-            status: 0
-        },
-        {
-            id: 6,
-            _gover: 3,
-            _city: "مكة المكرمة",
-            street: "شارع إبراهيم الخليل",
-            status: 1
-        }
-    ];
+  const getCitiesByGovernorateId = (governorateId) => {
+    const city = Cities.find(city => city.id == governorateId);
+    return city ? city.name_ar : "غير معروف";
+  }
 
-    const getStatusText = (status) => {
-        return status === 1 ? "متاح" : "غير متاح";
+  const [homesList, setHomesList] = useState([]);
+
+ 
+
+
+  useEffect(() => {
+    const fetchHouses = async () => {
+      const houses = await getHouses();
+      console.table(houses);
+      setHomesList(houses);
     };
 
-    return ( 
-        <div className="  min -h-screen">
-            {/* Header */}
-            <div className="mb-6">
-                       <p className="text-gray-600">
-                    {homesList.length} عقار مُسجل
-                </p>
+    fetchHouses();
+
+
+  }, []);
+
+
+
+  const getStatusText = (status) => {
+    return status === 1 ? "متاح" : "غير متاح";
+  };
+
+  return (
+    <div className="  min -h-screen">
+      {/* Header */}
+      <div className="mb-6">
+        <p className="text-gray-600">
+          {homesList.length} عقار مُسجل
+        </p>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {homesList.map((home,id) => (
+          <div
+            key={home.id}
+            className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+          >
+            {/* Card Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-gray-600" />
+                <h3 className="font-semibold text-gray-900">
+                  عقار #{id}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${home.status === 1
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}
+                >
+                  {getStatusText(home.status)}
+                </span>
+                <button className="p-1 hover:bg-gray-100 rounded">
+                  <MoreVertical className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
             </div>
 
-            {/* Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {homesList.map((home) => (
-                    <div
-                        key={home.id}
-                        className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
-                    >
-                        {/* Card Header */}
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Building2 className="w-5 h-5 text-gray-600" />
-                                <h3 className="font-semibold text-gray-900">
-                                    عقار #{home.id}
-                                </h3>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span
-                                    className={`px-2 py-1 text-xs rounded-full ${home.status === 1
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-gray-100 text-gray-800'
-                                        }`}
-                                >
-                                    {getStatusText(home.status)}
-                                </span>
-                                <button className="p-1 hover:bg-gray-100 rounded">
-                                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Card Content */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-gray-500" />
-                                <div>
-                                <p className="text-sm text-gray-500">المحافظة</p>
-                                    <p className="text-gray-900">{getCitiesByGovernorateId(home._gover)}</p>
-                                </div>
-                            </div>
+            {/* Card Content */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                <div>
+                  <p className="text-sm text-gray-500">المحافظة</p>
+                  <p className="text-gray-900">{getCitiesByGovernorateId(home.governorate)}</p>
+                </div>
+              </div>
 
 
-                            <div>
-                                <p className="text-gray-900 font-medium">{home._city} - {home.street}</p>
-                            </div>
-                        </div>
-
-                        {/* Action Button */}
-                        <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                            عرض التفاصيل
-                        </button>
-                    </div>
-                ))}
+              <div>
+                <p className="text-gray-900 font-medium">{home.city} - {home.street}</p>
+              </div>
             </div>
-        </div>
-    );
+
+            {/* Action Button */}
+            {
+              home.status === 4 ? (
+                <div className="flex flex-row gap-2" >
+
+                  <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                    عرض التفاصيل
+                  </button>
+                  <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                    طلب معاينة
+                    <MapPin className="inline-block mr-2" />
+                  </button>
+                </div>
+              ) : (
+                <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  طلب معاينة
+                  <MapPin className="inline-block mr-2" />
+                </button>
+              )
+            }
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default HomesGrid;

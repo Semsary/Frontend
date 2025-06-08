@@ -27,7 +27,6 @@ const useHouseStore = create(
             },
           };
           const response = await axiosInstance.post("/LandLord/create/house", data) 
-          console.log("House created successfully:", response);
           set({ loading: false });
           return true;
         } catch (err) {
@@ -39,6 +38,42 @@ const useHouseStore = create(
           return false;
         }
       },
+
+
+      getHouses: async () => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get("/LandLord/Houses/GetAll");
+          console.log("Houses fetched successfully:", response.data);
+
+          const NotInspectedHouses = response.data.notInspectedHouses || [];
+          const InspectedHouses = response.data.inspectedHouses || [];
+
+          // add status to houses
+          const combinedHouses = NotInspectedHouses.map((house) => ({
+            ...house,
+            status: 4, // Not Inspected
+          })).concat(
+            InspectedHouses.map((house) => ({
+              ...house,
+              status: house.lastInspectionStatus,
+            }))
+          );
+
+          set({ houses: response.data, loading: false });
+
+          return combinedHouses;
+        } catch (err) {
+          console.error("Error fetching houses:", err);
+          set({
+            error: err.response?.data?.message || "حدث خطأ أثناء جلب المنازل",
+            loading: false,
+          });
+          return [];
+        }
+      },
+
+
     }),
     {
       name: "house-storage",
