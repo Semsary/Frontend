@@ -16,7 +16,7 @@ const HomesGrid = () => {
 
   const [homesList, setHomesList] = useState([]);
 
- 
+
 
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const HomesGrid = () => {
 
 
   const getStatusText = (status) => {
-    return status === 1 ? "متاح" : "غير متاح";
+    return status === 1 ? "متاح" : status === 2 ? "غير متاح" : status === 3 ? "قيد المعاينة" : status === 4 ? "لم يتم المعاينة بعد" : "غير معروف";
   };
 
   return (
@@ -48,7 +48,7 @@ const HomesGrid = () => {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {homesList.map((home,id) => (
+        {homesList.map((home, id) => (
           <div
             key={home.id}
             className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"

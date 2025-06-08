@@ -6,6 +6,7 @@ import { Verified } from "lucide-react";
 /**
  *  House Store
  *  
+ *
  */
 
 const useHouseStore = create(
@@ -26,7 +27,10 @@ const useHouseStore = create(
               street: houseData.location,
             },
           };
-          const response = await axiosInstance.post("/LandLord/create/house", data) 
+          const response = await axiosInstance.post(
+            "/LandLord/create/house",
+            data
+          );
           set({ loading: false });
           return true;
         } catch (err) {
@@ -39,29 +43,22 @@ const useHouseStore = create(
         }
       },
 
-
       getHouses: async () => {
         set({ loading: true, error: null });
         try {
           const response = await axiosInstance.get("/LandLord/Houses/GetAll");
-          console.log("Houses fetched successfully:", response.data);
-
           const NotInspectedHouses = response.data.notInspectedHouses || [];
           const InspectedHouses = response.data.inspectedHouses || [];
-
-          // add status to houses
           const combinedHouses = NotInspectedHouses.map((house) => ({
             ...house,
-            status: 4, // Not Inspected
+            status: 4,
           })).concat(
             InspectedHouses.map((house) => ({
               ...house,
               status: house.lastInspectionStatus,
             }))
           );
-
           set({ houses: response.data, loading: false });
-
           return combinedHouses;
         } catch (err) {
           console.error("Error fetching houses:", err);
@@ -72,8 +69,6 @@ const useHouseStore = create(
           return [];
         }
       },
-
-
     }),
     {
       name: "house-storage",
