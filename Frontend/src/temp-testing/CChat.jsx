@@ -29,41 +29,41 @@ import useChatStore from "../store/chat.store";
 import axiosChat from "../config/api/axiosChat";
 
 // Mock data for conversations - fallback when API fails
-const mockConversations = [
-    {
-        id: "CustomerService1",
-        name: "CustomerService1",
-        avatar: "أ",
-        lastMessage: "سأرسل لك التفاصيل قريباً",
-        timestamp: Date.now() - 60000,
-        unreadCount: 0,
-        isOnline: true,
-        isPinned: true,
-        type: "direct"
-    },
-    {
-        id: "01JX9V1H7CD8TTMDF5RGETXRGB",
-        name: "admin",
-        avatar: "س",
-        lastMessage: "شكراً لك على الاجتماع اليوم",
-        timestamp: Date.now() - 180000,
-        unreadCount: 3,
-        isOnline: true,
-        isPinned: false,
-        type: "direct"
-    },
-    {
-        id: "3",
-        name: "فريق التطوير",
-        avatar: "ف",
-        lastMessage: "تم رفع النسخة الجديدة",
-        timestamp: Date.now() - 300000,
-        unreadCount: 12,
-        isOnline: false,
-        isPinned: true,
-        type: "group"
-    }
-];
+// const mockConversations = [
+//     {
+//         id: "CustomerService1",
+//         name: "CustomerService1",
+//         avatar: "أ",
+//         lastMessage: "سأرسل لك التفاصيل قريباً",
+//         timestamp: Date.now() - 60000,
+//         unreadCount: 0,
+//         isOnline: true,
+//         isPinned: true,
+//         type: "direct"
+//     },
+//     {
+//         id: "01JX9V1H7CD8TTMDF5RGETXRGB",
+//         name: "admin",
+//         avatar: "س",
+//         lastMessage: "شكراً لك على الاجتماع اليوم",
+//         timestamp: Date.now() - 180000,
+//         unreadCount: 3,
+//         isOnline: true,
+//         isPinned: false,
+//         type: "direct"
+//     },
+//     {
+//         id: "3",
+//         name: "فريق التطوير",
+//         avatar: "ف",
+//         lastMessage: "تم رفع النسخة الجديدة",
+//         timestamp: Date.now() - 300000,
+//         unreadCount: 12,
+//         isOnline: false,
+//         isPinned: true,
+//         type: "group"
+//     }
+// ];
 
 const ChatPage = () => {
     const [activeConversation, setActiveConversation] = useState("");
@@ -74,11 +74,12 @@ const ChatPage = () => {
     const [conversationsLoading, setConversationsLoading] = useState(true);
     const [conversationsError, setConversationsError] = useState("");
 
+    const [mockConversations, setMockConversations] = useState([]);
+
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const prevActiveConversationRef = useRef("");
 
-    // Get current user ID - replace with actual logic to get current user
     const currentUserId = "CustomerService1";
 
     // Zustand store
@@ -126,6 +127,48 @@ const ChatPage = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, [activeConversation]);
 
+    // Transform API conversations data to expected format
+    const transformConversationsData = useCallback((apiConversations) => {
+        if (!Array.isArray(apiConversations)) return [];
+
+        return apiConversations.map((conv, index) => {
+            // Get the other participant's name (you might want to fetch user details)
+            const participantId = conv.otherParticipant;
+
+            // Generate avatar from participant name or ID
+            const getAvatar = (name) => {
+                if (name === "CustomerService1") return "خ";
+                if (name === "admin") return "أ";
+                if (name === "3") return "م";
+                return name.charAt(0).toUpperCase();
+            };
+
+            // Generate display name (you might want to fetch from user service)
+            const getDisplayName = (id) => {
+                switch (id) {
+                    case "CustomerService1": return "خدمة العملاء";
+                    case "01JX9V1H7CD8TTMDF5RGETXRGB": return "المدير";
+                    case "3": return "مستخدم 3";
+                    default: return `مستخدم ${id}`;
+                }
+            };
+
+            return {
+                id: participantId,
+                name: getDisplayName(participantId),
+                avatar: getAvatar(getDisplayName(participantId)),
+                lastMessage: conv.lastMessage?.content || "لا توجد رسائل",
+                timestamp: conv.lastMessage?.createdAt ? new Date(conv.lastMessage.createdAt).getTime() : Date.now(),
+                unreadCount: conv.unreadCount || 0,
+                isOnline: false, // You'll need to get this from online users
+                isPinned: index < 2, // Pin first 2 conversations as example
+                type: conv.participants?.length > 2 ? "group" : "direct",
+                updatedAt: conv.updatedAt,
+                _id: conv._id
+            };
+        });
+    }, []);
+
     // Fetch conversations
     const fetchConversations = useCallback(async () => {
         try {
@@ -133,21 +176,30 @@ const ChatPage = () => {
             setConversationsError("");
             const response = await axiosChat.get("/messages/conversations");
 
-            if (response.data && Array.isArray(response.data)) {
-                setConversations(response.data);
+            console.log("Conversations response:", response.data);
+
+            if (response.data && response.data.conversations && Array.isArray(response.data.conversations)) {
+                const transformedConversations = transformConversationsData(response.data.conversations);
+                setConversations(transformedConversations);
+                console.log("Transformed conversations:", transformedConversations);
+            } else if (response.data && Array.isArray(response.data)) {
+                // Handle case where conversations are directly in response.data
+                const transformedConversations = transformConversationsData(response.data);
+                setConversations(transformedConversations);
+                console.log("Transformed conversations:", transformedConversations);
             } else {
-                // Fallback to mock data if API response is invalid
-                setConversations(mockConversations);
+                console.warn("Invalid conversations data structure:", response.data);
+                setConversations([]);
+                setConversationsError("تنسيق البيانات غير صحيح");
             }
         } catch (error) {
             console.error("Failed to fetch conversations:", error);
             setConversationsError("فشل في تحميل المحادثات");
-            // Use mock data as fallback
-            setConversations(mockConversations);
+            setConversations([]);
         } finally {
             setConversationsLoading(false);
         }
-    }, []);
+    }, [transformConversationsData]);
 
     // Setup socket connection on component mount
     useEffect(() => {
@@ -250,6 +302,25 @@ const ChatPage = () => {
         return onlineUsers.has(userId);
     }, [onlineUsers]);
 
+    // Update conversations with online status when onlineUsers changes
+    useEffect(() => {
+        if (conversations.length > 0) {
+            const updatedConversations = conversations.map(conv => ({
+                ...conv,
+                isOnline: isUserOnline(conv.id)
+            }));
+
+            // Only update if there's a change in online status
+            const hasOnlineStatusChange = updatedConversations.some((conv, index) =>
+                conv.isOnline !== conversations[index]?.isOnline
+            );
+
+            if (hasOnlineStatusChange) {
+                setConversations(updatedConversations);
+            }
+        }
+    }, [onlineUsers, isUserOnline]);
+
     const handleConversationClick = useCallback((conversationId) => {
         setActiveConversation(conversationId);
         if (isMobile) {
@@ -272,64 +343,78 @@ const ChatPage = () => {
         </div>
     );
 
-    const ConversationItem = React.memo(({ conversation, isActive, onClick }) => (
-        <div
-            onClick={() => onClick(conversation.id)}
-            className={`relative p-4 cursor-pointer transition-all duration-200 border-b border-gray-100/50 hover:bg-gray-50/70 ${isActive ? 'bg-blue-50/80 border-l-4 border-l-blue-500 shadow-sm' : ''
-                }`}
-        >
-            {conversation.isPinned && (
-                <Pin className="absolute top-2 right-2 h-3 w-3 text-blue-500" />
-            )}
+    const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
+        if (!conversation) return null;
 
-            <div className="flex items-start gap-3">
-                <div className="relative shrink-0">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md ${conversation.type === 'group'
-                            ? 'bg-gradient-to-r from-purple-500 to-purple-600'
-                            : 'bg-gradient-to-r from-blue-500 to-blue-600'
-                        }`}>
-                        {conversation.avatar}
-                    </div>
-                    {isUserOnline(conversation.id) && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
-                    )}
-                    {conversation.unreadCount > 0 && (
-                        <div className="absolute -top-1 -left-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1.5">
-                            {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
-                        </div>
-                    )}
-                </div>
+        return (
+            <div
+                onClick={() => onClick(conversation.id)}
+                className={`relative p-4 cursor-pointer transition-all duration-200 border-b border-gray-100/50 hover:bg-gray-50/70 ${isActive ? 'bg-blue-50/80 border-l-4 border-l-blue-500 shadow-sm' : ''
+                    }`}
+            >
+                {conversation.isPinned && (
+                    <Pin className="absolute top-2 right-2 h-3 w-3 text-blue-500" />
+                )}
 
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                        <h3 className={`font-semibold truncate text-sm ${isActive ? 'text-blue-700' : 'text-gray-900'
+                <div className="flex items-start gap-3">
+                    <div className="relative shrink-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md ${conversation.type === 'group'
+                                ? 'bg-gradient-to-r from-purple-500 to-purple-600'
+                                : 'bg-gradient-to-r from-blue-500 to-blue-600'
                             }`}>
-                            {conversation.name}
-                        </h3>
-                        <span className="text-xs text-gray-500 shrink-0 ml-2">
-                            {formatTime(conversation.timestamp)}
-                        </span>
+                            {conversation.avatar || '؟'}
+                        </div>
+                        {conversation.isOnline && (
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                        )}
+                        {conversation.unreadCount > 0 && (
+                            <div className="absolute -top-1 -left-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1.5">
+                                {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-600 truncate flex-1">
-                            {conversation.lastMessage}
-                        </p>
-                        {conversation.unreadCount === 0 && (
-                            <CheckCheck className="h-4 w-4 text-blue-500 shrink-0 ml-2" />
-                        )}
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                            <h3 className={`font-semibold truncate text-sm ${isActive ? 'text-blue-700' : 'text-gray-900'
+                                }`}>
+                                {conversation.name || 'مستخدم غير معروف'}
+                            </h3>
+                            <span className="text-xs text-gray-500 shrink-0 ml-2">
+                                {formatTime(conversation.timestamp)}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600 truncate flex-1">
+                                {conversation.lastMessage || 'لا توجد رسائل'}
+                            </p>
+                            {conversation.unreadCount === 0 && (
+                                <CheckCheck className="h-4 w-4 text-blue-500 shrink-0 ml-2" />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    ));
+        );
+    });
+
+    // Add debug information in development
+    useEffect(() => {
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Current conversations state:', conversations);
+            console.log('Filtered conversations:', filteredConversations);
+            console.log('Active conversation:', activeConversation);
+            console.log('Current conversation:', currentConversation);
+        }
+    }, [conversations, filteredConversations, activeConversation, currentConversation]);
 
     return (
         <div className="flex h-screen bg-gray-50/50 overflow-hidden">
             {/* Sidebar - Conversations */}
             <div className={`${isMobile
-                    ? showSidebar ? 'fixed inset-0 z-50 bg-white' : 'hidden'
-                    : 'relative'
+                ? showSidebar ? 'fixed inset-0 z-50 bg-white' : 'hidden'
+                : 'relative'
                 } w-full md:w-96 lg:w-[400px] flex flex-col bg-white/95 backdrop-blur-sm border-r border-gray-200/70 shadow-sm`}>
 
                 {/* Sidebar Header */}
@@ -472,8 +557,8 @@ const ChatPage = () => {
 
                                 <div className="relative">
                                     <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/50 ${currentConversation.type === 'group'
-                                            ? 'bg-gradient-to-r from-purple-600 to-purple-500'
-                                            : 'bg-gradient-to-r from-blue-600 to-blue-500'
+                                        ? 'bg-gradient-to-r from-purple-600 to-purple-500'
+                                        : 'bg-gradient-to-r from-blue-600 to-blue-500'
                                         }`}>
                                         {currentConversation.avatar}
                                     </div>
@@ -568,8 +653,8 @@ const ChatPage = () => {
                                         <div className={`max-w-[75%] lg:max-w-[65%] ${isOwn ? "order-2" : "order-1"}`}>
                                             <div
                                                 className={`group relative px-4 py-3 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.02] ${isOwn
-                                                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white ml-2 shadow-blue-200/50"
-                                                        : "bg-white/95 backdrop-blur-sm text-gray-800 mr-2 border border-gray-100/70 shadow-gray-200/30"
+                                                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white ml-2 shadow-blue-200/50"
+                                                    : "bg-white/95 backdrop-blur-sm text-gray-800 mr-2 border border-gray-100/70 shadow-gray-200/30"
                                                     }`}
                                             >
                                                 <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
@@ -586,8 +671,8 @@ const ChatPage = () => {
                                                 {/* Message tail */}
                                                 <div
                                                     className={`absolute top-4 w-0 h-0 transition-all duration-300 group-hover:scale-110 ${isOwn
-                                                            ? "-right-1 border-l-8 border-l-blue-500 border-t-4 border-b-4 border-t-transparent border-b-transparent"
-                                                            : "-left-1 border-r-8 border-r-white border-t-4 border-b-4 border-t-transparent border-b-transparent"
+                                                        ? "-right-1 border-l-8 border-l-blue-500 border-t-4 border-b-4 border-t-transparent border-b-transparent"
+                                                        : "-left-1 border-r-8 border-r-white border-t-4 border-b-4 border-t-transparent border-b-transparent"
                                                         }`}
                                                 ></div>
                                             </div>
