@@ -1,6 +1,14 @@
 import axios from "axios";
 
-const axiosChat = axios.create({
+
+let data = localStorage.getItem("auth-storage");
+if (data) {
+  data = JSON.parse(data);
+}
+const token = data?.state?.token;
+
+
+const axiosChat = axios.create({ 
     baseURL: import.meta.env.VITE_CHAT_URL,
     headers: {
         "Content-Type": "application/json",
@@ -11,7 +19,6 @@ const axiosChat = axios.create({
 
 axiosChat.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

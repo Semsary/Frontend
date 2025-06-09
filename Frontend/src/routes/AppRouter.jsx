@@ -16,6 +16,7 @@ import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 import ErrorElement from "../pages/errors/ErrorElement.jsx";
 import Profile from "../pages/profile/profile.jsx";
 import ChatComponent2 from "../temp-testing/Chat copy.jsx";
+import Chat from "../temp-testing/CChat.jsx";
 
 
 const router = createBrowserRouter([
@@ -81,6 +82,12 @@ const router = createBrowserRouter([
   {
     path: "/verify-code",
     element: <VerifyCode />,
+    // errorElement: <ErrorElement errorMessage="Verification failed" />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/Chat",
+    element: <Chat />,
     // errorElement: <ErrorElement errorMessage="Verification failed" />,
     errorElement: <ErrorElement />,
   },

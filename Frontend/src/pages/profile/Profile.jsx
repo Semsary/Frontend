@@ -20,6 +20,7 @@ import {
   Edit,
   Plus,
   Eye,
+  MessageCircle,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -29,6 +30,7 @@ import SecurityTab from "./tabs/Security";
 import SettingsTab from "./tabs/Settings";
 import IdentityVerification from "./tabs/IdentityVerification";
 import AddHomeTab from "./tabs/AddHomeTab";
+import ChatPage from "./tabs/ChatPage";
 
 
 import useProfileStore from "../../store/profile.store";
@@ -248,6 +250,25 @@ export default function ProfilePage() {
                   </button>
                 </li>
 
+                <li>
+                  <button
+                    onClick={() => setActiveTab("chat")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
+                      activeTab === "chat"
+                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <MessageCircle className="h-5 w-5" />
+                      <span>الدردشة</span>
+                    </span>
+                    {activeTab === "chat" && (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </button>
+                </li>
+
 
 
 
@@ -350,6 +371,8 @@ export default function ProfilePage() {
                 showSuccess={showSuccess}
               />
             )}
+
+            {activeTab === "chat" && <ChatPage />}
           </div>
         </div>
       </main>
