@@ -27,43 +27,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import useChatStore from "../store/chat.store";
 import axiosChat from "../config/api/axiosChat";
+import useAuthStore from "../store/auth.store";
 
-// Mock data for conversations - fallback when API fails
-// const mockConversations = [
-//     {
-//         id: "CustomerService1",
-//         name: "CustomerService1",
-//         avatar: "أ",
-//         lastMessage: "سأرسل لك التفاصيل قريباً",
-//         timestamp: Date.now() - 60000,
-//         unreadCount: 0,
-//         isOnline: true,
-//         isPinned: true,
-//         type: "direct"
-//     },
-//     {
-//         id: "01JX9V1H7CD8TTMDF5RGETXRGB",
-//         name: "admin",
-//         avatar: "س",
-//         lastMessage: "شكراً لك على الاجتماع اليوم",
-//         timestamp: Date.now() - 180000,
-//         unreadCount: 3,
-//         isOnline: true,
-//         isPinned: false,
-//         type: "direct"
-//     },
-//     {
-//         id: "3",
-//         name: "فريق التطوير",
-//         avatar: "ف",
-//         lastMessage: "تم رفع النسخة الجديدة",
-//         timestamp: Date.now() - 300000,
-//         unreadCount: 12,
-//         isOnline: false,
-//         isPinned: true,
-//         type: "group"
-//     }
-// ];
 
 const ChatPage = () => {
     const [activeConversation, setActiveConversation] = useState("");
@@ -73,14 +38,20 @@ const ChatPage = () => {
     const [conversations, setConversations] = useState([]);
     const [conversationsLoading, setConversationsLoading] = useState(true);
     const [conversationsError, setConversationsError] = useState("");
-
-    const [mockConversations, setMockConversations] = useState([]);
-
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const prevActiveConversationRef = useRef("");
-
     const currentUserId = "CustomerService1";
+
+    const { getUser } = useAuthStore();
+
+    useEffect(() => {
+        const user = getUser();
+        console.log("Current user:", user);
+
+    }, [getUser]);
+
+
 
     // Zustand store
     const {
@@ -161,7 +132,6 @@ const ChatPage = () => {
                 timestamp: conv.lastMessage?.createdAt ? new Date(conv.lastMessage.createdAt).getTime() : Date.now(),
                 unreadCount: conv.unreadCount || 0,
                 isOnline: false, // You'll need to get this from online users
-                isPinned: index < 2, // Pin first 2 conversations as example
                 type: conv.participants?.length > 2 ? "group" : "direct",
                 updatedAt: conv.updatedAt,
                 _id: conv._id
@@ -349,18 +319,34 @@ const ChatPage = () => {
         return (
             <div
                 onClick={() => onClick(conversation.id)}
-                className={`relative p-4 cursor-pointer transition-all duration-200 border-b border-gray-100/50 hover:bg-gray-50/70 ${isActive ? 'bg-blue-50/80 border-l-4 border-l-blue-500 shadow-sm' : ''
+                className={`relative p-4 cursor-pointer transition-all duration-200 border-b border-gray-100/50 hover:bg-gray-50/70 ${isActive ? 'bg-blue-50/80 border-r-4 border-r-blue-500 shadow-sm' : ''
                     }`}
             >
-                {conversation.isPinned && (
-                    <Pin className="absolute top-2 right-2 h-3 w-3 text-blue-500" />
-                )}
+                <div className="flex flex-row-reverse items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex flex-row-reverse items-center justify-between mb-1">
+                            <span className="text-xs text-gray-500 shrink-0 ml-2">
+                                {formatTime(conversation.timestamp)}
+                            </span>
+                            <h3 className={`font-semibold truncate text-sm text-right ${isActive ? 'text-blue-700' : 'text-gray-900'}`}>
+                                {conversation.name || 'مستخدم غير معروف'}
+                            </h3>
+                        </div>
 
-                <div className="flex items-start gap-3">
+                        <div className="flex flex-row-reverse items-center justify-between">
+                            {conversation.unreadCount === 0 && (
+                                <CheckCheck className="h-4 w-4 text-blue-500 shrink-0 ml-2" />
+                            )}
+                            <p className="text-sm text-gray-600 truncate flex-1 text-right">
+                                {conversation.lastMessage || 'لا توجد رسائل'}
+                            </p>
+                        </div>
+                    </div>
+
                     <div className="relative shrink-0">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md ${conversation.type === 'group'
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600'
-                                : 'bg-gradient-to-r from-blue-500 to-blue-600'
+                            ? 'bg-gradient-to-r from-purple-500 to-purple-600'
+                            : 'bg-gradient-to-r from-blue-500 to-blue-600'
                             }`}>
                             {conversation.avatar || '؟'}
                         </div>
@@ -373,49 +359,28 @@ const ChatPage = () => {
                             </div>
                         )}
                     </div>
-
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                            <h3 className={`font-semibold truncate text-sm ${isActive ? 'text-blue-700' : 'text-gray-900'
-                                }`}>
-                                {conversation.name || 'مستخدم غير معروف'}
-                            </h3>
-                            <span className="text-xs text-gray-500 shrink-0 ml-2">
-                                {formatTime(conversation.timestamp)}
-                            </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-gray-600 truncate flex-1">
-                                {conversation.lastMessage || 'لا توجد رسائل'}
-                            </p>
-                            {conversation.unreadCount === 0 && (
-                                <CheckCheck className="h-4 w-4 text-blue-500 shrink-0 ml-2" />
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
         );
     });
 
     // Add debug information in development
-    useEffect(() => {
-        if (process.env.NODE_ENV === 'development') {
-            console.log('Current conversations state:', conversations);
-            console.log('Filtered conversations:', filteredConversations);
-            console.log('Active conversation:', activeConversation);
-            console.log('Current conversation:', currentConversation);
-        }
-    }, [conversations, filteredConversations, activeConversation, currentConversation]);
+    // useEffect(() => {
+    //     if (process.env.NODE_ENV === 'development') {
+    //         console.log('Current conversations state:', conversations);
+    //         console.log('Filtered conversations:', filteredConversations);
+    //         console.log('Active conversation:', activeConversation);
+    //         console.log('Current conversation:', currentConversation);
+    //     }
+    // }, [conversations, filteredConversations, activeConversation, currentConversation]);
 
     return (
-        <div className="flex h-screen bg-gray-50/50 overflow-hidden">
+        <div className="flex h-screen bg-gray-50/50 overflow-hidden" dir="rtl">
             {/* Sidebar - Conversations */}
             <div className={`${isMobile
                 ? showSidebar ? 'fixed inset-0 z-50 bg-white' : 'hidden'
                 : 'relative'
-                } w-full md:w-96 lg:w-[400px] flex flex-col bg-white/95 backdrop-blur-sm border-r border-gray-200/70 shadow-sm`}>
+                } w-full md:w-96 lg:w-[400px] flex flex-col bg-white/95 backdrop-blur-sm border-l border-gray-200/70 shadow-sm`}>
 
                 {/* Sidebar Header */}
                 <div className="p-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-md">
@@ -453,13 +418,12 @@ const ChatPage = () => {
 
                     {/* Search */}
                     <div className="relative">
-                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="البحث في المحادثات..."
-                            className="pr-10 bg-gray-50/80 border-gray-200/70 rounded-full text-sm placeholder:text-gray-400 focus:bg-white focus:border-blue-300 transition-all duration-200"
-                            style={{ direction: "rtl" }}
+                            className="pl-10 pr-4 bg-gray-50/80 border-gray-200/70 rounded-full text-sm placeholder:text-gray-400 focus:bg-white focus:border-blue-300 transition-all duration-200 text-right"
                         />
                     </div>
                 </div>
@@ -492,47 +456,15 @@ const ChatPage = () => {
                             </p>
                         </div>
                     ) : (
-                        <>
-                            {/* Pinned Conversations */}
-                            {filteredConversations.filter(conv => conv.isPinned).length > 0 && (
-                                <div>
-                                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 bg-gray-50/50 sticky top-0 backdrop-blur-sm">
-                                        المثبتة
-                                    </div>
-                                    {filteredConversations
-                                        .filter(conv => conv.isPinned)
-                                        .map((conversation) => (
-                                            <ConversationItem
-                                                key={conversation.id}
-                                                conversation={conversation}
-                                                isActive={activeConversation === conversation.id}
-                                                onClick={handleConversationClick}
-                                            />
-                                        ))
-                                    }
-                                </div>
-                            )}
-
-                            {/* Regular Conversations */}
-                            <div>
-                                {filteredConversations.filter(conv => conv.isPinned).length > 0 && (
-                                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 bg-gray-50/50 sticky top-0 backdrop-blur-sm">
-                                        الكل
-                                    </div>
-                                )}
-                                {filteredConversations
-                                    .filter(conv => !conv.isPinned)
-                                    .map((conversation) => (
-                                        <ConversationItem
-                                            key={conversation.id}
-                                            conversation={conversation}
-                                            isActive={activeConversation === conversation.id}
-                                            onClick={handleConversationClick}
-                                        />
-                                    ))
-                                }
-                            </div>
-                        </>
+                        // All Conversations
+                        filteredConversations.map((conversation) => (
+                            <ConversationItem
+                                key={conversation.id}
+                                conversation={conversation}
+                                isActive={activeConversation === conversation.id}
+                                onClick={handleConversationClick}
+                            />
+                        ))
                     )}
                 </div>
             </div>
@@ -543,7 +475,38 @@ const ChatPage = () => {
                     <>
                         {/* Chat Header */}
                         <div className="flex items-center justify-between p-4 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
+                         
                             <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/50 ${currentConversation.type === 'group'
+                                        ? 'bg-gradient-to-r from-purple-600 to-purple-500'
+                                        : 'bg-gradient-to-r from-blue-600 to-blue-500'
+                                        }`}>
+                                        {currentConversation.avatar}
+                                    </div>
+                                    {isUserOnline(currentConversation.id) && (
+                                        <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full">
+                                            <div className="w-full h-full bg-emerald-400 rounded-full animate-ping opacity-75"></div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold text-gray-900 text-base text-right">
+                                        {currentConversation.name}
+                                    </h2>
+                                    <p className="text-sm text-emerald-600 font-medium flex items-center gap-1 justify-end">
+                                        {isUserOnline(currentConversation.id) ? (
+                                            <>
+                                                متصل الآن
+                                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                            </>
+                                        ) : (
+                                            <span className="text-gray-500">غير متصل</span>
+                                        )}
+                                    </p>
+                                </div>
+
+
                                 {isMobile && (
                                     <Button
                                         variant="ghost"
@@ -554,48 +517,6 @@ const ChatPage = () => {
                                         <Menu className="h-5 w-5 text-gray-600" />
                                     </Button>
                                 )}
-
-                                <div className="relative">
-                                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/50 ${currentConversation.type === 'group'
-                                        ? 'bg-gradient-to-r from-purple-600 to-purple-500'
-                                        : 'bg-gradient-to-r from-blue-600 to-blue-500'
-                                        }`}>
-                                        {currentConversation.avatar}
-                                    </div>
-                                    {isUserOnline(currentConversation.id) && (
-                                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full">
-                                            <div className="w-full h-full bg-emerald-400 rounded-full animate-ping opacity-75"></div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <h2 className="font-semibold text-gray-900 text-base">
-                                        {currentConversation.name}
-                                    </h2>
-                                    <p className="text-sm text-emerald-600 font-medium flex items-center gap-1">
-                                        {isUserOnline(currentConversation.id) ? (
-                                            <>
-                                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                                                متصل الآن
-                                            </>
-                                        ) : (
-                                            <span className="text-gray-500">غير متصل</span>
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-green-50 hover:text-green-600 transition-all duration-200 rounded-full">
-                                    <Phone className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 rounded-full">
-                                    <Video className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 rounded-full">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
                             </div>
                         </div>
 
@@ -647,39 +568,44 @@ const ChatPage = () => {
                                 return (
                                     <div
                                         key={msg.id || i}
-                                        className={`flex ${isOwn ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom-3 duration-500`}
-                                        style={{ animationDelay: `${i * 50}ms` }}
+                                        className={`flex ${isOwn ? "justify-start" : "justify-end"} mb-2`}
                                     >
-                                        <div className={`max-w-[75%] lg:max-w-[65%] ${isOwn ? "order-2" : "order-1"}`}>
+                                        <div className={`max-w-[75%] lg:max-w-[60%] ${isOwn ? "order-1" : "order-2"}`}>
                                             <div
-                                                className={`group relative px-4 py-3 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.02] ${isOwn
-                                                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white ml-2 shadow-blue-200/50"
-                                                    : "bg-white/95 backdrop-blur-sm text-gray-800 mr-2 border border-gray-100/70 shadow-gray-200/30"
+                                                className={`relative px-4 py-3 rounded-2xl shadow-md border transition-colors duration-200
+                    ${isOwn
+                                                        ? "bg-blue-600 text-white border-blue-500"
+                                                        : "bg-white text-gray-800 border-gray-200"
                                                     }`}
                                             >
-                                                <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                                                {/* Message content */}
+                                                <p className="text-sm leading-relaxed break-words whitespace-pre-wrap text-right">
                                                     {msg.content}
                                                 </p>
-                                                <div className={`text-xs mt-1.5 flex items-center gap-1 ${isOwn ? "text-blue-100/90 justify-end" : "text-gray-500 justify-start"
-                                                    }`}>
-                                                    <span>{formatMessageTime(msg.timestamp)}</span>
+
+                                                {/* Timestamp & status */}
+                                                <div
+                                                    className={`text-xs mt-2 flex items-center gap-1 ${isOwn
+                                                        ? "text-blue-100 justify-start"
+                                                        : "text-gray-500 justify-end"
+                                                        }`}
+                                                >
                                                     {isOwn && (
-                                                        <CheckCheck className="h-3 w-3 text-blue-200/80" />
+                                                        <CheckCheck className="h-3 w-3 text-blue-200" />
                                                     )}
+                                                    <span>{formatMessageTime(msg.timestamp)}</span>
                                                 </div>
 
                                                 {/* Message tail */}
-                                                <div
-                                                    className={`absolute top-4 w-0 h-0 transition-all duration-300 group-hover:scale-110 ${isOwn
-                                                        ? "-right-1 border-l-8 border-l-blue-500 border-t-4 border-b-4 border-t-transparent border-b-transparent"
-                                                        : "-left-1 border-r-8 border-r-white border-t-4 border-b-4 border-t-transparent border-b-transparent"
-                                                        }`}
-                                                ></div>
+                                           
                                             </div>
                                         </div>
                                     </div>
                                 );
                             })}
+
+
+                            
 
                             <div ref={messagesEndRef} />
                         </div>
@@ -688,11 +614,15 @@ const ChatPage = () => {
                         <div className="p-4 bg-white/95 backdrop-blur-xl border-t border-gray-200/50">
                             <div className="flex items-end gap-3 max-w-4xl mx-auto">
                                 <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-10 w-10 p-0 shrink-0 hover:bg-gray-100/70 transition-all duration-200 rounded-full hover:scale-110"
+                                    onClick={handleSend}
+                                    disabled={!message.trim() || isLoading}
+                                    className="h-12 w-12 p-0 shrink-0 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 disabled:from-blue-300 disabled:via-blue-300 disabled:to-blue-400 shadow-lg hover:shadow-xl disabled:shadow-sm transition-all duration-300 rounded-full group hover:scale- 0 disabled:scale-100 ring-2 ring-transparent hover:ring-blue-200/50 active:scale-95"
                                 >
-                                    <Paperclip className="h-5 w-5 text-gray-500" />
+                                    {isLoading ? (
+                                        <Loader2 className="h-5 w-5 text-white animate-spin" />
+                                    ) : (
+                                        <Send className="h-5 w-5 text-white group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
+                                    )}
                                 </Button>
 
                                 <div className="flex-1 relative">
@@ -703,29 +633,11 @@ const ChatPage = () => {
                                         onKeyDown={handleKeyPress}
                                         placeholder="اكتب رسالتك هنا..."
                                         disabled={isLoading}
-                                        className="min-h-[48px] bg-gray-50/90 hover:bg-gray-50 focus:bg-white border-gray-200/70 hover:border-gray-300/70 focus:border-blue-300 rounded-full px-5 py-3 pr-12 text-base placeholder:text-gray-400 transition-all duration-200 shadow-sm focus:shadow-md disabled:opacity-50"
-                                        style={{ direction: "rtl" }}
+                                        className="min-h-[48px] bg-gray-50/90 hover:bg-gray-50 focus:bg-white border-gray-200/70 hover:border-gray-300/70 focus:border-blue-300 rounded-full px-5 py-3 pl-12 text-base placeholder:text-gray-400 transition-all duration-200 shadow-sm focus:shadow-md disabled:opacity-50 text-right"
                                     />
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100/70 transition-all duration-200 rounded-full hover:scale-110"
-                                    >
-                                        <Smile className="h-4 w-4 text-gray-500" />
-                                    </Button>
+                        
                                 </div>
 
-                                <Button
-                                    onClick={handleSend}
-                                    disabled={!message.trim() || isLoading}
-                                    className="h-12 w-12 p-0 shrink-0 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 shadow-lg hover:shadow-xl disabled:shadow-sm transition-all duration-300 rounded-full group hover:scale-110 disabled:scale-100 ring-2 ring-transparent hover:ring-blue-200/50 active:scale-95"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="h-5 w-5 text-white animate-spin" />
-                                    ) : (
-                                        <Send className="h-5 w-5 text-white group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
-                                    )}
-                                </Button>
                             </div>
                         </div>
                     </>

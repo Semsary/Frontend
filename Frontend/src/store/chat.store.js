@@ -41,8 +41,49 @@ const useChatStore = create((set, get) => ({
   isLoading: false,
   error: null,
   onlineUsers: new Map(),
+  conversations: [],
+  conversationsLoading: false,
 
   setMessage: (text) => set({ message: text }),
+
+  // Add conversation management methods
+  setConversations: (conversations) => set({ conversations }),
+  setConversationsLoading: (loading) => set({ conversationsLoading: loading }),
+
+  updateConversation: (conversationId, updates) => {
+    set((state) => ({
+      conversations: state.conversations.map((conv) =>
+        conv.id === conversationId ? { ...conv, ...updates } : conv
+      ),
+    }));
+  },
+
+  updateConversationLastMessage: (senderId, receiverId, message) => {
+    set((state) => ({
+      conversations: state.conversations.map((conv) => {
+        if (conv.id === senderId || conv.id === receiverId) {
+          return {
+            ...conv,
+            lastMessage: message.content,
+            timestamp: new Date(message.timestamp).getTime(),
+            unreadCount:
+              conv.id === receiverId
+                ? (conv.unreadCount || 0) + 1
+                : conv.unreadCount,
+          };
+        }
+        return conv;
+      }),
+    }));
+  },
+
+  markConversationAsRead: (conversationId) => {
+    set((state) => ({
+      conversations: state.conversations.map((conv) =>
+        conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
+      ),
+    }));
+  },
 
   addMessage: (msg) => {
     set((state) => ({
@@ -62,11 +103,14 @@ const useChatStore = create((set, get) => ({
 
       socket.emit("send-msg", { senderId, receiverId, content });
 
-      get().addMessage({
+      const newMessage = {
         senderId,
         content,
         timestamp: new Date().toISOString(),
-      });
+      };
+
+      get().addMessage(newMessage);
+      get().updateConversationLastMessage(senderId, receiverId, newMessage);
 
       set({ message: "" });
     } catch (err) {
@@ -122,8 +166,34 @@ const useChatStore = create((set, get) => ({
 
     socket.emit("add-user", currentUserId);
 
-    const handleReceive = (msg) => get().addMessage(msg);
+    const handleReceive = (msg) => {
+      get().addMessage(msg);
+      get().updateConversationLastMessage(msg.senderId, msg.receiverId, msg);
+    };
     socket.on("msg-receive", handleReceive);
+
+    // Handle conversation updates
+    const handleConversationUpdate = (data) => {
+      console.log("Conversation updated:", data);
+      get().updateConversation(data.conversationId, data.updates);
+    };
+    socket.on("conversation-updated", handleConversationUpdate);
+
+    // Handle new conversation
+    const handleNewConversation = (conversation) => {
+      console.log("New conversation:", conversation);
+      set((state) => ({
+        conversations: [conversation, ...state.conversations],
+      }));
+    };
+    socket.on("new-conversation", handleNewConversation);
+
+    // Handle message read status
+    const handleMessageRead = (data) => {
+      console.log("Messages marked as read:", data);
+      get().markConversationAsRead(data.conversationId);
+    };
+    socket.on("messages-read", handleMessageRead);
 
     socket.on("online-users", (users) => {
       set({ onlineUsers: new Map(users) });
@@ -136,6 +206,9 @@ const useChatStore = create((set, get) => ({
 
     return () => {
       socket.off("msg-receive", handleReceive);
+      socket.off("conversation-updated", handleConversationUpdate);
+      socket.off("new-conversation", handleNewConversation);
+      socket.off("messages-read", handleMessageRead);
       socket.off("online-users");
       socket.off("connect_error");
     };

@@ -24,6 +24,8 @@ const useAuthStore = create(
       email: null,
       rest_pass_email: null,
 
+
+
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
@@ -186,6 +188,19 @@ const useAuthStore = create(
             error: "فشل تحميل بيانات المستخدم",
             loading: false,
           });
+        }
+      },
+
+      getUser:async () => {
+        const token = get().token;
+        if (!token) return null;
+        try {
+          const response1 = await axiosInstance.get("/Auth/GetUserInfo");
+          // console.log("User -- -- data:", response1.data);
+          return response1.data;
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+          return null;
         }
       },
 
