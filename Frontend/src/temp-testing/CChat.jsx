@@ -48,7 +48,7 @@ const ChatPage = () => {
     useEffect(() => {
         const user = getUser();
         console.log("Current user:", user);
-
+        document.title = "Semsary | Chat"
     }, [getUser]);
 
 
@@ -98,20 +98,53 @@ const ChatPage = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, [activeConversation]);
 
+    // Update conversation when new message is received
+    const updateConversationWithNewMessage = useCallback((newMessage) => {
+        setConversations(prevConversations => {
+            const updatedConversations = prevConversations.map(conv => {
+                // Check if this message belongs to this conversation
+                const isRelevantConversation =
+                    (newMessage.senderId === currentUserId && newMessage.receiverId === conv.id) ||
+                    (newMessage.receiverId === currentUserId && newMessage.senderId === conv.id);
+
+                if (isRelevantConversation) {
+                    return {
+                        ...conv,
+                        lastMessage: newMessage.content,
+                        timestamp: new Date(newMessage.timestamp).getTime(),
+                        updatedAt: newMessage.timestamp,
+                        // Reset unread count if user is currently viewing this conversation
+                        unreadCount: activeConversation === conv.id ? 0 : conv.unreadCount + (newMessage.senderId !== currentUserId ? 1 : 0)
+                    };
+                }
+                return conv;
+            });
+
+            // Sort conversations by most recent activity (timestamp)
+            return updatedConversations.sort((a, b) => b.timestamp - a.timestamp);
+        });
+    }, [currentUserId, activeConversation]);
+
+    // Listen for new messages and update conversations
+    useEffect(() => {
+        if (messages.length > 0) {
+            const latestMessage = messages[messages.length - 1];
+            updateConversationWithNewMessage(latestMessage);
+        }
+    }, [messages, updateConversationWithNewMessage]);
+
     // Transform API conversations data to expected format
     const transformConversationsData = useCallback((apiConversations) => {
         if (!Array.isArray(apiConversations)) return [];
 
-        return apiConversations.map((conv, index) => {
+        const transformed = apiConversations.map((conv, index) => {
             // Get the other participant's name (you might want to fetch user details)
             const participantId = conv.otherParticipant;
 
             // Generate avatar from participant name or ID
             const getAvatar = (name) => {
-                if (name === "CustomerService1") return "خ";
-                if (name === "admin") return "أ";
-                if (name === "3") return "م";
-                return name.charAt(0).toUpperCase();
+
+                return 'https://avatar.iran.liara.run/public/boy?username=' + name;
             };
 
             // Generate display name (you might want to fetch from user service)
@@ -137,6 +170,9 @@ const ChatPage = () => {
                 _id: conv._id
             };
         });
+
+        // Sort by most recent activity
+        return transformed.sort((a, b) => b.timestamp - a.timestamp);
     }, []);
 
     // Fetch conversations
@@ -222,17 +258,27 @@ const ChatPage = () => {
         }
 
         try {
-            await sendMessage({
+            const messageData = {
                 senderId: currentUserId,
                 receiverId: activeConversation,
                 content: message.trim()
-            });
+            };
+
+            await sendMessage(messageData);
+
+            // Update conversation immediately after sending
+            const newMessage = {
+                ...messageData,
+                timestamp: new Date().toISOString(),
+                id: Date.now() // Temporary ID
+            };
+            updateConversationWithNewMessage(newMessage);
 
             inputRef.current?.focus();
         } catch (error) {
             console.error("Failed to send message:", error);
         }
-    }, [message, activeConversation, currentUserId, isLoading, sendMessage]);
+    }, [message, activeConversation, currentUserId, isLoading, sendMessage, updateConversationWithNewMessage]);
 
     const handleKeyPress = useCallback((e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -286,7 +332,8 @@ const ChatPage = () => {
             );
 
             if (hasOnlineStatusChange) {
-                setConversations(updatedConversations);
+                // Maintain sort order when updating online status
+                setConversations(updatedConversations.sort((a, b) => b.timestamp - a.timestamp));
             }
         }
     }, [onlineUsers, isUserOnline]);
@@ -344,12 +391,13 @@ const ChatPage = () => {
                     </div>
 
                     <div className="relative shrink-0">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md ${conversation.type === 'group'
-                            ? 'bg-gradient-to-r from-purple-500 to-purple-600'
-                            : 'bg-gradient-to-r from-blue-500 to-blue-600'
-                            }`}>
-                            {conversation.avatar || '؟'}
-                        </div>
+
+                        <img
+                            src={conversation.avatar || 'https://avatar.iran.liara.run/public' + conversation.name}
+                            alt={conversation.name}
+                            className={`w-12 h-12 rounded-full object-cover shadow-md    'bg-gradient-to-r from-blue-500 to-blue-600'
+                                }`}
+                        />
                         {conversation.isOnline && (
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
                         )}
@@ -475,15 +523,24 @@ const ChatPage = () => {
                     <>
                         {/* Chat Header */}
                         <div className="flex items-center justify-between p-4 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-                         
+
                             <div className="flex items-center gap-3">
                                 <div className="relative">
-                                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/50 ${currentConversation.type === 'group'
+                                    {/* <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/50 ${currentConversation.type === 'group'
                                         ? 'bg-gradient-to-r from-purple-600 to-purple-500'
                                         : 'bg-gradient-to-r from-blue-600 to-blue-500'
                                         }`}>
                                         {currentConversation.avatar}
-                                    </div>
+                                    </div> */}
+
+                                    <img
+                                        src={currentConversation.avatar || 'https://avatar.iran.liara.run/public' + currentConversation.name}
+                                        alt={currentConversation.name}
+                                        className={`w-11 h-11 rounded-full object-cover shadow-lg ring-2 ring-white/50  'bg-gradient-to-r from-blue-600 to-blue-500'
+                                            }`}
+                                    />
+
+
                                     {isUserOnline(currentConversation.id) && (
                                         <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full">
                                             <div className="w-full h-full bg-emerald-400 rounded-full animate-ping opacity-75"></div>
@@ -597,7 +654,7 @@ const ChatPage = () => {
                                                 </div>
 
                                                 {/* Message tail */}
-                                           
+
                                             </div>
                                         </div>
                                     </div>
@@ -605,7 +662,7 @@ const ChatPage = () => {
                             })}
 
 
-                            
+
 
                             <div ref={messagesEndRef} />
                         </div>
@@ -635,7 +692,7 @@ const ChatPage = () => {
                                         disabled={isLoading}
                                         className="min-h-[48px] bg-gray-50/90 hover:bg-gray-50 focus:bg-white border-gray-200/70 hover:border-gray-300/70 focus:border-blue-300 rounded-full px-5 py-3 pl-12 text-base placeholder:text-gray-400 transition-all duration-200 shadow-sm focus:shadow-md disabled:opacity-50 text-right"
                                     />
-                        
+
                                 </div>
 
                             </div>
