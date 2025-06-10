@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { MapPin, Building2, MoreVertical } from 'lucide-react';
 import { getAllGovernorates } from 'egylist'
 import useHouseStore from '../../../store/house.store';
+import InspectModal from './InspectModal';
 
 const HomesGrid = () => {
 
   const { getHouses } = useHouseStore();
-
+  const [inspectModalOpen, setInspectModalOpen] = useState(false);
+  const [selectedHome, setSelectedHome] = useState(null);
+  const [homesList, setHomesList] = useState([]);
   const Cities = getAllGovernorates();
 
   const getCitiesByGovernorateId = (governorateId) => {
@@ -14,23 +17,21 @@ const HomesGrid = () => {
     return city ? city.name_ar : "غير معروف";
   }
 
-  const [homesList, setHomesList] = useState([]);
-
-
-
-
   useEffect(() => {
     const fetchHouses = async () => {
       const houses = await getHouses();
       console.table(houses);
       setHomesList(houses);
     };
-
     fetchHouses();
-
-
   }, []);
 
+
+
+  const handleInspectModal = (home) => {
+    setSelectedHome(home);
+    setInspectModalOpen(true);
+  };
 
 
   const getStatusText = (status) => {
@@ -96,17 +97,20 @@ const HomesGrid = () => {
             {
               home.status === 4 ? (
                 <div className="flex flex-row gap-2" >
-
                   <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
                     عرض التفاصيل
                   </button>
-                  <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  <button
+                    onClick={() => handleInspectModal(home)}
+                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
                     طلب معاينة
                     <MapPin className="inline-block mr-2" />
                   </button>
                 </div>
               ) : (
-                <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  <button
+                    onClick={() => handleInspectModal(home)}
+                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
                   طلب معاينة
                   <MapPin className="inline-block mr-2" />
                 </button>
@@ -115,6 +119,20 @@ const HomesGrid = () => {
           </div>
         ))}
       </div>
+
+
+      {
+        inspectModalOpen && (<InspectModal
+          closeModal={() => {
+            setInspectModalOpen(false);
+            setSelectedHome(null);
+          }}
+          home={selectedHome}
+        />)
+      }
+
+
+      
     </div>
   );
 };

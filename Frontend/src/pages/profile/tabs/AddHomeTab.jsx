@@ -9,6 +9,7 @@ import { getAllGovernorates, getCitiesByGovernorateId } from 'egylist';
 import { useForm } from 'react-hook-form';
 import useHouseStore from '../../../store/house.store';
 import { toast } from 'sonner';
+import InspectModal from '../components/InspectModal';
 
 const AddHomeTab = () => {
 

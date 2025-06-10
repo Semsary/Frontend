@@ -21,6 +21,7 @@ import {
   Plus,
   Eye,
   MessageCircle,
+  MailIcon,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -79,10 +80,11 @@ export default function ProfilePage() {
         phone: user.phone || "01000000000",
         address: user.address || "غير محدد",
         image: user.picture || "/placeholder-avatar.jpg",
-        accountStatus: user.accountStatus || "نشط",
-        verificationStatus: user.verificationStatus || "تم التحقق",
+        accountStatus: user.verified || "نشط",
+        verificationStatus: user.verified ,
         memberSince: user.memberSince || "2023",
         completionRate: user.completionRate || 85,
+        balance: user.balance || 0,
       });
     }
   }, [loadUserFromToken]);
@@ -174,13 +176,17 @@ export default function ProfilePage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-800">{`${userData.firstName} ${userData.lastName}`}</h2>
                 <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  عضو منذ {userData.memberSince}
+                  <MailIcon className="h-3 w-3" />
+                  {userData.email}
                 </p>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <span className={` text-xs px-2 py-1 rounded-full flex items-center gap-1
+                      ${
+                    userData.verificationStatus? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                      }
+                    `}>
                     <CheckCircle className="w-3 h-3" />
-                    {userData.verificationStatus}
+                    {userData.verificationStatus? "تم التحقق" : "غير موثق"}
                   </span>
                 </div>
 

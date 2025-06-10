@@ -20,9 +20,11 @@ import {
   Edit,
   Plus,
   Eye,
+  Wallet,
+  XCircle,
 } from "lucide-react";
 
-const ProfileTab = ({ userData }) => {
+const ProfileTab = ({ userData }) => { 
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">
@@ -91,29 +93,41 @@ const ProfileTab = ({ userData }) => {
               </div>
             </div>
           </div>
-
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100 hover:shadow-md transition-shadow">
+      
+          <div className={`${userData.verificationStatus
+              ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100'
+              : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-100'
+            } rounded-xl p-4 border hover:shadow-md transition-shadow`}>
             <div className="flex items-center gap-4">
-              <div className="bg-emerald-100 p-3 rounded-xl">
-                <CheckCircle className="h-6 w-6 text-emerald-600" />
+              <div className={`${userData.verificationStatus ? 'bg-emerald-100' : 'bg-red-100'
+                } p-3 rounded-xl`}>
+                {userData.verificationStatus ? (
+                  <CheckCircle className="h-6 w-6 text-emerald-600" />
+                ) : (
+                  <XCircle className="h-6 w-6 text-red-600" />
+                )}
               </div>
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">حالة التحقق</h3>
-                <p className="text-emerald-700 font-bold">
-                  {userData.verificationStatus}
+                <p className={`${userData.verificationStatus ? 'text-emerald-700' : 'text-red-700'
+                  } font-bold`}>
+                  {userData.verificationStatus ? 'محقق' : 'غير محقق'}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100 hover:shadow-md transition-shadow">
+
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
-              <div className="bg-amber-100 p-3 rounded-xl">
-                <Award className="h-6 w-6 text-amber-600" />
+              <div className="bg-green-100 p-3 rounded-xl">
+                <Wallet className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-600 mb-1">عضوية</h3>
-                <p className="text-amber-700 font-bold">بريميوم</p>
+                <h3 className="font-medium text-gray-600 mb-1">الرصيد</h3>
+                <p className="text-green-700 font-bold text-lg">
+                  {userData.balance } ج.م
+                </p>
               </div>
             </div>
           </div>

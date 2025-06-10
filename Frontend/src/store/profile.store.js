@@ -6,26 +6,64 @@ import { Verified } from "lucide-react";
 /**
  *  User Store to manage user Profile Data
  *  handel User Data GET - SET
-*/
+ */
 
 const useProfileStore = create(
   persist(
-    (set, get) => ({    
-      user: null, 
+    (set, get) => ({
+      user: null,
       loading: false,
       error: null,
       loadUserFromToken: async () => {
         set({ loading: true, error: null });
         try {
-          const response1 = await axiosInstance.get("/Auth/GetUserInfo");
-          const userData = {
-            firstName: response1.data.firstname,
-            lastName: response1.data.lastname,
-            username: response1.data.username,
-            email: response1.data.emails[0].email,
-            picture: `https://avatar.iran.liara.run/public/boy?username=` + response1.data.username,
-            Verified: response1.data.emails[0].isVerified,
-          }
+          const response1 = await axiosInstance.get("/Auth/Auth/Me");
+
+          const {
+            basicUserInfo,
+            profileImageUrl,
+            otherLanlordData,
+            otherTenantData,
+          } = response1.data;
+          const { firstname, lastname, address, emails, userType } =
+            basicUserInfo;
+
+          const baseUserData = {
+            firstName: firstname,
+            lastName: lastname,
+            address,
+            email: emails[0],
+            userType,
+            picture:
+              profileImageUrl ||
+              `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
+          };
+
+          const userTypeConfigs = {
+            2: {
+              // Landlord
+              balance: otherLanlordData?.balance,
+              verified: otherLanlordData?.isVerified,
+            },
+            1: {
+              // Tenant
+              verified: otherTenantData?.isVerified,
+              otherData: {
+                height: otherTenantData?.height || null,
+              },
+            },
+            3: {}, // Customer Service
+          };
+
+          const userData = userTypeConfigs[userType]
+            ? { ...baseUserData, ...userTypeConfigs[userType] }
+            : null;
+
+          // console.log("final User Data:", userData);
+          set({
+            user: userData,
+            loading: false,
+          });
 
           set({ user: userData, loading: false });
           return response1.data;
@@ -36,8 +74,6 @@ const useProfileStore = create(
           });
         }
       },
-
-
     }),
     {
       name: "user-storage",
