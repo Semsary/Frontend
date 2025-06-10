@@ -35,8 +35,35 @@ const HomesGrid = () => {
 
 
   const getStatusText = (status) => {
-    return status === 1 ? "متاح" : status === 2 ? "غير متاح" : status === 3 ? "قيد المعاينة" : status === 4 ? "لم يتم المعاينة بعد" : "غير معروف";
+    if (status === 0) {
+      return "جديد (لم يتم المعاينة بعد)";
+    } if (status === 1) {
+      return "تم ارسال طلب المعاينة";
+    } else if (status === 2) {
+      return "قيد التنفيذ";
+    } else if (status === 3) {
+      return "تمت اضافة البيانات";
+    } else if (status === 4 ) {
+      return "تم الانتهاء";
+    } else {
+      return "غير معروف";
+    }
   };
+  const getStatusColor = (status) => {
+    if (status === 0) {
+      return "bg-yellow-100 text-yellow-800";
+    } else if (status === 1) {
+      return "bg-blue-100 text-blue-800";
+    } else if (status === 2) {
+      return "bg-orange-100 text-orange-800";
+    } else if (status === 3) {
+      return "bg-green-100 text-green-800";
+    } else if (status === 4) {
+      return "bg-gray-100 text-gray-800";
+    } else {
+      return "bg-gray-200 text-gray-600";
+    }
+  }
 
   return (
     <div className="  min -h-screen">
@@ -64,10 +91,7 @@ const HomesGrid = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-2 py-1 text-xs rounded-full ${home.status === 1
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                    }`}
+                  className={`px-2 py-1 text-xs rounded-full ${getStatusColor(home.status)}`}  
                 >
                   {getStatusText(home.status)}
                 </span>
@@ -95,7 +119,7 @@ const HomesGrid = () => {
 
             {/* Action Button */}
             {
-              home.status === 4 ? (
+              home.status === 2 ? (
                 <div className="flex flex-row gap-2" >
                   <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
                     عرض التفاصيل
@@ -107,12 +131,28 @@ const HomesGrid = () => {
                     <MapPin className="inline-block mr-2" />
                   </button>
                 </div>
-              ) : (
-                  <button
-                    onClick={() => handleInspectModal(home)}
-                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                  طلب معاينة
+              ) : home.status === 0 ? (
+                <button
+                  onClick={() => handleInspectModal(home)}
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  طلب معاينة 
                   <MapPin className="inline-block mr-2" />
+                </button>
+              ) : home.status === 1 ? (
+                <button className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  قيد التنفيذ
+                </button>
+              ) : home.status === 3 ? (
+                <button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  تمت اضافة البيانات
+                </button>
+              ) : home.status === 4 ? (
+                <button className="w-full mt-4 bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium cursor-not-allowed">
+                  تم الانتهاء
+                </button>
+              ) : (
+                <button className="w-full mt-4 bg-gray-300 text-gray-600 py-2 px-4 rounded-md text-sm font-medium cursor-not-allowed">
+                  حالة غير معروفة
                 </button>
               )
             }

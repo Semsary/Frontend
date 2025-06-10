@@ -1,7 +1,21 @@
 import { Home, X } from 'lucide-react'
 import React from 'react'
+import useHouseStore from '../../../store/house.store';
 
 const InspectModal = ({ closeModal, home }) => {
+    const { createInspection } = useHouseStore();
+
+    const handleInspection = async () => {
+        const success = await createInspection(home.houseId);
+        console.log(success);
+        if (success.status) {
+            console.log("Inspection created successfully");
+            // closeModal();
+
+        } else {
+            console.error("Failed to create inspection");
+        }
+    }
 
 
 
@@ -34,7 +48,7 @@ const InspectModal = ({ closeModal, home }) => {
                         </p>
 
                         <button
-                            onClick={closeModal}
+                            onClick={handleInspection}
                             className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-indigo-200"
                         >
                             <span>إرسال طلب المعاينة</span>

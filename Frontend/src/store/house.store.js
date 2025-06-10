@@ -5,7 +5,7 @@ import { Verified } from "lucide-react";
 
 /**
  *  House Store
- *  
+ *
  *
  */
 
@@ -51,14 +51,14 @@ const useHouseStore = create(
           const InspectedHouses = response.data.inspectedHouses || [];
           const combinedHouses = NotInspectedHouses.map((house) => ({
             ...house,
-            status: 4,
+            status: 0,
           })).concat(
             InspectedHouses.map((house) => ({
               ...house,
               status: house.lastInspectionStatus,
             }))
           );
-          set({ houses: response.data, loading: false });
+          set({ houses: combinedHouses, loading: false, error: null });
           return combinedHouses;
         } catch (err) {
           console.error("Error fetching houses:", err);
@@ -67,6 +67,26 @@ const useHouseStore = create(
             loading: false,
           });
           return [];
+        }
+      },
+
+      createInspection: async (houseId) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.post(
+            "LandLord/inspection/request/" + houseId
+          );
+          set({ loading: false });
+          
+          return response.data;
+        } catch (err) {
+          console.error("Error creating inspection:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء إنشاء المعاينة",
+            loading: false,
+          });
+          return null;
         }
       },
     }),
