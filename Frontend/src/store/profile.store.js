@@ -39,6 +39,7 @@ const useProfileStore = create(
               `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
           };
 
+
           const userTypeConfigs = {
             2: {
               // Landlord
@@ -50,6 +51,18 @@ const useProfileStore = create(
               verified: otherTenantData?.isVerified,
               otherData: {
                 height: otherTenantData?.height || null,
+                age: otherTenantData?.age || null,
+                balance: otherTenantData?.balance || 0,
+                gender: otherTenantData?.gender || null,
+                isSmoker: otherTenantData?.isSmoker || false,
+                needNearUniversity:
+                  otherTenantData?.needNearUniversity || false,
+                needNearVitalPlaces:
+                  otherTenantData?.needNearVitalPlaces || false,
+                needPublicTransportation:
+                  otherTenantData?.needPublicTransportation || false,
+                needPublicService: otherTenantData?.needPublicService || false,
+
               },
             },
             3: {}, // Customer Service
@@ -59,14 +72,14 @@ const useProfileStore = create(
             ? { ...baseUserData, ...userTypeConfigs[userType] }
             : null;
 
-          // console.log("final User Data:", userData);
           set({
             user: userData,
             loading: false,
           });
 
+
           set({ user: userData, loading: false });
-          return response1.data;
+          return userData;
         } catch (err) {
           set({
             error: "فشل تحميل بيانات المستخدم",
@@ -74,6 +87,40 @@ const useProfileStore = create(
           });
         }
       },
+
+
+
+      updateProfile: async (data) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.put("/Auth/Edit/Profile", data,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          const updatedUser = response.data;
+          set({
+            user: {
+              ...get().user,
+              ...updatedUser,
+            },
+            loading: false,
+          });
+
+          console.log("Update dfd User:", response);
+          return updatedUser;
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          set({
+            error: "فشل تحديث الملف الشخصي",
+            loading: false,
+          });
+        }
+      },
+
+
     }),
     {
       name: "user-storage",

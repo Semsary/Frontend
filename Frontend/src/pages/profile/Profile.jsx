@@ -22,6 +22,7 @@ import {
   Eye,
   MessageCircle,
   MailIcon,
+  Menu,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -32,7 +33,7 @@ import SettingsTab from "./tabs/Settings";
 import IdentityVerification from "./tabs/IdentityVerification";
 import AddHomeTab from "./tabs/AddHomeTab";
 import ChatPage from "./tabs/ChatPage";
-
+import ProfileData from "./tabs/ProfileData";
 
 import useProfileStore from "../../store/profile.store";
 import { toast } from "sonner";
@@ -135,24 +136,45 @@ export default function ProfilePage() {
       )}
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 p-4 shadow-sm sticky top-0 z-40 backdrop-blur-sm bg-opacity-90">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-indigo-800">
-            <User className="h-6 w-6 text-indigo-600" />
-            <span>الملف الشخصي</span>
-          </h1>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowNotification(!showNotification)}
-              className="p-2 rounded-full hover:bg-indigo-50 text-indigo-700 transition-colors relative"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-            </button>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-4 py-2 flex items-center gap-2 transition-colors shadow-md hover:shadow-indigo-200">
-              <LogOut className="h-5 w-5" />
-              <span className="hidden md:inline-block">تسجيل الخروج</span>
-            </button>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-1">
+        <div className="max-w- 7xl  mx-auto px-32">
+          <div className="flex h-16 items-center justify-between">
+
+            {/* Left Section - Logo/Branding */}
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <div className="h-8 w-8 rounded-md bg-indigo-600 flex items-center justify-center">
+                  <User className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="mr-3 text-lg font-semibold text-gray-900">الملف الشخصي</h1>
+              </div>
+            </div>
+
+            {/* Right Section - Controls */}
+            <div className="flex items-center gap-4">
+
+              {/* Notification Button */}
+              <button
+                onClick={() => setShowNotification(!showNotification)}
+                className="relative rounded-full p-1.5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                <Bell className="h-6 w-6 text-gray-700" />
+                <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+              </button>
+
+              {/* User Profile */}
+       
+              {/* Logout Button - Desktop */}
+              <button className="hidden md:flex items-center space-x-1.5 rtl:space-x-reverse ml-4 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <LogOut className="h-4 w-4" />
+                <span>تسجيل الخروج</span>
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button className="md:hidden rounded-md p-1.5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <Menu className="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -277,6 +299,27 @@ export default function ProfilePage() {
 
 
 
+                <li>
+                  <button
+                    onClick={() => setActiveTab("profileData")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
+                      activeTab === "profileData"
+                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <FileText className="h-5 w-5" />
+                      <span>بيانات الملف الشخصي</span>
+                    </span>
+                    {activeTab === "profileData" && (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </button>
+                </li>
+
+
+
 
                 <li>
                   <button
@@ -377,6 +420,14 @@ export default function ProfilePage() {
                 showSuccess={showSuccess}
               />
             )}
+
+            {activeTab === "profileData" && (
+              <ProfileData
+                userData={userData}
+                showSuccess={showSuccess}
+              />
+            )}
+
 
             {activeTab === "chat" && <ChatPage />}
           </div>
