@@ -18,6 +18,7 @@ const AddHomeTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGovern, setSelectedGovern] = useState(null);
   const [cities, setCities] = useState([]);
+  const [trigger, setTrigger] = useState(false);
 
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const AddHomeTab = () => {
       closeModal();
       toast.success("تم إضافة العقار بنجاح");
       reset();
+      setTrigger(!trigger); // Refresh the HomesGrid
     } else {
       toast.error("حدث خطأ أثناء إضافة العقار");
     }
@@ -87,7 +89,9 @@ const AddHomeTab = () => {
           </button>
         </div>
 
-        <HomesGrid />
+        <HomesGrid
+          trigger={trigger}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
             لا توجد عقارات لعرضها

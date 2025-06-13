@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, Building2, MoreVertical } from 'lucide-react';
+import { MapPin, Building2, MoreVertical, Loader, ImageUp } from 'lucide-react';
 import { getAllGovernorates } from 'egylist'
 import useHouseStore from '../../../store/house.store';
 import InspectModal from './InspectModal';
 
-const HomesGrid = () => {
+const HomesGrid = ({ trigger }) => {
 
   const { getHouses } = useHouseStore();
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
@@ -17,15 +17,18 @@ const HomesGrid = () => {
     return city ? city.name_ar : "غير معروف";
   }
 
+  const fetchHouses = async () => {
+    const houses = await getHouses();
+    console.table(houses);
+    setHomesList(houses);
+  };
   useEffect(() => {
-    const fetchHouses = async () => {
-      const houses = await getHouses();
-      console.table(houses);
-      setHomesList(houses);
-    };
     fetchHouses();
   }, []);
 
+  useEffect(() => {
+    fetchHouses();
+  }, [trigger]);
 
 
   const handleInspectModal = (home) => {
@@ -43,7 +46,7 @@ const HomesGrid = () => {
       return "قيد التنفيذ";
     } else if (status === 3) {
       return "تمت اضافة البيانات";
-    } else if (status === 4 ) {
+    } else if (status === 4) {
       return "تم الانتهاء";
     } else {
       return "غير معروف";
@@ -78,7 +81,7 @@ const HomesGrid = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {homesList.map((home, id) => (
           <div
-            key={home.id}
+            key={id}
             className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
           >
             {/* Card Header */}
@@ -91,7 +94,7 @@ const HomesGrid = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-2 py-1 text-xs rounded-full ${getStatusColor(home.status)}`}  
+                  className={`px-2 py-1 text-xs rounded-full ${getStatusColor(home.status)}`}
                 >
                   {getStatusText(home.status)}
                 </span>
@@ -135,12 +138,15 @@ const HomesGrid = () => {
                 <button
                   onClick={() => handleInspectModal(home)}
                   className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                  طلب معاينة 
+                  طلب معاينة
                   <MapPin className="inline-block mr-2" />
                 </button>
               ) : home.status === 1 ? (
-                <button className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                  قيد التنفيذ
+                    <button
+                      disabled={true}
+                      className="w-full mt-4 bg-blue-400  hover:bg-blue-300 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                      قيد التنفيذ
+                      <ImageUp className="inline-block mr-2" />
                 </button>
               ) : home.status === 3 ? (
                 <button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
@@ -172,7 +178,7 @@ const HomesGrid = () => {
       }
 
 
-      
+
     </div>
   );
 };

@@ -8,9 +8,9 @@ const InspectModal = ({ closeModal, home }) => {
     const handleInspection = async () => {
         const success = await createInspection(home.houseId);
         console.log(success);
-        if (success.status) {
+        if (success.message === "Inspection requested successfully"   ) {
             console.log("Inspection created successfully");
-            // closeModal();
+            closeModal();
 
         } else {
             console.error("Failed to create inspection");
