@@ -19,14 +19,19 @@ const useProfileStore = create(
         try {
           const response1 = await axiosInstance.get("/Auth/Auth/Me");
 
+          console.log("Profile --- 00 User Data:", response1.data);
           const {
             basicUserInfo,
-            profileImageUrl,
             otherLanlordData,
             otherTenantData,
           } = response1.data;
-          const { firstname, lastname, address, emails, userType } =
-            basicUserInfo;
+          const {
+            firstname,
+            profileImageUrl,lastname,
+            address,
+            emails,
+            userType,
+          } = basicUserInfo;
 
           const baseUserData = {
             firstName: firstname,
@@ -38,7 +43,6 @@ const useProfileStore = create(
               profileImageUrl ||
               `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
           };
-
 
           const userTypeConfigs = {
             2: {
@@ -62,7 +66,6 @@ const useProfileStore = create(
                 needPublicTransportation:
                   otherTenantData?.needPublicTransportation || false,
                 needPublicService: otherTenantData?.needPublicService || false,
-
               },
             },
             3: {}, // Customer Service
@@ -77,7 +80,6 @@ const useProfileStore = create(
             loading: false,
           });
 
-
           set({ user: userData, loading: false });
           return userData;
         } catch (err) {
@@ -88,28 +90,36 @@ const useProfileStore = create(
         }
       },
 
-
-
       updateProfile: async (data) => {
         set({ loading: true, error: null });
+
+        
         try {
-          const response = await axiosInstance.put("/Auth/Edit/Profile", data,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-          const updatedUser = response.data;
-          set({
-            user: {
-              ...get().user,
-              ...updatedUser,
+          const isFormData = data instanceof FormData;
+          console.log("isFormData --- updating with data:", data);
+          const response = await axiosInstance.put("/Auth/Edit/Profile", data, {
+            headers: {
+              "Content-Type": "multipart/form-data" 
+            
             },
-            loading: false,
           });
 
-          console.log("Update dfd User:", response);
+          const updatedUser = response.data;
+
+          // Merge updated data with existing user data
+          const currentUser = get().user;
+          const mergedUser = {
+            ...currentUser,
+          };
+
+          set({
+            user: mergedUser,
+            loading: false,
+          });
+          console.log("Profile --- updated successfully:", currentUser);
+          console.log("New User Data:", updatedUser);
+
+          console.log("Updated User:", mergedUser);
           return updatedUser;
         } catch (error) {
           console.error("Error updating profile:", error);
@@ -117,10 +127,9 @@ const useProfileStore = create(
             error: "فشل تحديث الملف الشخصي",
             loading: false,
           });
+          throw error;
         }
       },
-
-
     }),
     {
       name: "user-storage",

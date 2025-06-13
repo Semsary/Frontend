@@ -29,6 +29,7 @@ import {
   Building,
   Navigation,
 } from "lucide-react";
+import { getAllGovernorates, getCitiesByGovernorateId } from 'egylist';
 import useProfileStore from '../../../store/profile.store';
 
 const ProfileData = ({ showSuccess, defaultValues }) => {
@@ -67,26 +68,76 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
     defaultValues: memoizedDefaultValues
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [selectedGovern, setSelectedGovern] = useState(null);
+  const [cities, setCities] = useState([]);
+
+  const GovernorateList = getAllGovernorates();
+
+  useEffect(() => {
+    const handelCities = async () => {
+      if (selectedGovern) {
+        const citiesData = await getCitiesByGovernorateId(selectedGovern);
+        setCities(citiesData);
+      } else {
+        setCities([]);
+      }
+    }
+    handelCities();
+  }, [selectedGovern]);
+
+  const handleImageChange = useCallback((event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
   const onSubmit = useCallback((data) => {
     console.log('Profile Data:', data);
-    // showSuccess && showSuccess();
-    updateProfile(data)
+
+    // Create FormData for file upload
+    const formData = new FormData();
+
+    // Add all form fields to FormData
+    formData.append('Firstname', data.Firstname);
+    formData.append('Lastname', data.Lastname);
+    formData.append('Address._gover', data.Address?._gover || 0);
+    formData.append('Address._city', data.Address?._city || '');
+    formData.append('Address.street', data.Address?.street || '');
+    formData.append('height', data.height || 0);
+    formData.append('gender', data.gender || 0);
+    formData.append('age', data.age || 0);
+    formData.append('isSmoker', data.isSmoker || false);
+    formData.append('needPublicService', data.needPublicService || false);
+    formData.append('needPublicTransportation', data.needPublicTransportation || false);
+    formData.append('needNearUniversity', data.needNearUniversity || false);
+    formData.append('needNearVitalPlaces', data.needNearVitalPlaces || false);
+
+    // Add image file if selected
+    if (selectedImage) {
+      console.log("image fffffffffff")
+      formData.append('ProfileImage', selectedImage);
+    }
+
+    console.log("formData -- ", formData)
+    console.table(selectedImage)
+
+    updateProfile(formData)
       .then(() => {
         console.log('Profile updated successfully');
         showSuccess && showSuccess();
-      }
-    )
+      })
       .catch((error) => {
         console.error('Error updating profile:', error);
-        // Handle error (e.g., show error message)
-      }
-    );
-
-
-
-  }, [showSuccess]);
-
-
+      });
+  }, [showSuccess, selectedImage, updateProfile]);
 
   const [valuesSet, setValuesSet] = React.useState(false);
 
@@ -100,22 +151,63 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
       setValue('Address.street', user.address?.street || '');
       setValue('profileImageUrl', user.picture || '');
       setValue('height', Number(user.otherData?.height) || 0);
-      setValue('gender', user.gender || 0);
-      setValue('age', Number(user.age) || 0);
-      setValue('isSmoker', user.isSmoker || false);
-      setValue('needPublicService', user.needPublicService || false);
-      setValue('needPublicTransportation', user.needPublicTransportation || false);
-      setValue('needNearUniversity', user.needNearUniversity || false);
-      setValue('needNearVitalPlaces', user.needNearVitalPlaces || false);
+      setValue('gender', user.otherData?.gender || 0);
+      setValue('age', Number(user.otherData?.age) || 0);
+      setValue('isSmoker', user.otherData?.isSmoker || false);
+      setValue('needPublicService', user.otherData?.needPublicService || false);
+      setValue('needPublicTransportation', user.otherData?.needPublicTransportation || false);
+      setValue('needNearUniversity', user.otherData?.needNearUniversity || false);
+      setValue('needNearVitalPlaces', user.otherData?.needNearVitalPlaces || false);
+
+      // Set selected governorate if available
+      if (user.address?._gover) {
+        setSelectedGovern(Number(user.address._gover));
+      }
+
       console.log('Profile data set from userData:', user);
       setValuesSet(true);
     }
-  }, [userData, setValue, valuesSet]);
+  }, [user, setValue, valuesSet]);
 
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Profile Image Section - Top of the form */}
+          <div className="flex flex-col items-center space-y-4 pb-6 border-b border-gray-200">
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-200 shadow-lg bg-gray-100">
+                {(imagePreview || user?.picture) ? (
+                  <img
+                    src={imagePreview || user?.picture}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-indigo-200">
+                    <User className="h-16 w-16 text-indigo-400" />
+                  </div>
+                )}
+              </div>
+
+              {/* Upload button overlay */}
+              <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors">
+                <Image className="h-4 w-4" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <div className="text-center">
+              <h4 className="text-lg font-semibold text-gray-800">الصورة الشخصية</h4>
+              <p className="text-sm text-gray-600">اضغط على الأيقونة لتغيير الصورة</p>
+            </div>
+          </div>
+
           {/* Personal Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-1   border-gray-200">
@@ -181,15 +273,6 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
                 </select>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">رابط الصورة الشخصية</label>
-              <input
-                {...register('profileImageUrl')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                placeholder="رابط الصورة الشخصية"
-              />
-            </div>
           </div>
 
           {/* Address Information */}
@@ -202,27 +285,43 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المحافظة</label>
-                <input
-                  type="number"
-                  {...register('address._gover')}
+                <select
+                  {...register('Address._gover')}
+                  onChange={(e) => {
+                    setSelectedGovern(Number(e.target.value));
+                    setValue('Address._gover', Number(e.target.value));
+                  }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  placeholder="رقم المحافظة"
-                />
+                >
+                  <option value="">اختر المحافظة</option>
+                  {GovernorateList.map((governorate) => (
+                    <option key={governorate.id} value={governorate.id}>
+                      {governorate.name_ar}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المدينة</label>
-                <input
-                  {...register('address._city')}
+                <select
+                  {...register('Address._city')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  placeholder="اسم المدينة"
-                />
+                  disabled={!selectedGovern}
+                >
+                  <option value="">اختر المدينة</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.name_ar}>
+                      {city.name_ar}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">الشارع</label>
                 <input
-                  {...register('address.street')}
+                  {...register('Address.street')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   placeholder="اسم الشارع"
                 />
