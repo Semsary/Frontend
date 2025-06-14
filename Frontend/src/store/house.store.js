@@ -164,6 +164,27 @@ const useHouseStore = create(
           return null;
         }
       },
+
+      getApprovedHouses: async () => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get(
+            "/LandLord/get/all/approved/houses"
+          );
+          set({ loading: false, houses: response.data });
+          
+          return response.data;
+        } catch (err) {
+          console.error("Error fetching approved houses:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء جلب المنازل المعتمدة",
+            loading: false,
+          });
+          return [];
+        }
+      },
+
     }),
     {
       name: "house-storage",
