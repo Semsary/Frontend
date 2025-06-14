@@ -3,12 +3,15 @@ import { MapPin, Building2, MoreVertical, Loader, ImageUp } from 'lucide-react';
 import { getAllGovernorates } from 'egylist'
 import useHouseStore from '../../../store/house.store';
 import InspectModal from './InspectModal';
+import ViewHouseDataModal from './ViewHouseDataModal';
 
 const HomesGrid = ({ trigger }) => {
 
   const { getHouses } = useHouseStore();
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
+  const [viewDataModalOpen, setViewDataModalOpen] = useState(false);
   const [selectedHome, setSelectedHome] = useState(null);
+  const [selectedHouseId, setSelectedHouseId] = useState(null);
   const [homesList, setHomesList] = useState([]);
   const Cities = getAllGovernorates();
 
@@ -36,6 +39,10 @@ const HomesGrid = ({ trigger }) => {
     setInspectModalOpen(true);
   };
 
+  const handleViewDataModal = (home) => {
+    setSelectedHouseId(home.houseId);    
+    setViewDataModalOpen(true);
+  };
 
   const getStatusText = (status) => {
     if (status === 0) {
@@ -123,34 +130,50 @@ const HomesGrid = ({ trigger }) => {
             {/* Action Button */}
             {
               home.status === 2 ? (
-                <div className="flex flex-row gap-2" >
-                  <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                    عرض التفاصيل
-                  </button>
-                  <button
-                    onClick={() => handleInspectModal(home)}
-                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                    طلب معاينة
-                    <MapPin className="inline-block mr-2" />
-                  </button>
-                </div>
+                // <div className="flex flex-row gap-2" >
+                //   <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                //     عرض التفاصيل
+                //   </button>
+                //   <button
+                //     onClick={() => handleInspectModal(home)}
+                //     className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                //     طلب معاينة
+                //     <MapPin className="inline-block mr-2" />
+                //   </button>
+                // </div>
+                <button
+                  disabled={true}
+                  className="w-full mt-4 bg-blue-400  hover:bg-blue-300 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  جاري التنفيذ
+                  <ImageUp className="inline-block mr-2" />
+                </button>
+
               ) : home.status === 0 ? (
                 <button
-                  onClick={() => handleInspectModal(home)}
+                  onClick={() => {
+                    handleInspectModal(home);
+
+
+                  }}
                   className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
                   طلب معاينة
                   <MapPin className="inline-block mr-2" />
                 </button>
               ) : home.status === 1 ? (
-                    <button
-                      disabled={true}
-                      className="w-full mt-4 bg-blue-400  hover:bg-blue-300 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                      قيد التنفيذ
-                      <ImageUp className="inline-block mr-2" />
+                <button
+                  disabled={true}
+                  className="w-full mt-4 bg-blue-400  hover:bg-blue-300 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  الطلب قيد الانتظار
+                  <ImageUp className="inline-block mr-2" />
                 </button>
               ) : home.status === 3 ? (
-                <button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
-                  تمت اضافة البيانات
+                <button
+                        onClick={() => {
+                          handleViewDataModal(home)
+                          // console.log(home);
+                  }}
+                  className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  عرض بيانات العقار
                 </button>
               ) : home.status === 4 ? (
                 <button className="w-full mt-4 bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium cursor-not-allowed">
@@ -164,6 +187,15 @@ const HomesGrid = ({ trigger }) => {
             }
           </div>
         ))}
+        {
+          homesList.length === 0 && (
+            <div className="col-span-1 md:col-span-2 lg:col-span-3">
+              <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                لا توجد عقارات لعرضها
+              </div>
+            </div>
+          )}
+
       </div>
 
 
@@ -177,7 +209,18 @@ const HomesGrid = ({ trigger }) => {
         />)
       }
 
-
+      {
+        viewDataModalOpen && (
+          <ViewHouseDataModal
+            closeModal={() => {
+              setViewDataModalOpen(false);
+              setSelectedHouseId(null);
+              
+            }}
+            houseId={selectedHouseId}
+          />
+        )
+      }
 
     </div>
   );

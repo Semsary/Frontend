@@ -15,6 +15,7 @@ const useHouseStore = create(
       houses: [],
       loading: false,
       error: null,
+      houseDone: [],
 
       createHouse: async (houseData) => {
         set({ loading: true, error: null });
@@ -70,6 +71,41 @@ const useHouseStore = create(
         }
       },
 
+      getHousesDone: async () => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get("/LandLord/Houses/GetAll");
+          const NotInspectedHouses = response.data.notInspectedHouses || [];
+          const InspectedHouses = response.data.inspectedHouses || [];
+          const combinedHouses = NotInspectedHouses.map((house) => ({
+            ...house,
+            status: 0,
+          })).concat(
+            InspectedHouses.map((house) => ({
+              ...house,
+              status: house.lastInspectionStatus,
+            }))
+          );
+          // Filter out and retuen houses status 4 (completed)
+          const completedHouses = combinedHouses.filter(
+            (house) => house.status === 4
+          );
+          set({
+            completedHouses: completedHouses,
+            loading: false,
+            error: null,
+          });
+          return completedHouses;
+        } catch (err) {
+          console.error("Error fetching houses:", err);
+          set({
+            error: err.response?.data?.message || "حدث خطأ أثناء جلب المنازل",
+            loading: false,
+          });
+          return [];
+        }
+      },
+
       createInspection: async (houseId) => {
         set({ loading: true, error: null });
         try {
@@ -77,13 +113,52 @@ const useHouseStore = create(
             "LandLord/inspection/request/" + houseId
           );
           set({ loading: false });
-          
+
           return response.data;
         } catch (err) {
           console.error("Error creating inspection:", err);
           set({
             error:
               err.response?.data?.message || "حدث خطأ أثناء إنشاء المعاينة",
+            loading: false,
+          });
+          return null;
+        }
+      },
+
+      getHouseInspectionData: async (houseId) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get(
+            `LandLord/inspection/get/${houseId}`
+          );
+          set({ loading: false });
+          console.log("House Inspection Data:", response);
+          return response.data;
+        } catch (err) {
+          console.error("Error fetching house inspection data:", err);
+          set({
+            error:
+              err.response?.data?.message ||
+              "حدث خطأ أثناء جلب بيانات المعاينة",
+            loading: false,
+          });
+          return null;
+        }
+      },
+
+      acceptHouseInspection: async (houseId) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.put(
+            `/LandLord/inspection/approve/${houseId}`
+          );
+          set({ loading: false });
+          return response.data;
+        } catch (err) {
+          console.error("Error accepting house inspection:", err);
+          set({
+            error: err.response?.data?.message || "حدث خطأ أثناء قبول المعاينة",
             loading: false,
           });
           return null;

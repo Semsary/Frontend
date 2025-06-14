@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   User,
   Home,
@@ -21,8 +21,21 @@ import {
   Plus,
   Eye,
 } from "lucide-react";
+import useHouseStore from '../../../store/house.store';
 
 const HomesTabs = ({ homesList, setActiveTab }) => {
+
+  const { getHousesDone } = useHouseStore();
+
+  const fetchHouses = async () => {
+    const houses = await getHousesDone();
+    console.table(houses);
+  };
+
+  useEffect(() => {
+    fetchHouses();
+  }, []);
+
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">

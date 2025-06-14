@@ -69,7 +69,7 @@ const ArabicDataTable = () => {
          
         setLoading(false);
       }
-    };
+    }; 
 
     fetchData();
   }, []);
@@ -172,7 +172,7 @@ const ArabicDataTable = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {data?.map((item, index) => (
+                  {data&&data?.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
@@ -196,6 +196,14 @@ const ArabicDataTable = () => {
                       </td>
                     </tr>
                   ))}
+
+                  {data?.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                        لا توجد بيانات لعرضها
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

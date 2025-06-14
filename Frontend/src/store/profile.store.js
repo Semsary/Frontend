@@ -19,7 +19,6 @@ const useProfileStore = create(
         try {
           const response1 = await axiosInstance.get("/Auth/Auth/Me");
 
-          console.log("Profile --- 00 User Data:", response1.data);
           const {
             basicUserInfo,
             otherLanlordData,
@@ -96,7 +95,6 @@ const useProfileStore = create(
         
         try {
           const isFormData = data instanceof FormData;
-          console.log("isFormData --- updating with data:", data);
           const response = await axiosInstance.put("/Auth/Edit/Profile", data, {
             headers: {
               "Content-Type": "multipart/form-data" 
@@ -116,10 +114,8 @@ const useProfileStore = create(
             user: mergedUser,
             loading: false,
           });
-          console.log("Profile --- updated successfully:", currentUser);
-          console.log("New User Data:", updatedUser);
 
-          console.log("Updated User:", mergedUser);
+          console.log("Updated User response:", response);
           return updatedUser;
         } catch (error) {
           console.error("Error updating profile:", error);

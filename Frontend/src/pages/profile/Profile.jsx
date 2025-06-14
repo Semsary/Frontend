@@ -71,7 +71,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadUserFromToken();
-    console.log("User data loaded:", user);
 
     if (user) {
       setUserData({

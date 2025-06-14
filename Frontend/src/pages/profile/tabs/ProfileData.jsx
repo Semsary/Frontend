@@ -41,12 +41,9 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
   const memoizedDefaultValues = useMemo(() => defaultValues || {
     Firstname: '',
     Lastname: '',
-    Address: {
-      id: 0,
-      _gover: 0,
-      _city: '',
-      street: 's'
-    },
+    gover: 0,
+    city: '',
+    street: '',
     profileImageUrl: '',
     height: 0,
     gender: 0,
@@ -100,7 +97,7 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
   }, []);
 
   const onSubmit = useCallback((data) => {
-    console.log('Profile Data:', data);
+    console.log('onSubmit Profile Data:', data);
 
     // Create FormData for file upload
     const formData = new FormData();
@@ -108,9 +105,9 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
     // Add all form fields to FormData
     formData.append('Firstname', data.Firstname);
     formData.append('Lastname', data.Lastname);
-    formData.append('Address._gover', data.Address?._gover || 0);
-    formData.append('Address._city', data.Address?._city || '');
-    formData.append('Address.street', data.Address?.street || '');
+    formData.append('gover',10);
+    formData.append('city', data.city || '');
+    formData.append('street', data.street || '');
     formData.append('height', data.height || 0);
     formData.append('gender', data.gender || 0);
     formData.append('age', data.age || 0);
@@ -122,12 +119,9 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
 
     // Add image file if selected
     if (selectedImage) {
-      console.log("image fffffffffff")
       formData.append('ProfileImage', selectedImage);
     }
 
-    console.log("formData -- ", formData)
-    console.table(selectedImage)
 
     updateProfile(formData)
       .then(() => {
@@ -146,9 +140,9 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
       // Set all values at once and mark as set
       setValue('Firstname', user.firstName || '');
       setValue('Lastname', user.lastName || '');
-      setValue('Address._gover', Number(user.address?._gover) || 0);
-      setValue('Address._city', user.address?._city || '');
-      setValue('Address.street', user.address?.street || '');
+      setValue('gover', Number(user.address?._gover) || 0);
+      setValue('city', user.address?._city || '');
+      setValue('street', user.address?.street || '');
       setValue('profileImageUrl', user.picture || '');
       setValue('height', Number(user.otherData?.height) || 0);
       setValue('gender', user.otherData?.gender || 0);
@@ -286,14 +280,15 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المحافظة</label>
                 <select
-                  {...register('Address._gover')}
+                  {...register('gover')}
                   onChange={(e) => {
-                    setSelectedGovern(Number(e.target.value));
-                    setValue('Address._gover', Number(e.target.value));
+                    const governValue = Number(e.target.value);
+                    setSelectedGovern(governValue);
+                    setValue('gover', governValue);
                   }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 >
-                  <option value="">اختر المحافظة</option>
+                  <option value={0}>اختر المحافظة</option>
                   {GovernorateList.map((governorate) => (
                     <option key={governorate.id} value={governorate.id}>
                       {governorate.name_ar}
@@ -305,7 +300,7 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المدينة</label>
                 <select
-                  {...register('Address._city')}
+                  {...register('city')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   disabled={!selectedGovern}
                 >
@@ -321,7 +316,7 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">الشارع</label>
                 <input
-                  {...register('Address.street')}
+                  {...register('street')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   placeholder="اسم الشارع"
                 />
