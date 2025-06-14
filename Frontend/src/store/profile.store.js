@@ -14,6 +14,8 @@ const useProfileStore = create(
       user: null,
       loading: false,
       error: null,
+
+
       loadUserFromToken: async () => {
         set({ loading: true, error: null });
         try {
@@ -24,20 +26,26 @@ const useProfileStore = create(
             otherLanlordData,
             otherTenantData,
           } = response1.data;
+
+
           const {
             firstname,
-            profileImageUrl,lastname,
+            profileImageUrl,
+            lastname,
             address,
             emails,
             userType,
+            username,
           } = basicUserInfo;
 
           const baseUserData = {
             firstName: firstname,
             lastName: lastname,
+            fullAddress: address? address?._city + " - " + address?.street : " بدون عنوان",
             address,
             email: emails[0],
             userType,
+            username: username || emails[0],
             picture:
               profileImageUrl ||
               `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
@@ -70,18 +78,21 @@ const useProfileStore = create(
             3: {}, // Customer Service
           };
 
-          const userData = userTypeConfigs[userType]
-            ? { ...baseUserData, ...userTypeConfigs[userType] }
-            : null;
+          const userData = {
+            ...baseUserData,
+            ...userTypeConfigs[userType],
+          };
 
+
+          console.log("User Data: store baseUserData", baseUserData);
+          console.log("User Data: store userTypeConfigs", userData);
           set({
             user: userData,
             loading: false,
           });
-
-          set({ user: userData, loading: false });
           return userData;
         } catch (err) {
+          console.error("Error loading user data:", err);
           set({
             error: "فشل تحميل بيانات المستخدم",
             loading: false,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   Home,
@@ -23,8 +23,27 @@ import {
   Wallet,
   XCircle,
 } from "lucide-react";
+import useProfileStore from "../../../store/profile.store";
 
-const ProfileTab = ({ userData }) => { 
+const ProfileTab = () => { 
+  const [userData, setUserData] = useState()
+  const { loadUserFromToken } = useProfileStore();
+  
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = await loadUserFromToken();
+        console.log("User Data:", user);
+        setUserData(user);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
+    };
+    fetchUserData();
+ 
+  }, []);
+
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">
@@ -38,7 +57,7 @@ const ProfileTab = ({ userData }) => {
               الاسم الأول
             </label>
             <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
-              {userData.firstName}
+              {userData?.firstName}
             </div>
           </div>
           <div className="space-y-2">
@@ -46,7 +65,7 @@ const ProfileTab = ({ userData }) => {
               الاسم الأخير
             </label>
             <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
-              {userData.lastName}
+              {userData?.lastName}
             </div>
           </div>
           <div className="space-y-2">
@@ -55,26 +74,26 @@ const ProfileTab = ({ userData }) => {
               <span>البريد الإلكتروني</span>
             </label>
             <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
-              {userData.email}
+              {userData?.email}
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-600 flex items-center gap-1">
-              <Phone className="h-4 w-4 text-indigo-500" />
-              <span>رقم الهاتف</span>
-            </label>
-            <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
-              {userData.phone}
-            </div>
-          </div>
-          <div className="space-y-2 md:col-span-2">
             <label className="block text-sm font-medium text-gray-600 flex items-center gap-1">
               <MapPin className="h-4 w-4 text-indigo-500" />
               <span>العنوان</span>
             </label>
             <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
-              {userData.address}
+              {userData?.fullAddress}
             </div>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            {/* <label className="block text-sm font-medium text-gray-600 flex items-center gap-1">
+              <MapPin className="h-4 w-4 text-indigo-500" />
+              <span>العنوان</span>
+            </label>
+            <div className="flex items-center p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-800">
+              {userData?.fullAddress}
+            </div> */}
           </div>
         </div>
 
@@ -88,20 +107,20 @@ const ProfileTab = ({ userData }) => {
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">حالة الحساب</h3>
                 <p className="text-indigo-700 font-bold">
-                  {userData.accountStatus}
+                  {userData?.accountStatus}
                 </p>
               </div>
             </div>
           </div>
       
-          <div className={`${userData.verificationStatus
+          <div className={`${userData?.verificationStatus
               ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100'
               : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-100'
             } rounded-xl p-4 border hover:shadow-md transition-shadow`}>
             <div className="flex items-center gap-4">
-              <div className={`${userData.verificationStatus ? 'bg-emerald-100' : 'bg-red-100'
+              <div className={`${userData?.verificationStatus ? 'bg-emerald-100' : 'bg-red-100'
                 } p-3 rounded-xl`}>
-                {userData.verificationStatus ? (
+                {userData?.verificationStatus ? (
                   <CheckCircle className="h-6 w-6 text-emerald-600" />
                 ) : (
                   <XCircle className="h-6 w-6 text-red-600" />
@@ -109,9 +128,9 @@ const ProfileTab = ({ userData }) => {
               </div>
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">حالة التحقق</h3>
-                <p className={`${userData.verificationStatus ? 'text-emerald-700' : 'text-red-700'
+                <p className={`${userData?.verificationStatus ? 'text-emerald-700' : 'text-red-700'
                   } font-bold`}>
-                  {userData.verificationStatus ? 'محقق' : 'غير محقق'}
+                  {userData?.verificationStatus ? 'محقق' : 'غير محقق'}
                 </p>
               </div>
             </div>
@@ -126,7 +145,7 @@ const ProfileTab = ({ userData }) => {
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">الرصيد</h3>
                 <p className="text-green-700 font-bold text-lg">
-                  {userData.balance } ج.م
+                  {userData?.balance } ج.م
                 </p>
               </div>
             </div>

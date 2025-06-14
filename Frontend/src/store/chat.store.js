@@ -127,6 +127,7 @@ const useChatStore = create((set, get) => ({
       const { data } = await axiosChat.get(
         `/messages?senderId=${senderId}&receiverId=${receiverId}`
       );
+      console.log("Fetched messages:", data.messages);
       set({ messages: data.messages });
     } catch (err) {
       console.error("Fetch error:", err);

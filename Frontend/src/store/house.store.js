@@ -86,7 +86,7 @@ const useHouseStore = create(
               status: house.lastInspectionStatus,
             }))
           );
-          // Filter out and retuen houses status 4 (completed)
+          // Filter out and return houses status 4 (completed)
           const completedHouses = combinedHouses.filter(
             (house) => house.status === 4
           );
