@@ -9,7 +9,7 @@ import { Verified } from "lucide-react";
  */
 
 const useProfileStore = create(
-  persist(
+  
     (set, get) => ({
       user: null,
       loading: false,
@@ -138,13 +138,7 @@ const useProfileStore = create(
         }
       },
     }),
-    {
-      name: "user-storage",
-      partialize: (state) => ({
-        user: state.user,
-      }),
-    }
-  )
+   
 );
 
 export default useProfileStore;

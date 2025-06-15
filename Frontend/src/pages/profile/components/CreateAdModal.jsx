@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, MapPin, Home, Bed, Wind, Bath, Calendar, User, DollarSign, Image, Star, Save } from 'lucide-react';
 import useHouseStore from '../../../store/house.store';
 import { toast } from 'sonner';
+import EstematedPriceComponent from './EstematedPriceComponent';
 
 const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
   const { getHouseInspectionData, publishHouse } = useHouseStore();
@@ -39,24 +40,20 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
 
     setLoading(true);
     try {
-      // Here you would make the API call to submit rental data
-      console.log('Submitting rental data:', rentalForm);
-      console.log('Submitting rental data:', houseId);
 
-      // Call the publishHouse function from the store
       const result = await publishHouse(rentalForm);
-      console.log('Publish result:', result);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      if (!result) {
+        toast.error('فشل في نشر الإعلان');
+        return;
+      }
       toast.success('تم إرسال بيانات التأجير بنجاح');
-      closeModal();
+
     } catch (error) {
       console.error('Error submitting rental:', error);
       toast.error('فشل في إرسال بيانات التأجير');
     } finally {
       setLoading(false);
+      closeModal();
     }
   };
 
@@ -69,6 +66,7 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
 
   useEffect(() => {
     console.log('Fetching house data for ID:', houseData?.lastApprovedInspection?.houseId);
+    console.log('House ID from props:', houseData.house.estimated_Price);
     const fetchHouseData = async () => {
       try {
         setLoading(true);
@@ -128,7 +126,7 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-          عمل اعلان جديد
+            عمل اعلان جديد
           </h2>
           <button
             onClick={closeModal}
@@ -173,8 +171,10 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
                   <option value={1}>بالسرير</option>
                 </select>
               </div>
+            </div>
 
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   التكلفة اليومية (جنيه) *
@@ -189,8 +189,6 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
                 />
               </div>
 
-
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   التكلفة الشهرية (جنيه) *
@@ -204,7 +202,6 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
                   min="0"
                 />
               </div>
-
             </div>
 
             <div>
@@ -222,8 +219,13 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
           </div>
 
 
+          {/* Estimated Price Display */}
+
+          <EstematedPriceComponent houseData={houseData} />
+
+
           {/* Inspection Details */}
-          <div className="space-y-4">
+          <div className="space-y-4 hidden">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-600" />
               تفاصيل المعاينة
@@ -235,7 +237,7 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
                   <span className="text-sm">تاريخ طلب المعاينة</span>
                 </div>
                 <p className="text-lg font-semibold text-gray-900">
-                  {new Date(displayData.inspectionRequestDate).toLocaleDateString('ar-EG')}
+                  {new Date(displayData.inspectionRequestDate).toLocaleDateString('en-EG')}
                 </p>
               </div>
 
@@ -245,7 +247,7 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
                   <span className="text-sm">تاريخ المعاينة</span>
                 </div>
                 <p className="text-lg font-semibold text-gray-900">
-                  {new Date(displayData.inspectionDate).toLocaleDateString('ar-EG')}
+                  {new Date(displayData.inspectionDate).toLocaleDateString('en-EG')}
                 </p>
               </div>
 
@@ -265,7 +267,7 @@ const CreateAdModal = ({ closeModal, houseId, houseData, mode = "rental" }) => {
             className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-indigo-200"
             disabled={loading}
           >
-            {loading ? 'جاري الإرسال...' : 'إرسال بيانات التأجير'}
+            {loading ? 'جاري الإرسال...' : 'نشر الإعلان'}
           </button>
         </div>
 

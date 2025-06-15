@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { MapPin, Building2, MoreVertical, Loader, ImageUp } from 'lucide-react';
 import { getAllGovernorates } from 'egylist'
 import useHouseStore from '../../../store/house.store';
@@ -43,6 +43,11 @@ const HomesGrid = ({ trigger }) => {
     setSelectedHouseId(home.houseId);    
     setViewDataModalOpen(true);
   };
+
+
+  // useEffect(() => {
+  //   fetchHouses();    
+  // }, [viewDataModalOpen, inspectModalOpen]);
 
   const getStatusText = (status) => {
     if (status === 0) {
@@ -205,6 +210,7 @@ const HomesGrid = ({ trigger }) => {
             setInspectModalOpen(false);
             setSelectedHome(null);
           }}
+          fetchHouses={fetchHouses}
           home={selectedHome}
         />)
       }
@@ -217,6 +223,7 @@ const HomesGrid = ({ trigger }) => {
               setSelectedHouseId(null);
               
             }}
+            fetchHouses={fetchHouses}
             houseId={selectedHouseId}
           />
         )

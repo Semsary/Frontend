@@ -195,14 +195,14 @@ const useHouseStore = create(
           );
           console.log("Publish House Response:", response);
           set({ loading: false });
-          return response.data;
+          return true;
         } catch (err) {
           console.error("Error publishing house:", err);
           set({
             error: err.response?.data?.message || "حدث خطأ أثناء نشر المنزل",
             loading: false,
           });
-          return null;
+          return false;
         }
       },
 

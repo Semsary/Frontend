@@ -106,7 +106,7 @@ const HomesTabs = ({ setActiveTab }) => {
                         </span>
                         <span className="text-gray-600 flex items-center gap-1 text-xs bg-gray-50 px-2 py-1 rounded-md">
                           <Home className="h-3 w-3 text-teal-500" />
-                          {home.lastApprovedInspection?.numberOfBathRooms || 0} حمامات
+                          {home.lastApprovedInspection?.numberOfPathRooms || 0} حمامات
                         </span>
                         <span className="text-gray-600 flex items-center gap-1 text-xs bg-gray-50 px-2 py-1 rounded-md">
                           <Calendar className="h-3 w-3 text-purple-500" />
@@ -152,27 +152,7 @@ const HomesTabs = ({ setActiveTab }) => {
           ))}
         </div>
 
-        {/* Stats Panel */}
-        <div className="mt-8 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
-          <h3 className="text-lg font-medium mb-4 text-indigo-800 flex items-center gap-2">
-            <PieChart className="h-5 w-5 text-indigo-600" />
-            <span>إحصائيات العقارات</span>
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-center">
-              <span className="text-3xl font-bold text-indigo-600">2</span>
-              <span className="text-gray-600">إجمالي العقارات</span>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-center">
-              <span className="text-3xl font-bold text-emerald-600">1</span>
-              <span className="text-gray-600">متاح</span>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-center">
-              <span className="text-3xl font-bold text-amber-600">1</span>
-              <span className="text-gray-600">قيد الإنشاء</span>
-            </div>
-          </div>
-        </div>
+     
       </div>
 
       {/* Modal */}

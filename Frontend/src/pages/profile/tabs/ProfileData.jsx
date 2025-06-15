@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { getAllGovernorates, getCitiesByGovernorateId } from 'egylist';
 import useProfileStore from '../../../store/profile.store';
+import { toast } from 'sonner';
 
 const ProfileData = ({ showSuccess, defaultValues }) => {
 
@@ -46,8 +47,11 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
     street: '',
     profileImageUrl: '',
     height: 0,
+    weight: 0,
     gender: 0,
     age: 0,
+    NumberOfPeople: 1,
+    FavouriteRentalType: 0,
     isSmoker: false,
     needPublicService: false,
     needPublicTransportation: false,
@@ -99,18 +103,41 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
   const onSubmit = useCallback((data) => {
     console.log('onSubmit Profile Data:', data);
 
-    // Create FormData for file upload
+    if (!data.Firstname || !data.Lastname) {
+      toast.error('الرجاء ملء جميع الحقول المطلوبة');
+      return;
+    }
+
+    if (!data.age || (data.age <= 16 && data.age >= 100)) {
+      toast.error('الرجاء إدخال عمر صحيح');
+      return;
+    }
+    if (!data.height || (data.height <= 50 && data.height >= 230)) {
+      toast.error('الرجاء إدخال طول صحيح');
+      return;
+    }
+    if (data.weight && (data.weight <= 30 || data.weight >= 300)) {
+      toast.error('الرجاء إدخال وزن صحيح');
+      return;
+    }
+    if (!data.NumberOfPeople || data.NumberOfPeople < 1) {
+      toast.error('الرجاء إدخال عدد الأشخاص');
+      return;
+    }
+
     const formData = new FormData();
 
-    // Add all form fields to FormData
     formData.append('Firstname', data.Firstname);
     formData.append('Lastname', data.Lastname);
-    formData.append('gover',10);
+    formData.append('gover', 10);
     formData.append('city', data.city || '');
     formData.append('street', data.street || '');
     formData.append('height', data.height || 0);
+    formData.append('weight', data.weight || 0);
     formData.append('gender', data.gender || 0);
     formData.append('age', data.age || 0);
+    formData.append('NumberOfPeople', data.NumberOfPeople || 1);
+    formData.append('FavouriteRentalType', data.FavouriteRentalType || 0);
     formData.append('isSmoker', data.isSmoker || false);
     formData.append('needPublicService', data.needPublicService || false);
     formData.append('needPublicTransportation', data.needPublicTransportation || false);
@@ -145,8 +172,11 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
       setValue('street', user.address?.street || '');
       setValue('profileImageUrl', user.picture || '');
       setValue('height', Number(user.otherData?.height) || 0);
+      setValue('weight', Number(user.otherData?.weight) || 0);
       setValue('gender', user.otherData?.gender || 0);
       setValue('age', Number(user.otherData?.age) || 0);
+      setValue('NumberOfPeople', Number(user.otherData?.NumberOfPeople) || 1);
+      setValue('FavouriteRentalType', user.otherData?.FavouriteRentalType || 0);
       setValue('isSmoker', user.otherData?.isSmoker || false);
       setValue('needPublicService', user.otherData?.needPublicService || false);
       setValue('needPublicTransportation', user.otherData?.needPublicTransportation || false);
@@ -257,6 +287,19 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">الوزن (كغ)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  {...register('weight')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  placeholder="الوزن"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">الجنس</label>
                 <select
                   {...register('gender')}
@@ -266,6 +309,31 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
                   <option value={1}>أنثى</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">عدد الأشخاص</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register('NumberOfPeople', { required: 'عدد الأشخاص مطلوب', min: { value: 1, message: 'يجب أن يكون عدد الأشخاص 1 على الأقل' } })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  placeholder="عدد الأشخاص"
+                />
+                {errors.NumberOfPeople && <p className="text-red-500 text-sm mt-1">{errors.NumberOfPeople.message}</p>}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">نوع الإيجار المفضل</label>
+              <select
+                {...register('FavouriteRentalType')}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              >
+                <option value={0}>شقة كاملة</option>
+                <option value={1}>غرفة مشتركة</option>
+                <option value={2}>غرفة خاصة</option>
+                <option value={3}>استوديو</option>
+              </select>
             </div>
           </div>
 

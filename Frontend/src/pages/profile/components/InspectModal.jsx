@@ -2,7 +2,7 @@ import { Home, X } from 'lucide-react'
 import React from 'react'
 import useHouseStore from '../../../store/house.store';
 
-const InspectModal = ({ closeModal, home }) => {
+const InspectModal = ({ closeModal, home, fetchHouses }) => {
     const { createInspection } = useHouseStore();
 
     const handleInspection = async () => {
@@ -11,6 +11,7 @@ const InspectModal = ({ closeModal, home }) => {
         if (success.message === "Inspection requested successfully"   ) {
             console.log("Inspection created successfully");
             closeModal();
+            fetchHouses();
 
         } else {
             console.error("Failed to create inspection");

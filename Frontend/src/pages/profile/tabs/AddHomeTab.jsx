@@ -57,7 +57,7 @@ const AddHomeTab = () => {
       closeModal();
       toast.success("تم إضافة العقار بنجاح");
       reset();
-      setTrigger(!trigger); // Refresh the HomesGrid
+      setTrigger(!trigger); // Refresh the HomesGrid 
     } else {
       toast.error("حدث خطأ أثناء إضافة العقار");
     }

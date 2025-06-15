@@ -3,7 +3,7 @@ import { X, MapPin, Home, Bed, Wind, Bath, Calendar, User, DollarSign, Image, St
 import useHouseStore from '../../../store/house.store';
 import { toast } from 'sonner';
 
-const ViewHouseDataModal = ({ closeModal, houseId }) => {
+const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
     const { getHouseInspectionData, acceptHouseInspection } = useHouseStore();
     const [houseData, setHouseData] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -18,6 +18,7 @@ const ViewHouseDataModal = ({ closeModal, houseId }) => {
             if (response) {
                 toast.success('تم قبول المعاينة بنجاح');
                 closeModal();
+                fetchHouses();
             } else {
                 console.error('Failed to accept inspection');
                 toast.error('فشل في قبول المعاينة');

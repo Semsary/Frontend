@@ -41,59 +41,21 @@ import useNotificationStore from "../../store/notification.store";
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Get initial tab from URL or default to "profile"
   const [activeTab, setActiveTab] = useState(() => {
     return searchParams.get('tab') || "profile";
   });
-  
+
   const [showNotification, setShowNotification] = useState(false);
-  const { loadUserFromToken, user } = useProfileStore()
+  const [userData, setUserData] = useState();
+  const { loadUserFromToken } = useProfileStore();
   const { allNotifications } = useNotificationStore()
 
-  const [userData, setUserData] = useState(
-    {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      address: "",
-      image: "/placeholder-avatar.jpg",
-      accountStatus: "نشط",
-      verificationStatus: "تم التحقق",
-      memberSince: "2023",
-      completionRate: 85,
-    }
-  );
-
-  useEffect(() => {
-    allNotifications()
-  }, [allNotifications]);
-
-
-
-
-  useEffect(() => {
-    loadUserFromToken();
-
-    if (user) {
-      setUserData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-        phone: user.phone || "01000000000",
-        address: user.address || "غير محدد",
-        image: user.picture || "/placeholder-avatar.jpg",
-        accountStatus: user.verified || "نشط",
-        verificationStatus: user.verified,
-        memberSince: user.memberSince || "2023",
-        completionRate: user.completionRate || 85,
-        balance: user.balance || 0,
-      });
-    }
-  }, [loadUserFromToken]);
-
-
+  const handleChangeTab = (tab) => {
+    console.log("Changing to tab:", tab);
+    setActiveTab(tab);
+  };
 
   const [homesList, setHomesList] = useState([
     {
@@ -111,6 +73,23 @@ export default function ProfilePage() {
       image: "/placeholder-property-2.jpg",
     },
   ]);
+
+  useEffect(() => {
+    allNotifications()
+  }, [allNotifications]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = await loadUserFromToken();
+        console.log("User Data:", user);
+        setUserData(user);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const showSuccess = () => {
     setShowNotification(true);
@@ -203,25 +182,26 @@ export default function ProfilePage() {
                 <div className="relative mb-4 group">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-500 p-1 relative">
                     <img
-                      src={userData.image}
+                      src={userData?.picture
+                        || "/placeholder-avatar.jpg"}
                       alt="صورة الملف الشخصي"
                       className="w-full h-full rounded-full object-cover"
                     />
 
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-800">{`${userData.firstName} ${userData.lastName}`}</h2>
+                <h2 className="text-xl font-bold text-gray-800">{`${userData?.firstName || ""} ${userData?.lastName || ""}`}</h2>
                 <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
                   <MailIcon className="h-3 w-3" />
-                  {userData.email}
+                  {userData?.email || ""}
                 </p>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={` text-xs px-2 py-1 rounded-full flex items-center gap-1
-                      ${userData.verificationStatus ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                      ${userData?.verified ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
                     }
                     `}>
                     <CheckCircle className="w-3 h-3" />
-                    {userData.verificationStatus ? "تم التحقق" : "غير موثق"}
+                    {userData?.verified ? "تم التحقق" : "غير موثق"}
                   </span>
                 </div>
 
@@ -270,23 +250,27 @@ export default function ProfilePage() {
                   </button>
                 </li>
 
-                <li>
-                  <button
-                    onClick={() => handleTabChange("addHome")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "addHome"
-                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                      : "text-gray-700 hover:bg-gray-50"
-                      } transition-colors`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <Plus className="h-5 w-5" />
-                      <span>إضافة عقار</span>
-                    </span>
-                    {activeTab === "addHome" && (
-                      <ChevronLeft className="h-5 w-5" />
-                    )}
-                  </button>
-                </li>
+                
+                {
+                  userData?.userType === 2 && (
+                
+                    <li>
+                      <button
+                        onClick={() => handleTabChange("addHome")}
+                        className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "addHome"
+                          ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                          : "text-gray-700 hover:bg-gray-50"
+                          } transition-colors`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <Plus className="h-5 w-5" />
+                          <span>إضافة عقار</span>
+                        </span>
+                        {activeTab === "addHome" && (
+                          <ChevronLeft className="h-5 w-5" />
+                        )}
+                      </button>
+                    </li>)}
 
                 <li>
                   <button
@@ -392,11 +376,11 @@ export default function ProfilePage() {
             </nav>
           </div>          {/* Main Content */}
           <div className="lg:col-span-3">
-            {activeTab === "profile" && <ProfileTab setActiveTab={handleTabChange}
+            {activeTab === "profile" && <ProfileTab setActiveTab={handleChangeTab}
               userData={userData} />}
             {activeTab === "homes" && (
               <HomesTabs
-                setActiveTab={handleTabChange}
+                setActiveTab={handleChangeTab}
               />
             )}
 
@@ -427,7 +411,7 @@ export default function ProfilePage() {
 
             {activeTab === "profileData" && (
               <ProfileData
-                setActiveTab={handleTabChange}
+                setActiveTab={handleChangeTab}
                 userData={userData}
                 showSuccess={showSuccess}
               />

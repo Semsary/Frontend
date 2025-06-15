@@ -7,7 +7,7 @@ import useNotificationStore from "./store/notification.store";
 
 function App() {
 
-    const {setFCMToken } = useNotificationStore()
+  const { setFCMToken } = useNotificationStore()
 
 
   const requestPermission = async () => {
@@ -33,7 +33,9 @@ function App() {
 
     onMessage(messaging, (payload) => {
       console.log("Message received. ", payload);
-      alert(`📩 ${payload.notification.title}: ${payload.notification.body}`);
+      const title = payload?.data?.title || payload?.notification?.title || "New Notification";
+      const body = payload?.data?.body || payload?.notification?.body || "You have a new message";
+      alert(`📩 ${title}: ${body}`);
     });
   }, []);
 
@@ -45,9 +47,9 @@ function App() {
 
 
 
-  
 
-  
+
+
   return (
     <>
       <AppRouter />
