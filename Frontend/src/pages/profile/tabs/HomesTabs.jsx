@@ -20,9 +20,11 @@ import {
   Edit,
   Plus,
   Eye,
+  ChevronRight,
 } from "lucide-react";
 import useHouseStore from '../../../store/house.store';
 import CreateAdModal from '../components/CreateAdModal';
+import { Link } from 'react-router-dom';
 
 const HomesTabs = ({ setActiveTab }) => {
 
@@ -31,6 +33,8 @@ const HomesTabs = ({ setActiveTab }) => {
   const [homesList, setHomesList] = useState([]);
   const [selectedHouse, setSelectedHouse] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
 
   const fetchHouses = async () => {
@@ -59,6 +63,28 @@ const HomesTabs = ({ setActiveTab }) => {
     setSelectedHouse(null);
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(homesList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentHomes = homesList.slice(startIndex, endIndex);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <>
       <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-200 hover:shadow-lg transition-shadow">
@@ -66,6 +92,11 @@ const HomesTabs = ({ setActiveTab }) => {
           <h2 className="text-xl font-bold flex items-center gap-2 text-indigo-800">
             <Home className="h-5 w-5 text-indigo-600" />
             <span>قائمة العقارات</span>
+            {homesList.length > 0 && (
+              <span className="text-sm font-normal text-gray-500">
+                ({homesList.length} عقار)
+              </span>
+            )}
           </h2>
           <button
             onClick={
@@ -79,7 +110,7 @@ const HomesTabs = ({ setActiveTab }) => {
         </div>
 
         <div className="space-y-4">
-          {homesList.map((home,id) => (
+          {currentHomes.map((home, id) => (
             <div
               key={id}
               className="bg-white p-4 rounded-xl transition-all hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 shadow-sm hover:shadow-md group"
@@ -138,13 +169,26 @@ const HomesTabs = ({ setActiveTab }) => {
                   </div>
                   <div className="flex items-center gap-3 justify-between md:justify-end mt-4">
 
-                    <button
-                      onClick={() => handleShowDetails(home)}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span>عرض التفاصيل</span>
-                    </button>
+                    {home.house.hasPublishedAdv ? (
+                      <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-green-100 text-green-800 border border-green-300 shadow-sm cursor-default select-none">
+                        <Eye className="h-5 w-5 text-green-600" />
+                        <span className="text-sm sm:text-base font-medium">
+                          تم نشر إعلان لهذا المنزل
+                        </span>
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleShowDetails(home)}
+                        className="group flex items-center gap-3 px-7 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
+                      >
+                        <Eye className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                        <span className="text-base tracking-wide">نشر إعلان</span>
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </button>
+                    )}
+
+
                   </div>
                 </div>
               </div>
@@ -152,7 +196,57 @@ const HomesTabs = ({ setActiveTab }) => {
           ))}
         </div>
 
-     
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-8 gap-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                }`}
+            >
+              <ChevronRight className="h-4 w-4" />
+              <span>السابق</span>
+            </button>
+
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`px-3 py-2 rounded-lg transition-all ${currentPage === index + 1
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                }`}
+            >
+              <span>التالي</span>
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Show message when no homes */}
+        {homesList.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <p>لا توجد عقارات لعرضها</p>
+          </div>
+        )}
       </div>
 
       {/* Modal */}

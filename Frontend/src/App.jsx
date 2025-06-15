@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import AppRouter from "./routes/AppRouter";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { messaging, getToken, onMessage } from "./config/firebase";
 import useNotificationStore from "./store/notification.store";
+import Notification from "./components/modals/Notification";
 
 function App() {
 
@@ -35,7 +36,11 @@ function App() {
       console.log("Message received. ", payload);
       const title = payload?.data?.title || payload?.notification?.title || "New Notification";
       const body = payload?.data?.body || payload?.notification?.body || "You have a new message";
-      alert(`📩 ${title}: ${body}`);
+      // alert(`📩 ${title}: ${body}`);
+      toast.custom((t) => (
+        <Notification title={title} body={body} onClose={() => toast.dismiss(t.id)} />
+      ));
+
     });
   }, []);
 
