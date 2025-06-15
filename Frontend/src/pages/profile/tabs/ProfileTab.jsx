@@ -25,9 +25,14 @@ import {
 } from "lucide-react";
 import useProfileStore from "../../../store/profile.store";
 
-const ProfileTab = () => { 
-  const [userData, setUserData] = useState()
+const ProfileTab = ({ setActiveTab }) => {
+  const [userData, setUserData] = useState();
   const { loadUserFromToken } = useProfileStore();
+
+  const handleChangeTab = (tab) => {
+    console.log("Changing to tab:", tab);
+    setActiveTab(tab);
+  };
   
   
   useEffect(() => {
@@ -42,7 +47,7 @@ const ProfileTab = () => {
     };
     fetchUserData();
  
-  }, []);
+  }, []); 
 
   return (
     <>
@@ -154,14 +159,14 @@ const ProfileTab = () => {
 
         <div className="flex justify-end gap-3">
           <button
-            // onClick={}
+            onClick={() => handleChangeTab("identity")}
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
           >
             <Shield className="h-4 w-4" />
             <span>تحقق من الهوية</span>
           </button>
           <button
-            // onClick={showSuccess}
+            onClick={() => handleChangeTab("settings")}
             className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-indigo-200 flex items-center gap-2"
           >
             <Edit className="h-4 w-4" />

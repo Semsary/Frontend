@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   User,
   Home,
@@ -36,11 +37,16 @@ import ChatPage from "./tabs/ChatPage";
 import ProfileData from "./tabs/ProfileData";
 
 import useProfileStore from "../../store/profile.store";
-import { toast } from "sonner";
 import useNotificationStore from "../../store/notification.store";
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get initial tab from URL or default to "profile"
+  const [activeTab, setActiveTab] = useState(() => {
+    return searchParams.get('tab') || "profile";
+  });
+  
   const [showNotification, setShowNotification] = useState(false);
   const { loadUserFromToken, user } = useProfileStore()
   const { allNotifications } = useNotificationStore()
@@ -60,12 +66,10 @@ export default function ProfilePage() {
     }
   );
 
-
   useEffect(() => {
-    if (true) {
-       allNotifications()
-    }
-  }, []);
+    allNotifications()
+  }, [allNotifications]);
+
 
 
 
@@ -81,7 +85,7 @@ export default function ProfilePage() {
         address: user.address || "غير محدد",
         image: user.picture || "/placeholder-avatar.jpg",
         accountStatus: user.verified || "نشط",
-        verificationStatus: user.verified ,
+        verificationStatus: user.verified,
         memberSince: user.memberSince || "2023",
         completionRate: user.completionRate || 85,
         balance: user.balance || 0,
@@ -89,7 +93,7 @@ export default function ProfilePage() {
     }
   }, [loadUserFromToken]);
 
-  
+
 
   const [homesList, setHomesList] = useState([
     {
@@ -113,11 +117,22 @@ export default function ProfilePage() {
     setTimeout(() => setShowNotification(false), 3000);
   };
 
+  // Function to handle tab changes and update URL
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    setSearchParams({ tab: newTab });
+  };
+
+  // Listen for URL changes (back/forward navigation)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams, activeTab]);
 
 
 
-
-  
   return (
     <div
       dir="rtl"
@@ -162,7 +177,7 @@ export default function ProfilePage() {
               </button>
 
               {/* User Profile */}
-       
+
               {/* Logout Button - Desktop */}
               <button className="hidden md:flex items-center space-x-1.5 rtl:space-x-reverse ml-4 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <LogOut className="h-4 w-4" />
@@ -192,7 +207,7 @@ export default function ProfilePage() {
                       alt="صورة الملف الشخصي"
                       className="w-full h-full rounded-full object-cover"
                     />
-                  
+
                   </div>
                 </div>
                 <h2 className="text-xl font-bold text-gray-800">{`${userData.firstName} ${userData.lastName}`}</h2>
@@ -202,19 +217,18 @@ export default function ProfilePage() {
                 </p>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={` text-xs px-2 py-1 rounded-full flex items-center gap-1
-                      ${
-                    userData.verificationStatus? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
-                      }
+                      ${userData.verificationStatus ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                    }
                     `}>
                     <CheckCircle className="w-3 h-3" />
-                    {userData.verificationStatus? "تم التحقق" : "غير موثق"}
+                    {userData.verificationStatus ? "تم التحقق" : "غير موثق"}
                   </span>
                 </div>
 
                 {/* Progress bar */}
-            
-                
-             
+
+
+
               </div>
             </div>
 
@@ -223,12 +237,11 @@ export default function ProfilePage() {
               <ul>
                 <li>
                   <button
-                    onClick={() => setActiveTab("profile")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "profile"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    } transition-colors`}
+                    onClick={() => handleTabChange("profile")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "profile"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
                       <User className="h-5 w-5" />
@@ -241,12 +254,11 @@ export default function ProfilePage() {
                 </li>
                 <li>
                   <button
-                    onClick={() => setActiveTab("homes")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "homes"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    } transition-colors`}
+                    onClick={() => handleTabChange("homes")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "homes"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
                       <Home className="h-5 w-5" />
@@ -260,11 +272,10 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("addHome")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "addHome"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
+                    onClick={() => handleTabChange("addHome")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "addHome"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
                       } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
@@ -279,11 +290,10 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("chat")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "chat"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
+                    onClick={() => handleTabChange("chat")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "chat"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
                       } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
@@ -300,11 +310,10 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("profileData")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "profileData"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
+                    onClick={() => handleTabChange("profileData")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "profileData"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
                       } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
@@ -322,12 +331,11 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("security")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "security"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    } transition-colors`}
+                    onClick={() => handleTabChange("security")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "security"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
                       <Lock className="h-5 w-5" />
@@ -341,12 +349,11 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("identity")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "identity"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    } transition-colors`}
+                    onClick={() => handleTabChange("identity")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "identity"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
                       <Shield className="h-5 w-5" />
@@ -366,12 +373,11 @@ export default function ProfilePage() {
 
                 <li>
                   <button
-                    onClick={() => setActiveTab("settings")}
-                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${
-                      activeTab === "settings"
-                        ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    } transition-colors`}
+                    onClick={() => handleTabChange("settings")}
+                    className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "settings"
+                      ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                      : "text-gray-700 hover:bg-gray-50"
+                      } transition-colors`}
                   >
                     <span className="flex items-center gap-3">
                       <Settings className="h-5 w-5" />
@@ -384,14 +390,13 @@ export default function ProfilePage() {
                 </li>
               </ul>
             </nav>
-          </div>
-
-          {/* Main Content */}
+          </div>          {/* Main Content */}
           <div className="lg:col-span-3">
-            {activeTab === "profile" && <ProfileTab userData={userData} />}
+            {activeTab === "profile" && <ProfileTab setActiveTab={handleTabChange}
+              userData={userData} />}
             {activeTab === "homes" && (
-              <HomesTabs homesList={homesList} setHomesList={setHomesList}
-                setActiveTab={setActiveTab}
+              <HomesTabs
+                setActiveTab={handleTabChange}
               />
             )}
 
@@ -411,7 +416,7 @@ export default function ProfilePage() {
                 showSuccess={showSuccess}
               />
             )}
-            
+
             {activeTab === "addHome" && (
               <AddHomeTab
                 homesList={homesList}
@@ -422,6 +427,7 @@ export default function ProfilePage() {
 
             {activeTab === "profileData" && (
               <ProfileData
+                setActiveTab={handleTabChange}
                 userData={userData}
                 showSuccess={showSuccess}
               />

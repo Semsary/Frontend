@@ -172,6 +172,7 @@ const useHouseStore = create(
             "/LandLord/get/all/approved/houses"
           );
           set({ loading: false, houses: response.data });
+          console.log("Approved Houses:", response.data);
           
           return response.data;
         } catch (err) {
@@ -182,6 +183,26 @@ const useHouseStore = create(
             loading: false,
           });
           return [];
+        }
+      },
+
+      publishHouse: async (homeData) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.post(
+            `/LandLord/CreateAdvertisement`,
+            homeData
+          );
+          console.log("Publish House Response:", response);
+          set({ loading: false });
+          return response.data;
+        } catch (err) {
+          console.error("Error publishing house:", err);
+          set({
+            error: err.response?.data?.message || "حدث خطأ أثناء نشر المنزل",
+            loading: false,
+          });
+          return null;
         }
       },
 

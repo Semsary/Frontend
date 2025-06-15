@@ -50,10 +50,7 @@ const HomesTabs = ({ setActiveTab }) => {
   const handleShowDetails = (house) => {
     const id = house?.lastApprovedInspection?.houseId;
     setSelectedHouse(house);
-    console.log("home?.lastApprovedInspection?.inspectorId ", house)
-    console.log("home?.lastApprovedInspection?.inspectorId ", house?.lastApprovedInspection
-      ?.houseId
-    )
+
     setShowModal(true);
   };
 
@@ -82,9 +79,9 @@ const HomesTabs = ({ setActiveTab }) => {
         </div>
 
         <div className="space-y-4">
-          {homesList.map((home) => (
+          {homesList.map((home,id) => (
             <div
-              key={home?.lastApprovedInspection?.inspectorId}
+              key={id}
               className="bg-white p-4 rounded-xl transition-all hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 shadow-sm hover:shadow-md group"
             >
               <div className="flex flex-col md:flex-row gap-4">
@@ -102,7 +99,7 @@ const HomesTabs = ({ setActiveTab }) => {
                       {home.house.city} - {home.house.street}
                     </h3>
                     <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                      <span className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
                         <span className="text-gray-600 flex items-center gap-1 text-xs bg-gray-50 px-2 py-1 rounded-md">
                           <User className="h-3 w-3 text-blue-500" />
                           {home.lastApprovedInspection?.numberOfBedRooms || 0} غرف نوم
@@ -135,19 +132,12 @@ const HomesTabs = ({ setActiveTab }) => {
                           <Bell className="h-3 w-3 text-pink-500" />
                           {home.lastApprovedInspection?.numberOfChairs || 0} كراسي
                         </span>
-                      </div>
+                      </span>
                     </p>
 
                   </div>
                   <div className="flex items-center gap-3 justify-between md:justify-end mt-4">
-                    <span
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium shadow-sm ${home.status === "متاح"
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                        : "bg-amber-100 text-amber-800 border border-amber-200"
-                        }`}
-                    >
-                      {home.status}
-                    </span>
+
                     <button
                       onClick={() => handleShowDetails(home)}
                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
