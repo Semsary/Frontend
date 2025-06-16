@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useHouseStore from './../../store/house.store';
+import MapDisplay from './../../components/MapDisplay';
 import {
   MapPin,
   Star,
@@ -401,15 +402,20 @@ const PropertyDetailsPage = () => {
             {/* Map Section */}
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-4">الموقع</h2>
-              <div className="aspect-[16/9] bg-gray-200 rounded-2xl flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-2" />
-                  <p>خريطة الموقع</p>
-                  <p className="text-sm">
-                    خط الطول: {houseInspectionInfo.longitude}<br />
-                    خط العرض: {houseInspectionInfo.latitude}
-                  </p>
-                </div>
+              <div className="aspect-[16/9] rounded-2xl overflow-hidden">
+                <MapDisplay
+                  latitude={houseInspectionInfo.latitude}
+                  longitude={houseInspectionInfo.longitude}
+                  title={houseMainInfo.houseName}
+                />
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                <p>
+                  <span className="font-medium">الإحداثيات:</span> {houseInspectionInfo.latitude}, {houseInspectionInfo.longitude}
+                </p>
+                <p>
+                  <span className="font-medium">العنوان:</span> {houseMainInfo.city}, {houseMainInfo.street}
+                </p>
               </div>
             </div>
           </div>
