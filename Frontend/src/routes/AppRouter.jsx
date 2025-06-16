@@ -6,6 +6,7 @@ import {
 import Dashboard from "../pages/dashboard/Dashboard.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import HomePage from "../pages/home/HomePage.jsx";
+import PropertyDetailsPage from "../pages/home/PropertyDetailsPage.jsx";
 import Login from "../pages/auth/Login.jsx";
 import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import VerifyCode from "../pages/auth/VerifyCode.jsx";
@@ -17,6 +18,7 @@ import ErrorElement from "../pages/errors/ErrorElement.jsx";
 import Profile from "../pages/profile/profile.jsx";
 import ChatComponent2 from "../temp-testing/Chat copy.jsx";
 import Chat from "../temp-testing/CChat.jsx";
+import BookingPage from "../pages/home/BookingPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -94,6 +96,18 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/ad/:id",
+    element: <PropertyDetailsPage />,
+    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/booking/:id",
+    element: <BookingPage />,
     // errorElement: <ErrorElement errorMessage="Password reset failed" />,
     errorElement: <ErrorElement />,
   },

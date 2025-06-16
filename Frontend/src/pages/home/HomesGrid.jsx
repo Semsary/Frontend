@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Heart, MapPin, Star } from "lucide-react";
 import useHomesStore from "../../store/house.store";
+import { Link } from "react-router-dom";
 
 
 const HomesGrid = ({ homes }) => {
   // Mock data for demonstration since we don't have the store
   const { filteredAdvertisements, loading, error } = useHomesStore();
 
+  useEffect(() => {
+    console.log("Filtered Advertisements:", filteredAdvertisements);
+  }, [filteredAdvertisements]);
 
   if (loading) {
     return (
@@ -102,9 +106,11 @@ const HomesGrid = ({ homes }) => {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full bg-gray-900 hover:bg-blue-600 text-white font-medium py-2.5 px-3 rounded-xl transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95 text-sm mt-auto">
-                عرض التفاصيل
-              </button>
+              <Link to={`/ad/${home.advertisementId}`} className="w-full">
+                <button className="w-full bg-gray-900 hover:bg-blue-600 text-white font-medium py-2.5 px-3 rounded-xl transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95 text-sm mt-auto">
+                  عرض التفاصيل
+                </button>
+              </Link>
             </div>
           </div>
         ))}

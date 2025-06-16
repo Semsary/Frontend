@@ -234,7 +234,26 @@ const useHouseStore = create(
           });
         }
       },
-      
+
+      getHouseById: async (houseId) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get(
+            `/Tenant/Advertisment/Detials/${houseId}`
+          );
+          set({ loading: false });
+          return response.data;
+        } catch (err) {
+          console.error("Error fetching house by ID:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء جلب المنزل",
+            loading: false,
+          });
+          return null;
+        }
+      },
+
     }),
     {
       name: "house-storage",
