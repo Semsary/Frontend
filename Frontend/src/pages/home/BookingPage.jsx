@@ -115,13 +115,7 @@ const BookingPage = () => {
   ]);
 
   // Function to decode houseFeature integer into individual features
-  const getActiveFeatures = (houseFeatureValue) => {
-    if (!houseFeatureValue) return [];
 
-    return defaultHomeFeatures.filter(feature => {
-      return (houseFeatureValue & feature.id) === feature.id;
-    });
-  };
 
   // Calculate duration and estimated price
   const calculatedData = useMemo(() => {
@@ -217,7 +211,6 @@ const BookingPage = () => {
   }
 
   // Get active features from the houseFeature value
-  const activeFeatures = getActiveFeatures(houseInspectionInfo?.houseFeature);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50" dir="rtl">
@@ -278,91 +271,91 @@ const BookingPage = () => {
           <div className="lg:col-span-3">
             {/* Step 1: Date Selection */}
             {currentStep === 1 && (
-              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-8 h-8 text-blue-600" />
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Calendar className="w-6 h-6 text-blue-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">اختر تواريخ إقامتك</h2>
-                  <p className="text-gray-600">حدد تواريخ بداية ونهاية الإقامة مع أوقات الوصول</p>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">اختر تواريخ إقامتك</h2>
+                  <p className="text-gray-600 text-sm">حدد تواريخ بداية ونهاية الإقامة مع أوقات الوصول</p>
                 </div>
 
                 {/* Stay Dates */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Calendar className="w-5 h-5 text-blue-600 ml-2" />
+                <div className="mb-6">
+                  <h3 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                    <Calendar className="w-4 h-4 text-blue-600 ml-2" />
                     فترة الإقامة
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         تاريخ بداية الإقامة
                       </label>
                       <input
                         type="date"
                         value={bookingData.startDate}
                         onChange={(e) => setBookingData(prev => ({ ...prev, startDate: e.target.value }))}
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-lg"
+                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                       />
                     </div>
                     <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         تاريخ نهاية الإقامة
                       </label>
                       <input
                         type="date"
                         value={bookingData.endDate}
                         onChange={(e) => setBookingData(prev => ({ ...prev, endDate: e.target.value }))}
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-lg"
+                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Arrival Times */}
-                <div className="border-t border-gray-100 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Clock className="w-5 h-5 text-blue-600 ml-2" />
+                <div className="border-t border-gray-100 pt-6">
+                  <h3 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                    <Clock className="w-4 h-4 text-blue-600 ml-2" />
                     أوقات الوصول المتوقعة
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         وقت الوصول من
                       </label>
                       <input
                         type="datetime-local"
                         value={bookingData.startArrivalDate}
                         onChange={(e) => setBookingData(prev => ({ ...prev, startArrivalDate: e.target.value }))}
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-lg"
+                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                       />
                     </div>
                     <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         وقت الوصول إلى
                       </label>
                       <input
                         type="datetime-local"
                         value={bookingData.endArrivalDate}
                         onChange={(e) => setBookingData(prev => ({ ...prev, endArrivalDate: e.target.value }))}
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-lg"
+                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Step 1 Navigation */}
-                <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
+                <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
                   <button
                     onClick={handleBack}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+                    className="px-6 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
                   >
                     إلغاء
                   </button>
                   <button
                     onClick={handleNext}
                     disabled={!isStep1Valid()}
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl flex items-center"
+                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl flex items-center"
                   >
                     التالي
                     <ChevronLeft className="w-4 h-4 mr-2" />
@@ -542,24 +535,7 @@ const BookingPage = () => {
                 </div>
 
                 {/* Property Features */}
-                {activeFeatures.length > 0 && (
-                  <div className="border-t border-gray-100 pt-4">
-                    <h4 className="font-bold text-gray-900 mb-3 text-sm">المميزات المتوفرة</h4>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {activeFeatures.slice(0, 6).map((feature) => (
-                        <div key={feature.id} className="flex items-center">
-                          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></div>
-                          <span className="text-xs text-gray-600">{feature.translation}</span>
-                        </div>
-                      ))}
-                      {activeFeatures.length > 6 && (
-                        <div className="text-xs text-blue-600 font-medium">
-                          +{activeFeatures.length - 6} مميزات أخرى
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
