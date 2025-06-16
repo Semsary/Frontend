@@ -3,12 +3,12 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyCg44e8uy9kcrWX6GnZWn90o5RKZTf3_5E",
-    authDomain: "pushnotifications-42121.firebaseapp.com",
-    projectId: "pushnotifications-42121",
-    storageBucket: "pushnotifications-42121.firebasestorage.app",
-    messagingSenderId: "631086307984",
-    appId: "1:631086307984:web:75928ffde1415884b25615"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

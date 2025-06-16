@@ -29,6 +29,7 @@ const useNotificationStore = create(
             deviceToken: get().FCMToken || "",
           }
           );
+          // console.log("All notifications:", response);
           return response.data;
         } catch (err) {
           console.error("Error fetching all notifications:", err);

@@ -10,9 +10,10 @@ if (data) {
   data = JSON.parse(data);
   token = data?.state?.token;
 }
+const apiLink = import.meta.env.VITE_CHAT_URL || "http://localhost:3000";
 
 if (token) {
-  socket = io("http://localhost:3000", {
+  socket = io(apiLink, {
     withCredentials: true,
     autoConnect: false,
     auth: {
@@ -148,7 +149,7 @@ const useChatStore = create((set, get) => ({
       }
 
       if (token) {
-        socket = io("http://localhost:3000", {
+        socket = io(apiLink, {
           withCredentials: true,
           autoConnect: false,
           auth: {

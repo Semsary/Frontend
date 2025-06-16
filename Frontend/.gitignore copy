@@ -1,4 +1,4 @@
-# Logs
+ Logs
 logs
 *.log
 npm-debug.log*
@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+Frontend/.env
+/.env
+.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,8 +26,3 @@ dist-ssr
 *.sw?
 Frontend/testingData.js
 /testingData.js
-
-Frontend/env
-/env
-.env
-Frontend/.env

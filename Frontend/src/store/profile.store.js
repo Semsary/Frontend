@@ -84,8 +84,8 @@ const useProfileStore = create(
           };
 
 
-          console.log("User Data: store baseUserData", baseUserData);
-          console.log("User Data: store userTypeConfigs", userData);
+          // console.log("User Data: store baseUserData", baseUserData);
+          // console.log("User Data: store userTypeConfigs", userData);
           set({
             user: userData,
             loading: false,
@@ -126,7 +126,7 @@ const useProfileStore = create(
             loading: false,
           });
 
-          console.log("Updated User response:", response);
+          // console.log("Updated User response:", response);
           return updatedUser;
         } catch (error) {
           console.error("Error updating profile:", error);

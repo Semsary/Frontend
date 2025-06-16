@@ -111,3 +111,24 @@ public enum ComplainStatus
     BlockLandlord,
     NoBlock
 }
+
+
+
+
+	
+Response body
+Download
+[
+  {
+    "advertisementId": "adv9",
+    "houseName": "house9",
+    "houseDescription": "spacious and sunny",
+    "houseId": "H9",
+    "publishDate": "2025-06-16T09:37:19.0990505Z",
+    "housePrice": 1500,
+    "houseAddress": "123 Main St, Cairo",
+    "imageUrl": {}
+    
+
+  },
+  
