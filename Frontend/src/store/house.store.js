@@ -16,6 +16,9 @@ const useHouseStore = create(
       loading: false,
       error: null,
       houseDone: [],
+      filteredAdvertisements: [],
+      searchFilters: {},
+      setSearchFilters: (filters) => set({ searchFilters: filters }),
 
       createHouse: async (houseData) => {
         set({ loading: true, error: null });
@@ -173,13 +176,14 @@ const useHouseStore = create(
           );
           set({ loading: false, houses: response.data });
           console.log("Approved Houses:", response.data);
-          
+
           return response.data;
         } catch (err) {
           console.error("Error fetching approved houses:", err);
           set({
             error:
-              err.response?.data?.message || "حدث خطأ أثناء جلب المنازل المعتمدة",
+              err.response?.data?.message ||
+              "حدث خطأ أثناء جلب المنازل المعتمدة",
             loading: false,
           });
           return [];
@@ -206,6 +210,31 @@ const useHouseStore = create(
         }
       },
 
+      getAdvertisements: async () => {
+        const filters = get().searchFilters;
+
+        // إزالة الفلاتر الفارغة قبل إرسالها
+        const cleanedFilters = Object.fromEntries(
+          Object.entries(filters).filter(
+            ([_, value]) => value !== "" && value !== null
+          )
+        );
+
+        set({ loading: true, error: null });
+
+        try {
+          const response = await axiosInstance.get("/Tenant/Search", {
+            params: cleanedFilters, // الفلاتر بعد التنظيف
+          });
+          set({ loading: false, filteredAdvertisements: response.data });
+        } catch (err) {
+          set({
+            loading: false,
+            error: err.response?.data?.message || "حدث خطأ أثناء جلب الإعلانات",
+          });
+        }
+      },
+      
     }),
     {
       name: "house-storage",

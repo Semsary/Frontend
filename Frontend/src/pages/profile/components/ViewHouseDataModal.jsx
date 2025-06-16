@@ -37,7 +37,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
         console.log('Fetching house data for ID:', houseId);
         const fetchHouseData = async () => {
             try {
-                // setLoading(true);
+                setLoading(true);
                 const data = await getHouseInspectionData(houseId);
                 console.log('Fetched house data:', data);
                 setHouseData(data);
@@ -53,25 +53,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
         }
     }, [houseId, getHouseInspectionData]);
 
-    const getFeatureText = (feature) => {
-        switch (feature) {
-            case 1: return "ممتاز";
-            case 2: return "جيد جداً";
-            case 3: return "جيد";
-            case 4: return "مقبول";
-            default: return "غير محدد";
-        }
-    };
 
-    const getFeatureColor = (feature) => {
-        switch (feature) {
-            case 1: return "text-green-600 bg-green-100";
-            case 2: return "text-blue-600 bg-blue-100";
-            case 3: return "text-yellow-600 bg-yellow-100";
-            case 4: return "text-orange-600 bg-orange-100";
-            default: return "text-gray-600 bg-gray-100";
-        }
-    };
 
     if (loading) {
         return (
@@ -86,7 +68,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
         );
     }
 
-    if (!houseData) {
+    if (!houseData && !loading) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
@@ -233,17 +215,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
                     </div>
 
                     {/* House Feature */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                            <Star className="w-5 h-5 text-blue-600" />
-                            تقييم العقار
-                        </h3>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getFeatureColor(houseData.houseFeature)}`}>
-                                {getFeatureText(houseData.houseFeature)}
-                            </span>
-                        </div>
-                    </div>
+              
 
                     {/* Location */}
                     <div className="space-y-4">
