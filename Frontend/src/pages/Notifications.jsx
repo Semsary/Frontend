@@ -113,7 +113,7 @@ const Notifications = () => {
                     )}
                 </div>
             </div>
-        </>
+        </> 
     );
 };
 

@@ -24,6 +24,7 @@ import {
   MessageCircle,
   MailIcon,
   Menu,
+  Clock,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -39,6 +40,7 @@ import ProfileData from "./tabs/ProfileData";
 import useProfileStore from "../../store/profile.store";
 import useNotificationStore from "../../store/notification.store";
 import Navbar from "../../components/navbar/Navbar";
+import RentalRequests from "./tabs/RentalRequests";
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -195,6 +197,10 @@ export default function ProfilePage() {
                     )}
                   </button>
                 </li>
+
+
+                {
+                  userData?.userType === 2 && (
                 <li>
                   <button
                     onClick={() => handleTabChange("homes")}
@@ -211,7 +217,8 @@ export default function ProfilePage() {
                       <ChevronLeft className="h-5 w-5" />
                     )}
                   </button>
-                </li>
+                    </li>
+                  )}
 
                 
                 {
@@ -230,6 +237,28 @@ export default function ProfilePage() {
                           <span>إضافة عقار</span>
                         </span>
                         {activeTab === "addHome" && (
+                          <ChevronLeft className="h-5 w-5" />
+                        )}
+                      </button>
+                    </li>)}
+                {
+                  userData?.userType === 2 && (
+                
+                    <li>
+                      <button
+                        onClick={() => handleTabChange("RentalRequests")}
+                        className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "addHome"
+                          ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                          : "text-gray-700 hover:bg-gray-50"
+                          } transition-colors`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <Clock className="h-5 w-5" />
+                          <span>
+                            طلبات الإيجار
+                          </span>
+                        </span>
+                        {activeTab === "RentalRequests" && (
                           <ChevronLeft className="h-5 w-5" />
                         )}
                       </button>
@@ -382,6 +411,7 @@ export default function ProfilePage() {
 
 
             {activeTab === "chat" && <ChatPage />}
+            {activeTab === "RentalRequests" && <RentalRequests />}
           </div>
         </div>
       </main>

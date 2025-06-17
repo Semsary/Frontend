@@ -118,14 +118,14 @@ const ProfileTab = ({ setActiveTab }) => {
             </div>
           </div>
       
-          <div className={`${userData?.verificationStatus
+          <div className={`${userData?.verified
               ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100'
               : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-100'
             } rounded-xl p-4 border hover:shadow-md transition-shadow`}>
             <div className="flex items-center gap-4">
-              <div className={`${userData?.verificationStatus ? 'bg-emerald-100' : 'bg-red-100'
+              <div className={`${userData?.verified ? 'bg-emerald-100' : 'bg-red-100'
                 } p-3 rounded-xl`}>
-                {userData?.verificationStatus ? (
+                {userData?.verified ? (
                   <CheckCircle className="h-6 w-6 text-emerald-600" />
                 ) : (
                   <XCircle className="h-6 w-6 text-red-600" />
@@ -133,9 +133,9 @@ const ProfileTab = ({ setActiveTab }) => {
               </div>
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">حالة التحقق</h3>
-                <p className={`${userData?.verificationStatus ? 'text-emerald-700' : 'text-red-700'
+                <p className={`${userData?.verified ? 'text-emerald-700' : 'text-red-700'
                   } font-bold`}>
-                  {userData?.verificationStatus ? 'محقق' : 'غير محقق'}
+                  {userData?.verified ? 'محقق' : 'غير محقق'}
                 </p>
               </div>
             </div>
@@ -150,7 +150,7 @@ const ProfileTab = ({ setActiveTab }) => {
               <div>
                 <h3 className="font-medium text-gray-600 mb-1">الرصيد</h3>
                 <p className="text-green-700 font-bold text-lg">
-                  {userData?.balance } ج.م
+                  {userData?.otherData?.balance } ج.م
                 </p>
               </div>
             </div>

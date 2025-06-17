@@ -351,7 +351,7 @@ const useHouseStore = create(
               houseId,
               startArrivalDate,
               endArrivalDate,
-              rentalUnitIds,
+              rentalUnitIds, 
             }
           );
           console.log("Booking Response:", response.data);
@@ -366,7 +366,60 @@ const useHouseStore = create(
           });
           return null;
         }
+      },
+
+      getRentalRequests: async () => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get(
+            "/LandLord/All/Rental/Requests"
+          );
+          set({ loading: false, rentalRequests: response.data });
+          return response.data;
+        } catch (err) {
+          console.error("Error fetching rental requests:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء جلب طلبات الإيجار",
+            loading: false,
+          });
+          return [];
+        }
+      },
+
+      acceptRentalRequest: async (requestId,status) => {
+        set({ loading: true, error: null });
+        console.log("Accepting Rental Request:", {
+          requestId,
+          status,
+        });
+
+        // RentalId - path
+        // Status - query
+        try {
+          const response = await axiosInstance.put(
+            `/LandLord/Rental/Request/${requestId}`,
+            null, // no request body
+            { params: { status } }
+          );
+          set({ loading: false });
+          console.log("Accept Rental Request Response:", response.data);
+          if (response.status === 200) {
+            // Successfully accepted the rental request
+            return true;
+          }
+          return false;
+        } catch (err) {
+          console.error("Error accepting rental request:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء قبول طلب الإيجار",
+            loading: false,
+          });
+          return false;
+        }
       }
+
 
 
 

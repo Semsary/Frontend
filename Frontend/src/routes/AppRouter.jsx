@@ -21,6 +21,7 @@ import Chat from "../temp-testing/CChat.jsx";
 import BookingPage from "../pages/home/BookingPage.jsx";
 import Notifications from "../pages/Notifications.jsx";
 import BalanceManagement from "../pages/Balance/BalanceManagement.jsx";
+import Page404 from "../components/errors/Page404.jsx";
 
 
 const router = createBrowserRouter([
@@ -120,13 +121,19 @@ const router = createBrowserRouter([
     errorElement: <ErrorElement />,
   },
   {
-    path: "/balance",
+    path: "/wallet",
     element: (
       // <ProtectedRoute>
         <BalanceManagement />
       // </ProtectedRoute>
     ),
   }
+  ,
+  {
+    path: "/*",
+    element: <Page404 />,
+    errorElement: <ErrorElement />,
+  },
 
   
  

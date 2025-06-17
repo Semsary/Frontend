@@ -65,7 +65,7 @@ const Profile = () => {
   return (
     <div>
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <button className="flex items-center space-x-4 border-[1px] px-1 pr-5 py-1 rounded-full shadow-xs hover:shadow-md transition-shadow">
             <img
               src={user?.picture || "../../../public/images/test/avatar.png"}

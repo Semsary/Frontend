@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, MapPin, Home, Bed, Wind, Bath, Calendar, User, DollarSign, Image, Star } from 'lucide-react';
 import useHouseStore from '../../../store/house.store';
 import { toast } from 'sonner';
+import MapDisplay from '../../../components/MapDisplay';
 
 const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
     const { getHouseInspectionData, acceptHouseInspection } = useHouseStore();
@@ -11,7 +12,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
     const handleAcceptInspection = async () => {
         const confirmAccept = window.confirm("هل أنت متأكد من قبول المعاينة؟");
         if (!confirmAccept) return;
-        
+
         setLoading(true);
         try {
             const response = await acceptHouseInspection(houseId);
@@ -29,9 +30,6 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
             setLoading(false);
         }
     };
-
-
-
 
     useEffect(() => {
         console.log('Fetching house data for ID:', houseId);
@@ -53,11 +51,9 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
         }
     }, [houseId, getHouseInspectionData]);
 
-
-
     if (loading) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
                     <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -87,7 +83,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -215,7 +211,7 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
                     </div>
 
                     {/* House Feature */}
-              
+
 
                     {/* Location */}
                     <div className="space-y-4">
@@ -223,6 +219,17 @@ const ViewHouseDataModal = ({ closeModal, houseId, fetchHouses }) => {
                             <MapPin className="w-5 h-5 text-blue-600" />
                             الموقع
                         </h3>
+
+                        {/* Map Display */}
+                        <div className="h-64 w-full rounded-lg overflow-hidden border border-gray-200">
+                            <MapDisplay
+                                latitude={houseData.latitude}
+                                longitude={houseData.longitude}
+                                title={`موقع العقار - الطابق ${houseData.floorNumber}`}
+                            />
+                        </div>
+
+                        {/* Coordinates Info */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <div className="flex items-center gap-2 text-gray-600 mb-2">

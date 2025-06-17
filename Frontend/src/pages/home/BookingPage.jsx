@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Bed, Calendar, Clock, DollarSign, MapPin, Star, Check, ChevronLeft, ChevronRight, AlertCircle, Loader } from 'lucide-react';
+import { ArrowRight, Bed, Calendar, Clock, DollarSign, MapPin, Star, Check, ChevronLeft, ChevronRight, AlertCircle, Loader, AlertTriangle } from 'lucide-react';
 import useHouseStore from '../../store/house.store';
 import { toast } from 'sonner';
+import BookingSuccess from './BookingSuccess';
 
 const BookingPage = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const BookingPage = () => {
   const [selectedBeds, setSelectedBeds] = useState([]);
   const [availabilityData, setAvailabilityData] = useState(null);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(null); // New state for booking success
   const [bookingData, setBookingData] = useState({
     startDate: '',
     endDate: '',
@@ -198,11 +200,26 @@ const BookingPage = () => {
 
       if (result) {
         console.log('Booking successful:', result);
+        setBookingSuccess(result);
         toast.success('تم الحجز بنجاح!');
-        // Navigate to confirmation page or back to property details
-        navigate(-1);
       } else {
-        toast.error('حدث خطأ أثناء الحجز. الرجاء المحاولة مرة أخرى.');
+
+        toast(
+          <div className="flex items-start gap-3 text-right">
+            <AlertTriangle className="text-red-500 mt-1" size={20} />
+            <div>
+              <p className="text-sm font-semibold text-red-600">حدث خطأ أثناء الحجز</p>
+              <p className="text-sm text-gray-700">
+                الرجاء المحاولة مرة أخرى. تأكد من توثيق الهوية الخاصة بك.
+              </p>
+            </div>
+          </div>,
+          {
+            duration: 5000,
+            className:
+              "bg-red-50 border border-red-200 p-4 rounded-lg shadow-md rtl text-sm",
+          }
+        );
       }
     } catch (error) {
       console.error('Error booking rental unit:', error);
@@ -231,6 +248,19 @@ const BookingPage = () => {
   }
 
   // Get active features from the houseFeature value
+
+  // If booking is successful, show success screen
+  if (bookingSuccess) {
+    return (
+      <BookingSuccess
+        bookingSuccess={bookingSuccess}
+        calculatedData={calculatedData}
+        selectedBeds={selectedBeds}
+        houseMainInfo={houseMainInfo}
+        bookingData={bookingData}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50" dir="rtl">
@@ -569,7 +599,7 @@ const BookingPage = () => {
                     <div className="bg-white rounded-xl p-4 shadow-sm">
                       <div className="text-center">
                         <div className="text-xl font-bold text-blue-600">
-                          {houseMainInfo.rentalType === 0 ? 'يومي' : 'شهري'}
+                          {houseMainInfo.rentalType === 0 ? 'يومي' : 'يومي'}
                         </div>
                         <div className="text-sm text-gray-600">نوع الإيجار</div>
                       </div>
@@ -578,7 +608,7 @@ const BookingPage = () => {
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{calculatedData.duration}</div>
                         <div className="text-sm text-gray-600">
-                          {houseMainInfo.rentalType === 0 ? 'يوم' : 'شهر'}
+                          {houseMainInfo.rentalType === 0 ? 'يوم' : 'يوم'}
                         </div>
                       </div>
                     </div>
@@ -596,7 +626,7 @@ const BookingPage = () => {
                     <div className="bg-white rounded-xl p-4 border border-blue-200">
                       <div className="text-sm text-gray-600 space-y-2">
                         <div className="flex justify-between">
-                          <span>السعر لكل سرير ({houseMainInfo.rentalType === 0 ? 'يومي' : 'شهري'}):</span>
+                          <span>السعر لكل سرير ({houseMainInfo.rentalType === 0 ? 'يومي' : 'يومي'}):</span>
                           <span className="font-medium">{(houseMainInfo.rentalType === 0 ? 100 : 2000).toLocaleString()} ج.م</span>
                         </div>
                         <div className="flex justify-between">

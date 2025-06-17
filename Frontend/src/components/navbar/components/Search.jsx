@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Search as SearchIcon, MapPin, Home, DollarSign, X, RotateCcw, Loader2 } from "lucide-react";
+import useHomesStore from "../../../store/house.store"; // Adjust the import path as needed
+import { getAllGovernorates, getCitiesByGovernorateId } from 'egylist';
 
 const Search = () => {
-  // Mock store functions for demo
-  const setSearchFilters = (filters) => console.log('Search filters:', filters);
-  const getAdvertisements = () => console.log('Getting advertisements...');
+  // // Mock store functions for demo
+  // const setSearchFilters = (filters) => console.log('Search filters:', filters);
+  // const getAdvertisements = () => console.log('Getting advertisements...');
+  const { setSearchFilters, getAdvertisements } = useHomesStore();
+  const GovernorateList = getAllGovernorates();
 
+  
+ 
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +52,7 @@ const Search = () => {
       await getAdvertisements();
       setIsLoading(false);
       setIsExpanded(false);
-    }, 1000);
+    }, 10);
   };
 
   const toggleExpanded = () => {
@@ -134,10 +140,12 @@ const Search = () => {
                 onBlur={() => setFocusedField(null)}
                 className="w-full text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700"
               >
-                <option value="">اختر المحافظة</option>
-                <option value={1}>القاهرة</option>
-                <option value={2}>الجيزة</option>
-                <option value={3}>الاسكندرية</option>
+                <option value={0}>اختر المحافظة</option>
+                {GovernorateList.map((governorate) => (
+                  <option key={governorate.id} value={governorate.id}>
+                    {governorate.name_ar}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -155,9 +163,9 @@ const Search = () => {
                 onBlur={() => setFocusedField(null)}
                 className="w-full text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700"
               >
-                <option value="">اختر المدة</option>
-                <option value="daily">إيجار يومي</option>
-                <option value="monthly">إيجار شهري</option>
+                <option value={null}>اختر المدة</option>
+                <option value={1}>إيجار يومي</option>
+                <option value={2}>إيجار شهري</option>
               </select>
             </div>
 

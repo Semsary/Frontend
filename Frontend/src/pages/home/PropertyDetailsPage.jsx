@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useHouseStore from './../../store/house.store';
 import MapDisplay from './../../components/MapDisplay';
+import Navbar from './../../components/navbar/Navbar';
 import {
   MapPin,
   Star,
@@ -199,32 +200,13 @@ const PropertyDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gray-50" >
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <button className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-              <ChevronLeft className="w-5 h-5 mr-2" />
-              العودة للقائمة
-            </button>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsLiked(!isLiked)}
-                className={`p-2 rounded-full transition-all duration-200 ${isLiked ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-              >
-                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-              </button>
-              <button className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
-                <Share2 className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <Navbar searchBar={false} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
