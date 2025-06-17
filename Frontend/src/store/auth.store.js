@@ -220,7 +220,10 @@ const useAuthStore = create(
       // },
 
       logout: () => {
+        localStorage.removeItem("auth-storage");
+        localStorage.removeItem("user-storage");
         set({ token: null, user: null });
+        console.log("User logged out successfully");
       },
     }),
     {

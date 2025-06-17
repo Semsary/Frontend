@@ -8,137 +8,137 @@ import { Verified } from "lucide-react";
  *  handel User Data GET - SET
  */
 
-const useProfileStore = create(
-  
-    (set, get) => ({
-      user: null,
-      loading: false,
-      error: null,
+const useProfileStore = create((set, get) => ({
+  user: null,
+  loading: false,
+  error: null,
 
+  loadUserFromToken: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response1 = await axiosInstance.get("/Auth/Auth/Me");
 
-      loadUserFromToken: async () => {
-        set({ loading: true, error: null });
-        try {
-          const response1 = await axiosInstance.get("/Auth/Auth/Me");
+      const { basicUserInfo, otherLanlordData, otherTenantData } =
+        response1.data;
 
-          const {
-            basicUserInfo,
-            otherLanlordData,
-            otherTenantData,
-          } = response1.data;
+      const {
+        firstname,
+        profileImageUrl,
+        lastname,
+        address,
+        emails,
+        userType,
+        username,
+      } = basicUserInfo;
 
+      const baseUserData = {
+        firstName: firstname,
+        lastName: lastname,
+        fullAddress: address
+          ? address?._city + " - " + address?.street
+          : " بدون عنوان",
+        address,
+        email: emails[0],
+        userType,
+        username: username || emails[0],
+        picture:
+          profileImageUrl ||
+          `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
+      };
 
-          const {
-            firstname,
-            profileImageUrl,
-            lastname,
-            address,
-            emails,
-            userType,
-            username,
-          } = basicUserInfo;
+      const userTypeConfigs = {
+        2: {
+          // Landlord
+          balance: otherLanlordData?.balance,
+          verified: otherLanlordData?.isVerified,
+        },
+        1: {
+          // Tenant
+          verified: otherTenantData?.isVerified,
+          otherData: {
+            height: otherTenantData?.height || null,
+            age: otherTenantData?.age || null,
+            balance: otherTenantData?.balance || 0,
+            gender: otherTenantData?.gender || null,
+            isSmoker: otherTenantData?.isSmoker || false,
+            needNearUniversity: otherTenantData?.needNearUniversity || false,
+            needNearVitalPlaces: otherTenantData?.needNearVitalPlaces || false,
+            needPublicTransportation:
+              otherTenantData?.needPublicTransportation || false,
+            needPublicService: otherTenantData?.needPublicService || false,
+          },
+        },
+        3: {}, // Customer Service
+      };
 
-          const baseUserData = {
-            firstName: firstname,
-            lastName: lastname,
-            fullAddress: address? address?._city + " - " + address?.street : " بدون عنوان",
-            address,
-            email: emails[0],
-            userType,
-            username: username || emails[0],
-            picture:
-              profileImageUrl ||
-              `https://avatar.iran.liara.run/public/boy?username=${emails[0]}`,
-          };
+      const userData = {
+        ...baseUserData,
+        ...userTypeConfigs[userType],
+      };
 
-          const userTypeConfigs = {
-            2: {
-              // Landlord
-              balance: otherLanlordData?.balance,
-              verified: otherLanlordData?.isVerified,
-            },
-            1: {
-              // Tenant
-              verified: otherTenantData?.isVerified,
-              otherData: {
-                height: otherTenantData?.height || null,
-                age: otherTenantData?.age || null,
-                balance: otherTenantData?.balance || 0,
-                gender: otherTenantData?.gender || null,
-                isSmoker: otherTenantData?.isSmoker || false,
-                needNearUniversity:
-                  otherTenantData?.needNearUniversity || false,
-                needNearVitalPlaces:
-                  otherTenantData?.needNearVitalPlaces || false,
-                needPublicTransportation:
-                  otherTenantData?.needPublicTransportation || false,
-                needPublicService: otherTenantData?.needPublicService || false,
-              },
-            },
-            3: {}, // Customer Service
-          };
+      // console.log("User Data: store baseUserData", baseUserData);
+      // console.log("User Data: store userTypeConfigs", userData);
+      set({
+        user: userData,
+        loading: false,
+      });
+      return userData;
+    } catch (err) {
+      console.error("Error loading user data:", err);
+      set({
+        error: "فشل تحميل بيانات المستخدم",
+        loading: false,
+      });
+    }
+  },
 
-          const userData = {
-            ...baseUserData,
-            ...userTypeConfigs[userType],
-          };
+  updateProfile: async (data) => {
+    set({ loading: true, error: null });
 
+    try {
+      const isFormData = data instanceof FormData;
+      const response = await axiosInstance.put("/Auth/Edit/Profile", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-          // console.log("User Data: store baseUserData", baseUserData);
-          // console.log("User Data: store userTypeConfigs", userData);
-          set({
-            user: userData,
-            loading: false,
-          });
-          return userData;
-        } catch (err) {
-          console.error("Error loading user data:", err);
-          set({
-            error: "فشل تحميل بيانات المستخدم",
-            loading: false,
-          });
-        }
-      },
+      const updatedUser = response.data;
 
-      updateProfile: async (data) => {
-        set({ loading: true, error: null });
+      // Merge updated data with existing user data
+      const currentUser = get().user;
+      const mergedUser = {
+        ...currentUser,
+      };
 
-        
-        try {
-          const isFormData = data instanceof FormData;
-          const response = await axiosInstance.put("/Auth/Edit/Profile", data, {
-            headers: {
-              "Content-Type": "multipart/form-data" 
-            
-            },
-          });
+      set({
+        user: mergedUser,
+        loading: false,
+      });
 
-          const updatedUser = response.data;
+      // console.log("Updated User response:", response);
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      set({
+        error: "فشل تحديث الملف الشخصي",
+        loading: false,
+      });
+      throw error;
+    }
+  },
 
-          // Merge updated data with existing user data
-          const currentUser = get().user;
-          const mergedUser = {
-            ...currentUser,
-          };
+  isLoggedIn: () => {
+    const user = get().user;
+    return user !== null && user !== undefined;
+  },
 
-          set({
-            user: mergedUser,
-            loading: false,
-          });
-
-          // console.log("Updated User response:", response);
-          return updatedUser;
-        } catch (error) {
-          console.error("Error updating profile:", error);
-          set({
-            error: "فشل تحديث الملف الشخصي",
-            loading: false,
-          });
-          throw error;
-        }
-      },
-    }),
-   
-);
+  logout: () => {
+    set({ user: null, error: null });
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth-storage");
+    localStorage.removeItem("user-storage");
+  },
+}));
 
 export default useProfileStore;

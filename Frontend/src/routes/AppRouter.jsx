@@ -19,6 +19,8 @@ import Profile from "../pages/profile/profile.jsx";
 import ChatComponent2 from "../temp-testing/Chat copy.jsx";
 import Chat from "../temp-testing/CChat.jsx";
 import BookingPage from "../pages/home/BookingPage.jsx";
+import Notifications from "../pages/Notifications.jsx";
+import BalanceManagement from "../pages/Balance/BalanceManagement.jsx";
 
 
 const router = createBrowserRouter([
@@ -111,6 +113,20 @@ const router = createBrowserRouter([
     // errorElement: <ErrorElement errorMessage="Password reset failed" />,
     errorElement: <ErrorElement />,
   },
+  {
+    path: "/notifications",
+    element: <Notifications />,
+    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/balance",
+    element: (
+      // <ProtectedRoute>
+        <BalanceManagement />
+      // </ProtectedRoute>
+    ),
+  }
 
   
  
