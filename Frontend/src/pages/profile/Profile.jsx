@@ -41,6 +41,7 @@ import useProfileStore from "../../store/profile.store";
 import useNotificationStore from "../../store/notification.store";
 import Navbar from "../../components/navbar/Navbar";
 import RentalRequests from "./tabs/RentalRequests";
+import TenantRentalRequests from "./tabs/TenantRentalRequests";
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -145,7 +146,11 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
               <div className="flex flex-col items-center">
                 <div className="relative mb-4 group">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-500 p-1 relative">
+                  <div className={`w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-500 p-1 relative
+                    ${userData?.isPremium
+                      ? "border-amber-500"
+                      : "border-indigo-500"
+                    }`}>
                     <img
                       src={userData?.picture
                         || "/placeholder-avatar.jpg"}
@@ -259,6 +264,28 @@ export default function ProfilePage() {
                           </span>
                         </span>
                         {activeTab === "RentalRequests" && (
+                          <ChevronLeft className="h-5 w-5" />
+                        )}
+                      </button>
+                    </li>)}
+                {
+                  userData?.userType === 1 && (
+                
+                    <li>
+                      <button
+                        onClick={() => handleTabChange("TenantRentalRequests")}
+                        className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "TenantRentalRequests"
+                          ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
+                          : "text-gray-700 hover:bg-gray-50"
+                          } transition-colors`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <Clock className="h-5 w-5" />
+                          <span>
+                            طلبات الإيجار
+                          </span>
+                        </span>
+                        {activeTab === "TenantRentalRequests" && (
                           <ChevronLeft className="h-5 w-5" />
                         )}
                       </button>
@@ -412,6 +439,7 @@ export default function ProfilePage() {
 
             {activeTab === "chat" && <ChatPage />}
             {activeTab === "RentalRequests" && <RentalRequests />}
+            {activeTab === "TenantRentalRequests" && <TenantRentalRequests />}
           </div>
         </div>
       </main>

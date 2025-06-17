@@ -246,23 +246,27 @@ const useHouseStore = create(
         } catch (err) {
           console.error("Error fetching house by ID:", err);
           set({
-            error:
-              err.response?.data?.message || "حدث خطأ أثناء جلب المنزل",
+            error: err.response?.data?.message || "حدث خطأ أثناء جلب المنزل",
             loading: false,
           });
           return null;
         }
       },
 
-
       // {
-//   "startDate": "2025-06-17T15:01:08.106Z",
-//   "endDate": "2025-06-17T15:01:08.106Z",
-//   "startArrivalDate": "2025-06-17T15:01:08.106Z",
-//   "endArrivalDate": "2025-06-17T15:01:08.106Z",
-//   "advId": "string"
-// }
-      checkAvailabilityOfBedroom: async (startDate, endDate, startArrivalDate, endArrivalDate, advId) => {
+      //   "startDate": "2025-06-17T15:01:08.106Z",
+      //   "endDate": "2025-06-17T15:01:08.106Z",
+      //   "startArrivalDate": "2025-06-17T15:01:08.106Z",
+      //   "endArrivalDate": "2025-06-17T15:01:08.106Z",
+      //   "advId": "string"
+      // }
+      checkAvailabilityOfBedroom: async (
+        startDate,
+        endDate,
+        startArrivalDate,
+        endArrivalDate,
+        advId
+      ) => {
         set({ loading: true, error: null });
         console.log("Availability Response:", {
           startDate,
@@ -279,7 +283,7 @@ const useHouseStore = create(
               endDate,
               startArrivalDate,
               endArrivalDate,
-              AdvId:advId,
+              AdvId: advId,
             }
           );
           console.log("Availability Response:", response.data);
@@ -291,28 +295,28 @@ const useHouseStore = create(
             });
             return {
               availableBeds: [],
-              type : "ByHome",
+              type: "ByHome",
 
               message: "لا توجد وحدات متاحة في هذا التاريخ",
             };
-          }else if (response.data.length === 1) {
+          } else if (response.data.length === 1) {
             set({
               error: null,
               loading: false,
             });
             return {
               availableBeds: response.data,
-              type : "ByHome",
+              type: "ByHome",
               message: "وحدة واحدة متاحة",
             };
-          }else {
+          } else {
             set({
               error: null,
               loading: false,
             });
             return {
               availableBeds: response.data,
-              type : "ByBedroom",
+              type: "ByBedroom",
               message: "تم العثور على وحدات متاحة",
             };
           }
@@ -327,7 +331,6 @@ const useHouseStore = create(
         }
       },
 
-
       // {
       //   "startDate": "2025-06-17T15:47:10.033Z",
       //   "endDate": "2025-06-17T15:47:10.033Z",
@@ -339,7 +342,15 @@ const useHouseStore = create(
       //     "string"
       //   ]
       // }
-      bookRentalUnit: async (startDate, endDate, rentalType, houseId, startArrivalDate, endArrivalDate, rentalUnitIds) => {
+      bookRentalUnit: async (
+        startDate,
+        endDate,
+        rentalType,
+        houseId,
+        startArrivalDate,
+        endArrivalDate,
+        rentalUnitIds
+      ) => {
         set({ loading: true, error: null });
         try {
           const response = await axiosInstance.post(
@@ -351,7 +362,7 @@ const useHouseStore = create(
               houseId,
               startArrivalDate,
               endArrivalDate,
-              rentalUnitIds, 
+              rentalUnitIds,
             }
           );
           console.log("Booking Response:", response.data);
@@ -360,8 +371,7 @@ const useHouseStore = create(
         } catch (err) {
           console.error("Error booking rental unit:", err);
           set({
-            error:
-              err.response?.data?.message || "حدث خطأ أثناء حجز الوحدة",
+            error: err.response?.data?.message || "حدث خطأ أثناء حجز الوحدة",
             loading: false,
           });
           return null;
@@ -387,7 +397,82 @@ const useHouseStore = create(
         }
       },
 
-      acceptRentalRequest: async (requestId,status) => {
+      getTenantRentalRequests: async () => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.get(
+            "/Tenant/Get/All/Rental/Requests"
+          );
+          set({ loading: false, rentalRequests: response.data });
+          return response.data;
+        } catch (err) {
+          console.error("Error fetching rental requests:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء جلب طلبات الإيجار",
+            loading: false,
+          });
+          return [];
+        }
+      },
+
+      cancelRentalRequest: async (rentalId) => {
+        set({ loading: true, error: null });
+        console.log("Canceling Rental Request:", rentalId);
+        try {
+          const response = await axiosInstance.post(
+            `/Tenant/Cancel/rental/Request/${rentalId}`
+          );
+          set({ loading: false });
+          console.log("Cancel Rental Request Response:", response.data);
+          if (response.status === 200) {
+            // Successfully canceled the rental request
+            return true;
+          }
+          return false;
+        } catch (err) {
+          console.error("Error canceling rental request:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء إلغاء طلب الإيجار",
+            loading: false,
+          });
+          return false;
+        }
+      },
+
+      acceptArivalRequest: async (requestId) => {
+        set({ loading: true, error: null });
+        console.log("Accepting Arrival Request:", requestId);
+
+        // RentalId - path
+        // Status - query
+        try {
+          const response = await axiosInstance.post(
+            `/Tenant/Confirm/Arrival/Request/${requestId}`
+          );
+          set({ loading: false });
+          console.log("Accept Arrival Request Response:", response.data);
+          if (response.status === 200) {
+            // Successfully accepted the arrival request
+            return true;
+          }
+          return false;
+        } catch (err) {
+          console.error("Error accepting arrival request:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء قبول طلب الوصول",
+            loading: false,
+          });
+          return false;
+        }
+      },
+      
+
+
+
+      acceptRentalRequest: async (requestId, status) => {
         set({ loading: true, error: null });
         console.log("Accepting Rental Request:", {
           requestId,
@@ -418,13 +503,7 @@ const useHouseStore = create(
           });
           return false;
         }
-      }
-
-
-
-
-
-
+      },
     }),
     {
       name: "house-storage",

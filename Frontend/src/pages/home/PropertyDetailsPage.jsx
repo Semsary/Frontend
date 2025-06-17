@@ -321,7 +321,7 @@ const PropertyDetailsPage = () => {
                         key={feature.id}
                         className="flex items-center p-3 bg-blue-50 rounded-xl border border-blue-100"
                       >
-                        <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full ml-3"></div>
                         <span className="text-gray-700 text-sm font-medium">
                           {feature.translation}
                         </span>

@@ -51,10 +51,12 @@ const useProfileStore = create((set, get) => ({
           // Landlord
           balance: otherLanlordData?.balance,
           verified: otherLanlordData?.isVerified,
+          isPremium: otherLanlordData?.isPremium || false,
         },
         1: {
           // Tenant
           verified: otherTenantData?.isVerified,
+          isPremium: otherTenantData?.isPremium || false,
           otherData: {
             height: otherTenantData?.height || null,
             age: otherTenantData?.age || null,
