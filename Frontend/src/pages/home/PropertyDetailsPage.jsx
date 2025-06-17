@@ -188,10 +188,12 @@ const PropertyDetailsPage = () => {
   };
 
   const handleBookingClick = () => {
+    console.log('Booking clicked for property ID:', id);
     navigate(`/booking/${id}`, {
       state: {
         houseMainInfo,
-        houseInspectionInfo
+        houseInspectionInfo,
+        advertisementId: id
       }
     });
   };

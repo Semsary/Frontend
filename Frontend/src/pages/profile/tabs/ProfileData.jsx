@@ -132,17 +132,17 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
     formData.append('gover', 10);
     formData.append('city', data.city || '');
     formData.append('street', data.street || '');
-    formData.append('height', data.height || 0);
-    formData.append('weight', data.weight || 0);
-    formData.append('gender', data.gender || 0);
-    formData.append('age', data.age || 0);
-    formData.append('NumberOfPeople', data.NumberOfPeople || 1);
-    formData.append('FavouriteRentalType', data.FavouriteRentalType || 0);
-    formData.append('isSmoker', data.isSmoker || false);
-    formData.append('needPublicService', data.needPublicService || false);
-    formData.append('needPublicTransportation', data.needPublicTransportation || false);
-    formData.append('needNearUniversity', data.needNearUniversity || false);
-    formData.append('needNearVitalPlaces', data.needNearVitalPlaces || false);
+    formData.append('height', Number(data.height || 0));
+    formData.append('weight', parseFloat(data.weight || 0));
+    formData.append('gender', Number(data.gender || 0));
+    formData.append('age', Number(data.age || 0));
+    formData.append('NumberOfPeople', Number(data.NumberOfPeople || 1));
+    formData.append('FavouriteRentalType', Number(data.FavouriteRentalType || 0));
+    formData.append('isSmoker', Boolean(data.isSmoker || false));
+    formData.append('needPublicService', Boolean(data.needPublicService || false));
+    formData.append('needPublicTransportation', Boolean(data.needPublicTransportation || false));
+    formData.append('needNearUniversity', Boolean(data.needNearUniversity || false));
+    formData.append('needNearVitalPlaces', Boolean(data.needNearVitalPlaces || false));
 
     // Add image file if selected
     if (selectedImage) {
@@ -182,6 +182,8 @@ const ProfileData = ({ showSuccess, defaultValues }) => {
       setValue('needPublicTransportation', user.otherData?.needPublicTransportation || false);
       setValue('needNearUniversity', user.otherData?.needNearUniversity || false);
       setValue('needNearVitalPlaces', user.otherData?.needNearVitalPlaces || false);
+
+      console.log('Setting values from userData:', user);
 
       // Set selected governorate if available
       if (user.address?._gover) {

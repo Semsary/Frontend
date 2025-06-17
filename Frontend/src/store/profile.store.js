@@ -60,6 +60,7 @@ const useProfileStore = create((set, get) => ({
             age: otherTenantData?.age || null,
             balance: otherTenantData?.balance || 0,
             gender: otherTenantData?.gender || null,
+            weight: otherTenantData?.weight || null,
             isSmoker: otherTenantData?.isSmoker || false,
             needNearUniversity: otherTenantData?.needNearUniversity || false,
             needNearVitalPlaces: otherTenantData?.needNearVitalPlaces || false,

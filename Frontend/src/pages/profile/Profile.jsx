@@ -38,6 +38,7 @@ import ProfileData from "./tabs/ProfileData";
 
 import useProfileStore from "../../store/profile.store";
 import useNotificationStore from "../../store/notification.store";
+import Navbar from "../../components/navbar/Navbar";
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,7 +115,7 @@ export default function ProfilePage() {
 
   return (
     <div
-      dir="rtl"
+      
       className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50"
     >
       {/* Notification Toast */}
@@ -128,51 +129,13 @@ export default function ProfilePage() {
         </div>
       )}
 
+      <div dir="ltr ">
+
+        <Navbar searchBar={false} />
+      </div>
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-1">
-        <div className="max-w- 7xl  mx-auto px-32">
-          <div className="flex h-16 items-center justify-between">
 
-            {/* Left Section - Logo/Branding */}
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <div className="h-8 w-8 rounded-md bg-indigo-600 flex items-center justify-center">
-                  <User className="h-5 w-5 text-white" />
-                </div>
-                <h1 className="mr-3 text-lg font-semibold text-gray-900">الملف الشخصي</h1>
-              </div>
-            </div>
-
-            {/* Right Section - Controls */}
-            <div className="flex items-center gap-4">
-
-              {/* Notification Button */}
-              <button
-                onClick={() => setShowNotification(!showNotification)}
-                className="relative rounded-full p-1.5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                <Bell className="h-6 w-6 text-gray-700" />
-                <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-              </button>
-
-              {/* User Profile */}
-
-              {/* Logout Button - Desktop */}
-              <button className="hidden md:flex items-center space-x-1.5 rtl:space-x-reverse ml-4 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <LogOut className="h-4 w-4" />
-                <span>تسجيل الخروج</span>
-              </button>
-
-              {/* Mobile Menu Button */}
-              <button className="md:hidden rounded-md p-1.5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <Menu className="h-6 w-6" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto p-4 md:p-6">
+      <main className="container mx-auto p-4 md:p-6" dir="rtl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">

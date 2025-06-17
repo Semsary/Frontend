@@ -1,121 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Bed, Calendar, Clock, DollarSign, MapPin, Star, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Bed, Calendar, Clock, DollarSign, MapPin, Star, Check, ChevronLeft, ChevronRight, AlertCircle, Loader } from 'lucide-react';
+import useHouseStore from '../../store/house.store';
+import { toast } from 'sonner';
 
 const BookingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { houseMainInfo, houseInspectionInfo } = location.state || {};
+  const { advertisementId, houseMainInfo, houseInspectionInfo } = location.state || {};
+  const { checkAvailabilityOfBedroom, bookRentalUnit, loading } = useHouseStore();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedBeds, setSelectedBeds] = useState([]);
+  const [availabilityData, setAvailabilityData] = useState(null);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [bookingData, setBookingData] = useState({
     startDate: '',
     endDate: '',
     startArrivalDate: '',
     endArrivalDate: ''
   });
-
-  const [defaultHomeFeatures] = useState([
-    {
-      "id": 1,
-      "name": "HaveNearHospital",
-      "translation": "يوجد بالقرب مستشفى"
-    },
-    {
-      "id": 2,
-      "name": "HaveNearGym",
-      "translation": "يوجد بالقرب صالة ألعاب رياضية"
-    },
-    {
-      "id": 4,
-      "name": "HaveNearPlayGround",
-      "translation": "يوجد بالقرب ملعب"
-    },
-    {
-      "id": 8,
-      "name": "HaveNearSchool",
-      "translation": "يوجد بالقرب مدرسة"
-    },
-    {
-      "id": 16,
-      "name": "HaveNearUniversity",
-      "translation": "يوجد بالقرب جامعة"
-    },
-    {
-      "id": 32,
-      "name": "HaveNearSupermarket",
-      "translation": "يوجد بالقرب سوبر ماركت"
-    },
-    {
-      "id": 64,
-      "name": "HaveNearRestaurant",
-      "translation": "يوجد بالقرب مطعم"
-    },
-    {
-      "id": 128,
-      "name": "HaveNearBusStation",
-      "translation": "يوجد بالقرب محطة حافلات"
-    },
-    {
-      "id": 256,
-      "name": "HaveNearBank",
-      "translation": "يوجد بالقرب بنك"
-    },
-    {
-      "id": 512,
-      "name": "HaveWiFi",
-      "translation": "يوجد واي فاي"
-    },
-    {
-      "id": 1024,
-      "name": "HaveTV",
-      "translation": "يوجد تلفزيون"
-    },
-    {
-      "id": 2048,
-      "name": "HaveKitchen",
-      "translation": "يوجد مطبخ"
-    },
-    {
-      "id": 4096,
-      "name": "HaveElevator",
-      "translation": "يوجد مصعد"
-    },
-    {
-      "id": 8192,
-      "name": "HaveWashingMachine",
-      "translation": "يوجد غسالة"
-    },
-    {
-      "id": 16384,
-      "name": "HaveCooker",
-      "translation": "يوجد موقد/بوتاجاز"
-    },
-    {
-      "id": 32768,
-      "name": "HaveFridge",
-      "translation": "يوجد ثلاجة"
-    },
-    {
-      "id": 65536,
-      "name": "HaveHeater",
-      "translation": "يوجد سخان/دفايات"
-    },
-    {
-      "id": 131072,
-      "name": "HaveSalon",
-      "translation": "يوجد صالون/غرفة معيشة"
-    },
-    {
-      "id": 262144,
-      "name": "DiningRoom",
-      "translation": "غرفة طعام"
-    }
-  ]);
-
-  // Function to decode houseFeature integer into individual features
-
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Calculate duration and estimated price
   const calculatedData = useMemo(() => {
@@ -135,13 +40,32 @@ const BookingPage = () => {
     return { duration, estimatedPrice };
   }, [bookingData.startDate, bookingData.endDate, selectedBeds.length, houseMainInfo?.rentalType]);
 
-  // Generate bed options based on numberOfBeds
-  const bedOptions = Array.from({ length: houseInspectionInfo?.numberOfBeds || 0 }, (_, i) => ({
-    id: `bed${i + 1}`,
-    label: `سرير ${i + 1}`
-  }));
+  // Generate bed options based on availability results
+  const bedOptions = useMemo(() => {
+    if (!availabilityData) {
+      // Default bed options when no availability check is done
+      return Array.from({ length: houseInspectionInfo?.numberOfBeds || 0 }, (_, i) => ({
+        id: `bed${i + 1}`,
+        label: `سرير ${i + 1}`,
+        available: true,
+        rentalUnitId: null
+      }));
+    }
+
+    // Map availability results to bed options
+    return availabilityData.availableBeds.map((bed, index) => ({
+      id: bed.rentalUnitId,
+      label: `سرير ${index + 1}`,
+      available: !bed.hasConflict,
+      rentalUnitId: bed.rentalUnitId,
+      hasConflict: bed.hasConflict
+    }));
+  }, [availabilityData, houseInspectionInfo?.numberOfBeds]);
 
   const toggleBed = (bedId) => {
+    const bed = bedOptions.find(b => b.id === bedId);
+    if (!bed || !bed.available) return; // Don't allow selection of unavailable beds
+
     setSelectedBeds(prev =>
       prev.includes(bedId)
         ? prev.filter(id => id !== bedId)
@@ -149,9 +73,85 @@ const BookingPage = () => {
     );
   };
 
-  const handleNext = () => {
-    if (currentStep === 1 && isStep1Valid()) {
-      setCurrentStep(2);
+  // Date validation function
+  const validateDates = () => {
+    const errors = {};
+    const now = new Date();
+    const startDate = new Date(bookingData.startDate);
+    const endDate = new Date(bookingData.endDate);
+    const startArrivalDate = new Date(bookingData.startArrivalDate);
+    const endArrivalDate = new Date(bookingData.endArrivalDate);
+
+    // Check if all dates are provided
+    if (!bookingData.startDate) errors.startDate = 'تاريخ بداية الإقامة مطلوب';
+    if (!bookingData.endDate) errors.endDate = 'تاريخ نهاية الإقامة مطلوب';
+    if (!bookingData.startArrivalDate) errors.startArrivalDate = 'وقت الوصول من مطلوب';
+    if (!bookingData.endArrivalDate) errors.endArrivalDate = 'وقت الوصول إلى مطلوب';
+
+    // Date logic validations
+    if (bookingData.startDate && bookingData.endDate) {
+      if (startDate >= endDate) {
+        errors.endDate = 'تاريخ نهاية الإقامة يجب أن يكون بعد تاريخ البداية';
+      }
+    }
+
+    if (bookingData.startDate && startDate < now.setHours(0, 0, 0, 0)) {
+      errors.startDate = 'تاريخ بداية الإقامة يجب أن يكون في المستقبل';
+    }
+
+    if (bookingData.startArrivalDate && bookingData.endArrivalDate) {
+      if (startArrivalDate >= endArrivalDate) {
+        errors.endArrivalDate = 'وقت الوصول إلى يجب أن يكون بعد وقت الوصول من';
+      }
+    }
+
+    if (bookingData.endArrivalDate && bookingData.endDate) {
+      if (endArrivalDate > endDate) {
+        errors.endArrivalDate = 'وقت الوصول يجب أن يكون قبل تاريخ نهاية الإقامة';
+      }
+    }
+
+    if (bookingData.startArrivalDate && bookingData.startDate) {
+      const startDateOnly = new Date(bookingData.startDate);
+      if (startArrivalDate < startDateOnly) {
+        errors.startArrivalDate = 'وقت الوصول يجب أن يكون في تاريخ بداية الإقامة أو بعده';
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleNext = async () => {
+    if (currentStep === 1) {
+      if (!validateDates()) {
+        toast.error('يرجى تصحيح الأخطاء في التواريخ');
+        return;
+      }
+
+      setCheckingAvailability(true);
+      console.log("houseMainInfo", houseMainInfo)
+      console.log("advertisementId -- ", advertisementId)
+      try {
+        const result = await checkAvailabilityOfBedroom(
+          new Date(bookingData.startDate).toISOString(),
+          new Date(bookingData.endDate).toISOString(),
+          new Date(bookingData.startArrivalDate).toISOString(),
+          new Date(bookingData.endArrivalDate).toISOString(),
+          advertisementId,
+        );
+
+        if (result) {
+          setAvailabilityData(result);
+          setCurrentStep(2);
+          // Clear previously selected beds since availability might have changed
+          setSelectedBeds([]);
+        }
+      } catch (error) {
+        console.error('Error checking availability:', error);
+      } finally {
+        setCheckingAvailability(false);
+      }
     }
   };
 
@@ -165,29 +165,49 @@ const BookingPage = () => {
     return bookingData.startDate &&
       bookingData.endDate &&
       bookingData.startArrivalDate &&
-      bookingData.endArrivalDate;
+      bookingData.endArrivalDate &&
+      Object.keys(validationErrors).length === 0;
   };
 
   const isStep2Valid = () => {
     return selectedBeds.length > 0;
   };
 
-  const handleSubmit = () => {
-    const finalBookingData = {
-      startDate: new Date(bookingData.startDate).toISOString(),
-      endDate: new Date(bookingData.endDate).toISOString(),
-      rentalType: houseMainInfo.rentalType,
-      houseId: houseInspectionInfo.houseId,
-      startArrivalDate: new Date(bookingData.startArrivalDate).toISOString(),
-      endArrivalDate: new Date(bookingData.endArrivalDate).toISOString(),
-      rentalUnitIds: selectedBeds
-    };
+  const handleSubmit = async () => {
+    // Final validation before submission
+    if (!validateDates()) {
+      toast.error('يرجى تصحيح الأخطاء في التواريخ');
+      return;
+    }
 
-    console.log('Booking Data:', finalBookingData);
-    // Here you would typically send the data to your API
+    if (!isStep2Valid()) {
+      toast.error('يرجى اختيار سرير واحد على الأقل');
+      return;
+    }
 
-    // Navigate to confirmation page or back to property details
-    navigate(-1);
+    try {
+      const result = await bookRentalUnit(
+        new Date(bookingData.startDate).toISOString(),
+        new Date(bookingData.endDate).toISOString(),
+        houseMainInfo.rentalType,
+        houseInspectionInfo.houseId,
+        new Date(bookingData.startArrivalDate).toISOString(),
+        new Date(bookingData.endArrivalDate).toISOString(),
+        selectedBeds // These are the actual rentalUnitIds from the API
+      );
+
+      if (result) {
+        console.log('Booking successful:', result);
+        toast.success('تم الحجز بنجاح!');
+        // Navigate to confirmation page or back to property details
+        navigate(-1);
+      } else {
+        toast.error('حدث خطأ أثناء الحجز. الرجاء المحاولة مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Error booking rental unit:', error);
+      toast.error('حدث خطأ أثناء الحجز. الرجاء المحاولة مرة أخرى.');
+    }
   };
 
   const handleBack = () => {
@@ -294,9 +314,18 @@ const BookingPage = () => {
                       <input
                         type="date"
                         value={bookingData.startDate}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, startDate: e.target.value }))}
-                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                        onChange={(e) => {
+                          setBookingData(prev => ({ ...prev, startDate: e.target.value }));
+                          if (validationErrors.startDate) {
+                            setValidationErrors(prev => ({ ...prev, startDate: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 ${validationErrors.startDate ? 'border-red-500 bg-red-50' : 'border-gray-200'
+                          }`}
                       />
+                      {validationErrors.startDate && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.startDate}</p>
+                      )}
                     </div>
                     <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -305,9 +334,18 @@ const BookingPage = () => {
                       <input
                         type="date"
                         value={bookingData.endDate}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, endDate: e.target.value }))}
-                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                        onChange={(e) => {
+                          setBookingData(prev => ({ ...prev, endDate: e.target.value }));
+                          if (validationErrors.endDate) {
+                            setValidationErrors(prev => ({ ...prev, endDate: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 ${validationErrors.endDate ? 'border-red-500 bg-red-50' : 'border-gray-200'
+                          }`}
                       />
+                      {validationErrors.endDate && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.endDate}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -326,9 +364,18 @@ const BookingPage = () => {
                       <input
                         type="datetime-local"
                         value={bookingData.startArrivalDate}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, startArrivalDate: e.target.value }))}
-                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                        onChange={(e) => {
+                          setBookingData(prev => ({ ...prev, startArrivalDate: e.target.value }));
+                          if (validationErrors.startArrivalDate) {
+                            setValidationErrors(prev => ({ ...prev, startArrivalDate: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 ${validationErrors.startArrivalDate ? 'border-red-500 bg-red-50' : 'border-gray-200'
+                          }`}
                       />
+                      {validationErrors.startArrivalDate && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.startArrivalDate}</p>
+                      )}
                     </div>
                     <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -337,9 +384,18 @@ const BookingPage = () => {
                       <input
                         type="datetime-local"
                         value={bookingData.endArrivalDate}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, endArrivalDate: e.target.value }))}
-                        className="w-full px-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                        onChange={(e) => {
+                          setBookingData(prev => ({ ...prev, endArrivalDate: e.target.value }));
+                          if (validationErrors.endArrivalDate) {
+                            setValidationErrors(prev => ({ ...prev, endArrivalDate: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 ${validationErrors.endArrivalDate ? 'border-red-500 bg-red-50' : 'border-gray-200'
+                          }`}
                       />
+                      {validationErrors.endArrivalDate && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.endArrivalDate}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -354,11 +410,20 @@ const BookingPage = () => {
                   </button>
                   <button
                     onClick={handleNext}
-                    disabled={!isStep1Valid()}
+                    disabled={!isStep1Valid() || checkingAvailability}
                     className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl flex items-center"
                   >
-                    التالي
-                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    {checkingAvailability ? (
+                      <>
+                        <Loader className="w-4 h-4 mr-2 animate-spin" />
+                        جاري التحقق...
+                      </>
+                    ) : (
+                      <>
+                        التالي
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -373,8 +438,23 @@ const BookingPage = () => {
                       <Bed className="w-8 h-8 text-blue-600" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">اختر الأسرة المطلوبة</h2>
-                    <p className="text-gray-600">حدد الأسرة التي تريد حجزها من إجمالي {houseInspectionInfo.numberOfBeds} سرير متاح</p>
+                    <p className="text-gray-600">
+                      حدد الأسرة التي تريد حجزها من إجمالي {bedOptions.filter(bed => bed.available).length} سرير متاح
+                    </p>
                   </div>
+
+                  {/* Availability Status */}
+                  {availabilityData && (
+                    <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2 text-blue-800">
+                        <Check className="w-5 h-5" />
+                        <span className="font-medium">{availabilityData.message}</span>
+                      </div>
+                      <p className="text-sm text-blue-600 mt-1">
+                        عدد الأسرة المتاحة: {bedOptions.filter(bed => bed.available).length} من {bedOptions.length}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
@@ -382,49 +462,95 @@ const BookingPage = () => {
                       <h3 className="text-lg font-semibold text-gray-900">الأسرة المتاحة</h3>
                     </div>
                     <span className="text-sm text-gray-500 bg-blue-100 px-4 py-2 rounded-full font-medium">
-                      {selectedBeds.length} من {houseInspectionInfo.numberOfBeds} محدد
+                      {selectedBeds.length} من {bedOptions.filter(bed => bed.available).length} محدد
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-                    {bedOptions.map((bed) => (
+                    {bedOptions.map((bed, index) => (
                       <button
                         key={bed.id}
                         onClick={() => toggleBed(bed.id)}
-                        className={`p-6 rounded-2xl border-3 transition-all duration-300 flex flex-col items-center hover:scale-105 transform ${selectedBeds.includes(bed.id)
+                        disabled={!bed.available}
+                        className={`p-6 rounded-2xl border-3 transition-all duration-300 flex flex-col items-center hover:scale-105 transform relative ${selectedBeds.includes(bed.id)
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-xl ring-4 ring-blue-100'
-                          : 'border-gray-200 hover:border-blue-300 text-gray-600 hover:bg-blue-25 hover:shadow-lg'
+                          : bed.available
+                            ? 'border-gray-200 hover:border-blue-300 text-gray-600 hover:bg-blue-25 hover:shadow-lg'
+                            : 'border-red-200 bg-red-50 text-red-400 cursor-not-allowed opacity-60'
                           }`}
                       >
-                        <Bed className={`w-8 h-8 mb-3 ${selectedBeds.includes(bed.id) ? 'text-blue-500' : 'text-gray-400'
+                        <Bed className={`w-8 h-8 mb-3 ${selectedBeds.includes(bed.id)
+                          ? 'text-blue-500'
+                          : bed.available
+                            ? 'text-gray-400'
+                            : 'text-red-400'
                           }`} />
                         <span className="text-sm font-medium">{bed.label}</span>
+
                         {selectedBeds.includes(bed.id) && (
                           <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-2">
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
+
+                        {!bed.available && (
+                          <div className="absolute top-2 right-2">
+                            <AlertCircle className="w-4 h-4 text-red-500" />
+                          </div>
+                        )}
+
+                        {!bed.available && (
+                          <span className="text-xs text-red-500 mt-1">غير متاح</span>
+                        )}
                       </button>
                     ))}
                   </div>
 
+                  {/* No available beds message */}
+                  {bedOptions.filter(bed => bed.available).length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد أسرة متاحة</h3>
+                      <p className="text-gray-600 mb-4">جميع الأسرة محجوزة في التواريخ المحددة</p>
+                      <button
+                        onClick={() => setCurrentStep(1)}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        تغيير التواريخ
+                      </button>
+                    </div>
+                  )}
+
                   {/* Step 2 Navigation */}
-                  <div className="flex justify-between pt-6 border-t border-gray-100">
-                    <button
-                      onClick={handlePrevious}
-                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium flex items-center"
-                    >
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                      السابق
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={!isStep2Valid()}
-                      className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
-                    >
-                      تأكيد الحجز - {calculatedData.estimatedPrice.toLocaleString()} ج.م
-                    </button>
-                  </div>
+                  {bedOptions.filter(bed => bed.available).length > 0 && (
+                    <div className="flex justify-between pt-6 border-t border-gray-100">
+                      <button
+                        onClick={handlePrevious}
+                        className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium flex items-center"
+                      >
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                        السابق
+                      </button>
+                      <button
+                        onClick={handleSubmit}
+                        disabled={!isStep2Valid() || loading}
+                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl flex items-center"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                            جاري الحجز...
+                          </>
+                        ) : (
+                          <>
+                            تأكيد الحجز - {calculatedData.estimatedPrice.toLocaleString()} ج.م
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Booking Summary */}

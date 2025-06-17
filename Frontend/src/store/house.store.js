@@ -254,6 +254,124 @@ const useHouseStore = create(
         }
       },
 
+
+      // {
+//   "startDate": "2025-06-17T15:01:08.106Z",
+//   "endDate": "2025-06-17T15:01:08.106Z",
+//   "startArrivalDate": "2025-06-17T15:01:08.106Z",
+//   "endArrivalDate": "2025-06-17T15:01:08.106Z",
+//   "advId": "string"
+// }
+      checkAvailabilityOfBedroom: async (startDate, endDate, startArrivalDate, endArrivalDate, advId) => {
+        set({ loading: true, error: null });
+        console.log("Availability Response:", {
+          startDate,
+          endDate,
+          startArrivalDate,
+          endArrivalDate,
+          AdvId: advId,
+        });
+        try {
+          const response = await axiosInstance.post(
+            `/Tenant/show/available/rentalUnits`,
+            {
+              startDate,
+              endDate,
+              startArrivalDate,
+              endArrivalDate,
+              AdvId:advId,
+            }
+          );
+          console.log("Availability Response:", response.data);
+
+          if (response.data.length === 0) {
+            set({
+              error: "لا توجد وحدات متاحة في هذا التاريخ",
+              loading: false,
+            });
+            return {
+              availableBeds: [],
+              type : "ByHome",
+
+              message: "لا توجد وحدات متاحة في هذا التاريخ",
+            };
+          }else if (response.data.length === 1) {
+            set({
+              error: null,
+              loading: false,
+            });
+            return {
+              availableBeds: response.data,
+              type : "ByHome",
+              message: "وحدة واحدة متاحة",
+            };
+          }else {
+            set({
+              error: null,
+              loading: false,
+            });
+            return {
+              availableBeds: response.data,
+              type : "ByBedroom",
+              message: "تم العثور على وحدات متاحة",
+            };
+          }
+        } catch (err) {
+          console.error("Error checking availability:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء التحقق من التوفر",
+            loading: false,
+          });
+          return null;
+        }
+      },
+
+
+      // {
+      //   "startDate": "2025-06-17T15:47:10.033Z",
+      //   "endDate": "2025-06-17T15:47:10.033Z",
+      //   "rentalType": 0,
+      //   "houseId": "string",
+      //   "startArrivalDate": "2025-06-17T15:47:10.033Z",
+      //   "endArrivalDate": "2025-06-17T15:47:10.033Z",
+      //   "rentalUnitIds": [
+      //     "string"
+      //   ]
+      // }
+      bookRentalUnit: async (startDate, endDate, rentalType, houseId, startArrivalDate, endArrivalDate, rentalUnitIds) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await axiosInstance.post(
+            `/Tenant/Make/Rental/Request`,
+            {
+              startDate,
+              endDate,
+              rentalType,
+              houseId,
+              startArrivalDate,
+              endArrivalDate,
+              rentalUnitIds,
+            }
+          );
+          console.log("Booking Response:", response.data);
+          set({ loading: false });
+          return response.data;
+        } catch (err) {
+          console.error("Error booking rental unit:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء حجز الوحدة",
+            loading: false,
+          });
+          return null;
+        }
+      }
+
+
+
+
+
     }),
     {
       name: "house-storage",
