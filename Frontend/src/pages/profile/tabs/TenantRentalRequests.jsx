@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, DollarSign, Home, Clock, Eye, Star } from 'lucide-react';
+import { Calendar, User, DollarSign, Home, Clock, Eye, Star, MessageCircle } from 'lucide-react';
 import RentalRequestsModal from '../components/RentalRequestsModal';
 import RatingModal from '../components/RatingModal';
 import useHouseStore from '../../../store/house.store';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const TenantRentalRequests = () => {
   const [rentalRequests, setRentalRequests] = useState([]);
@@ -13,6 +14,7 @@ const TenantRentalRequests = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedRatingRequest, setSelectedRatingRequest] = useState(null);
   const { getTenantRentalRequests, cancelRentalRequest, acceptArivalRequest, handleRating } = useHouseStore()
+  const navigate = useNavigate();
 
   // Mock data - replace with actual API call
   useEffect(() => {
@@ -124,6 +126,17 @@ const TenantRentalRequests = () => {
     }
   };
 
+  const handleContactLandlord = (request) => {
+    if (request.houseOwnerUsername) {
+      navigate(`/chat/${request.houseOwnerUsername}`);
+    } else {
+      toast.error('معلومات المالك غير متوفرة', {
+        position: 'top-right',
+        duration: 3000,
+      });
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ar-EG', {
       year: 'numeric',
@@ -203,20 +216,20 @@ const TenantRentalRequests = () => {
                   </div>
                 </div>
                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${request.status === 0
-                    ? 'bg-yellow-100 text-yellow-800'  // قيد المراجعة
-                    : request.status === 1
-                      ? 'bg-green-100 text-green-800'  // تم الموافقة
-                      : request.status === 2
-                        ? 'bg-red-100 text-red-800'    // تم الرفض
-                        : request.status === 3
-                          ? 'bg-orange-100 text-orange-800'  // في انتظار موافقة الوصول
-                          : request.status === 4
-                            ? 'bg-yellow-100 text-yellow-800'  // قيم تجربتك
-                            : request.status === 5
-                              ? 'bg-red-100 text-red-800'    // تم رفض طلب الوصول
-                              : request.status === 6
-                                ? 'bg-blue-100 text-blue-800'  // تم التقييم
-                                : 'bg-gray-100 text-gray-800'  // حالة غير معروفة
+                  ? 'bg-yellow-100 text-yellow-800'  // قيد المراجعة
+                  : request.status === 1
+                    ? 'bg-green-100 text-green-800'  // تم الموافقة
+                    : request.status === 2
+                      ? 'bg-red-100 text-red-800'    // تم الرفض
+                      : request.status === 3
+                        ? 'bg-orange-100 text-orange-800'  // في انتظار موافقة الوصول
+                        : request.status === 4
+                          ? 'bg-yellow-100 text-yellow-800'  // قيم تجربتك
+                          : request.status === 5
+                            ? 'bg-red-100 text-red-800'    // تم رفض طلب الوصول
+                            : request.status === 6
+                              ? 'bg-blue-100 text-blue-800'  // تم التقييم
+                              : 'bg-gray-100 text-gray-800'  // حالة غير معروفة
                   }`}>
                   {
                     request.status === 0
@@ -291,6 +304,15 @@ const TenantRentalRequests = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
+                {/* Contact Landlord Button - Always Available */}
+                <button
+                  onClick={() => handleContactLandlord(request)}
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md mb-2"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-sm">تواصل مع المالك</span>
+                </button>
+
                 {request.status === 0 ? (
                   // قيد المراجعة - Under Review
                   <div className="flex gap-2">

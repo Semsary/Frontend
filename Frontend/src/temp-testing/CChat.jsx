@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Send,
@@ -31,7 +32,6 @@ import useAuthStore from "../store/auth.store";
 import Navbar from './../components/navbar/Navbar';
 import { useParams } from "react-router-dom";
 
-
 const ChatPage = () => {
   const [activeConversation, setActiveConversation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,11 +46,9 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const prevActiveConversationRef = useRef("");
-  // const currentUserId = "tenant1";
-  const [currentUserId, setCurrentUserId] = useState(""); // Replace with actual user ID from auth store
+  const [currentUserId, setCurrentUserId] = useState("");
 
   const { id: newConversationId } = useParams();
-
   const { getUser } = useAuthStore();
 
   useEffect(() => {
@@ -64,8 +62,6 @@ const ChatPage = () => {
     fetchUser();
   }, [getUser]);
 
-
-
   // Zustand store
   const {
     messages,
@@ -78,9 +74,14 @@ const ChatPage = () => {
     fetchMessages,
     setupSocketConnection,
     clearMessages,
-    getUserData
+    getUserData,
+    // setActiveConversationId
   } = useChatStore();
 
+  // Update active conversation in store when it changes
+  // useEffect(() => {
+  //   setActiveConversationId(activeConversation);
+  // }, [activeConversation, setActiveConversationId]);
 
   const handelgetUserData = useCallback(async (userId) => {
     try {
@@ -91,7 +92,7 @@ const ChatPage = () => {
       console.error("Failed to fetch user data:", error);
       throw new Error("فشل في تحميل بيانات المستخدم");
     }
-  }, []);
+  }, [getUserData]);
 
   // Memoized filtered conversations
   const filteredConversations = useMemo(() => {
@@ -139,8 +140,10 @@ const ChatPage = () => {
             lastMessage: newMessage.content,
             timestamp: new Date(newMessage.timestamp).getTime(),
             updatedAt: newMessage.timestamp,
-            // Reset unread count if user is currently viewing this conversation
-            unreadCount: activeConversation === conv.id ? 0 : conv.unreadCount + (newMessage.senderId !== currentUserId ? 1 : 0)
+            // Only increment unread count if user is not viewing this conversation and message is not from current user
+            unreadCount: activeConversation === conv.id || newMessage.senderId === currentUserId 
+              ? conv.unreadCount || 0 
+              : (conv.unreadCount || 0) + 1
           };
         }
         return conv;
@@ -151,32 +154,20 @@ const ChatPage = () => {
     });
   }, [currentUserId, activeConversation]);
 
-  // Listen for new messages and update conversations
-  useEffect(() => {
-    if (messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      updateConversationWithNewMessage(latestMessage);
-    }
-  }, [messages, updateConversationWithNewMessage]);
-
   // Transform API conversations data to expected format
-  const transformConversationsData = useCallback((apiConversations) => {
+  const transformConversationsData = useCallback(async (apiConversations) => {
     if (!Array.isArray(apiConversations)) return [];
 
     const transformed = apiConversations.map(async (conv, index) => {
-      // Get the other participant's name (you might want to fetch user details)
       const participantId = conv.otherParticipant;
 
-      // Generate avatar from participant name or ID
       const getAvatar = (name) => {
         return 'https://avatar.iran.liara.run/public/boy?username=' + name;
       };
 
-      // Generate display name using handelgetUserData
       const getDisplayName = async (id) => {
         if (!id) return "مستخدم غير معروف";
 
-        // Check for special cases first
         switch (id) {
           case "CustomerService1": return "خدمة العملاء";
           case "01JX9V1H7CD8TTMDF5RGETXRGB": return "المدير";
@@ -200,18 +191,15 @@ const ChatPage = () => {
         lastMessage: conv.lastMessage?.content || "لا توجد رسائل",
         timestamp: conv.lastMessage?.createdAt ? new Date(conv.lastMessage.createdAt).getTime() : Date.now(),
         unreadCount: conv.unreadCount || 0,
-        isOnline: false, // You'll need to get this from online users
+        isOnline: false,
         type: conv.participants?.length > 2 ? "group" : "direct",
         updatedAt: conv.updatedAt,
         _id: conv._id
       };
     });
 
-    // Wait for all async operations to complete
-    return Promise.all(transformed).then(results => {
-      // Sort by most recent activity
-      return results.sort((a, b) => b.timestamp - a.timestamp);
-    });
+    const results = await Promise.all(transformed);
+    return results.sort((a, b) => b.timestamp - a.timestamp);
   }, [handelgetUserData]);
 
   // Fetch conversations
@@ -228,7 +216,6 @@ const ChatPage = () => {
         setConversations(transformedConversations);
         console.log("Transformed conversations:", transformedConversations);
       } else if (response.data && Array.isArray(response.data)) {
-        // Handle case where conversations are directly in response.data
         const transformedConversations = await transformConversationsData(response.data);
         setConversations(transformedConversations);
         console.log("Transformed conversations:", transformedConversations);
@@ -278,7 +265,7 @@ const ChatPage = () => {
     }
   }, [activeConversation, currentUserId, fetchMessages, clearMessages]);
 
-  // Scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     const timer = setTimeout(() => {
       scrollToBottom();
@@ -286,6 +273,16 @@ const ChatPage = () => {
 
     return () => clearTimeout(timer);
   }, [messages]);
+
+  // Listen for new messages from store and update conversations
+  useEffect(() => {
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage && !latestMessage.isTemporary) {
+        updateConversationWithNewMessage(latestMessage);
+      }
+    }
+  }, [messages, updateConversationWithNewMessage]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -304,20 +301,11 @@ const ChatPage = () => {
       };
 
       await sendMessage(messageData);
-
-      // Update conversation immediately after sending
-      const newMessage = {
-        ...messageData,
-        timestamp: new Date().toISOString(),
-        id: Date.now() // Temporary ID
-      };
-      updateConversationWithNewMessage(newMessage);
-
       inputRef.current?.focus();
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-  }, [message, activeConversation, currentUserId, isLoading, sendMessage, updateConversationWithNewMessage]);
+  }, [message, activeConversation, currentUserId, isLoading, sendMessage]);
 
   const handleKeyPress = useCallback((e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -353,61 +341,6 @@ const ChatPage = () => {
     });
   }, []);
 
-
-
-
-
-  const addNewChat = () => {
-
-
-    const userData = handelgetUserData(newConversationId);
-
-
-
-
-
-    const newConversation = {
-      id: newConversationId,
-      name: userData.firstName + " " + userData.lastName || "مستخدم جديد",
-      avatar: userData.profilePic || `https://avatar.iran.liara.run/public/${userData.id}`,
-      lastMessage: "لا توجد رسائل بعد",
-      timestamp: Date.now(),
-      unreadCount: 0,
-      isOnline: false,
-      type: "direct",
-      updatedAt: new Date().toISOString(),
-      _id: `new-${Date.now()}`
-    };
-
-    console.log("Adding new conversation:", newConversation);
-
-    setConversations(prev => [newConversation, ...prev]);
-    setActiveConversation(newConversation.id);
-    if (isMobile) {
-      setShowSidebar(false);
-
-      // Focus on the message input
-      inputRef.current?.focus();
-    }
-  };
-
-  // useEffect(() => {
-  //   if (id) {
-  //     addNewChat();
-  //   }
-  // }, [id]);
-
-
-  // useEffect(() => {
-  //   console.log("Active conversation changed:", conversations);
-  // }, [conversations]);
-
-
-
-
-
-
-
   const isUserOnline = useCallback((userId) => {
     return onlineUsers.has(userId);
   }, [onlineUsers]);
@@ -420,17 +353,15 @@ const ChatPage = () => {
         isOnline: isUserOnline(conv.id)
       }));
 
-      // Only update if there's a change in online status
       const hasOnlineStatusChange = updatedConversations.some((conv, index) =>
         conv.isOnline !== conversations[index]?.isOnline
       );
 
       if (hasOnlineStatusChange) {
-        // Maintain sort order when updating online status
         setConversations(updatedConversations.sort((a, b) => b.timestamp - a.timestamp));
       }
     }
-  }, [onlineUsers, isUserOnline]);
+  }, [onlineUsers, isUserOnline, conversations]);
 
   const handleConversationClick = useCallback((conversationId) => {
     setActiveConversation(conversationId);
@@ -485,12 +416,10 @@ const ChatPage = () => {
           </div>
 
           <div className="relative shrink-0">
-
             <img
               src={conversation.avatar || 'https://avatar.iran.liara.run/public' + conversation.name}
               alt={conversation.name}
-              className={`w-12 h-12 rounded-full object-cover shadow-md    'bg-gradient-to-r from-blue-500 to-blue-600'
-                                }`}
+              className="w-12 h-12 rounded-full object-cover shadow-md"
             />
             {conversation.isOnline && (
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
@@ -505,16 +434,6 @@ const ChatPage = () => {
       </div>
     );
   });
-
-  // Add debug information in development
-  // useEffect(() => {
-  //     if (process.env.NODE_ENV === 'development') {
-  //         console.log('Current conversations state:', conversations);
-  //         console.log('Filtered conversations:', filteredConversations);
-  //         console.log('Active conversation:', activeConversation);
-  //         console.log('Current conversation:', currentConversation);
-  //     }
-  // }, [conversations, filteredConversations, activeConversation, currentConversation]);
 
   // Show modal when newConversationId is present
   useEffect(() => {
@@ -531,10 +450,9 @@ const ChatPage = () => {
       setNewChatUserData(userData);
     } catch (error) {
       console.error("Failed to fetch user data for modal:", error);
-      // Set default data if fetch fails
       setNewChatUserData({
-        firstName: userData.firstName + " " + userData.lastName || "مستخدم جديد",
-        lastName: userId,
+        firstName: "مستخدم",
+        lastName: "جديد",
         profilePic: `https://avatar.iran.liara.run/public/${userId}`
       });
     } finally {
@@ -565,7 +483,6 @@ const ChatPage = () => {
         setShowSidebar(false);
       }
 
-      // Focus on the message input
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -575,7 +492,6 @@ const ChatPage = () => {
   const handleCloseModal = useCallback(() => {
     setShowNewChatModal(false);
     setNewChatUserData(null);
-    // Optionally navigate away or handle the close action
   }, []);
 
   return (

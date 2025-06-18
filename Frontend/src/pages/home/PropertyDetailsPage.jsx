@@ -18,6 +18,7 @@ import {
   Heart,
   Share2
 } from 'lucide-react';
+import Loading from '../../components/loading/HomeLoading';
 
 const PropertyDetailsPage = () => {
   const { id } = useParams();
@@ -145,7 +146,7 @@ const PropertyDetailsPage = () => {
   };
 
   if (!propertyData) {
-    return (<div>Loading...</div>);
+    return (<Loading />);
   }
 
   const { houseMainInfo, houseInspectionInfo, rentalUnitInfo } = propertyData;

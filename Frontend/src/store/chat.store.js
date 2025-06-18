@@ -12,30 +12,56 @@ if (data) {
   token = data?.state?.token;
 }
 const apiLink = import.meta.env.VITE_CHAT_URL || "http://localhost:3000";
+const apiLinkSocket = import.meta.env.VITE_CHAT_URL_SOCKET || "http://localhost:3000";
+
+// if (token) {
+//   socket = io(apiLink, {
+//     withCredentials: true,
+//     autoConnect: false,
+//     auth: {
+//       token,
+//     },
+//   });
+
+//   socket.connect(); // مهم
+
+//   // 🔁 إعادة تعيين التوكن عند محاولات إعادة الاتصال
+//   socket.on("reconnect_attempt", () => {
+//     let data = localStorage.getItem("auth-storage");
+//     if (data) {
+//       data = JSON.parse(data);
+//     }
+//     const token = data?.state?.token;
+//     socket.auth.token = token;
+//   });
+// }
+
+
+// if (token) {
+//   try {
+//     token = JSON.parse(token)?.state?.token;
+//   } catch (err) {
+//     console.error("❌ Invalid token in localStorage:", err);
+//     token = null;
+//   }
+// }
+
 
 if (token) {
-  socket = io(apiLink, {
+  console.log("token:11 ", token);
+  socket = io(apiLinkSocket, {
     withCredentials: true,
     autoConnect: false,
     auth: {
-      token,
+      token, // ✅ هنا فقط
     },
   });
+  
 
-  socket.connect(); // مهم
-
-  // 🔁 إعادة تعيين التوكن عند محاولات إعادة الاتصال
-  socket.on("reconnect_attempt", () => {
-    let data = localStorage.getItem("auth-storage");
-    if (data) {
-      data = JSON.parse(data);
-    }
-    const token = data?.state?.token;
-    socket.auth.token = token;
-  });
+  socket.connect();
 }
 
-console.log("token: ", token);
+
 
 const useChatStore = create((set, get) => ({
   messages: [],
@@ -129,8 +155,7 @@ const useChatStore = create((set, get) => ({
       const { data } = await axiosChat.get(
         `/messages?senderId=${senderId}&receiverId=${receiverId}`
       );
-      console.log("Fetched messages:", data);
-      console.log("Fetched messages:", data.messages);
+      // console.log("Fetched messages:", data.messages);
       set({ messages: data.messages });
     } catch (err) {
       console.error("Fetch error:", err);
@@ -149,76 +174,58 @@ const useChatStore = create((set, get) => ({
       throw new Error("فشل في تحميل بيانات المستخدم");
     }
   },
-  
 
   setupSocketConnection: (currentUserId) => {
-    if (!socket) {
-      // Initialize socket if not already created
-      let data = localStorage.getItem("auth-storage");
-      let token = null;
-      if (data) {
+ 
+    let data = localStorage.getItem("auth-storage");
+    let token = null;
+
+    if (data) {
+      try {
         data = JSON.parse(data);
         token = data?.state?.token;
-      }
-
-      if (token) {
-        socket = io(apiLink, {
-          withCredentials: true,
-          autoConnect: false,
-          auth: {
-            token,
-          },
-        });
-      } else {
-        set({ error: "لا يوجد توكن صالح" });
-        return;
+      } catch (err) {
+        console.error("❌ فشل في قراءة التوكن من localStorage");
       }
     }
 
-    if (!socket.connected) {
-      socket.connect();
+    if (!token) {
+      set({ error: "لا يوجد توكن صالح" });
+      return;
     }
+
+    socket = io(apiLinkSocket, {
+      withCredentials: true,
+      autoConnect: false,
+      auth: {
+        token,
+      },
+    });
+
+    socket.connect();
 
     socket.emit("add-user", currentUserId);
 
     const handleReceive = (msg) => {
-      console.log("Message received from socket:", msg);
-      
-      // Immediately add message to the UI
-      get().addMessage({
-        ...msg,
-        id: msg.id || Date.now(),
-        timestamp: msg.timestamp || new Date().toISOString()
-      });
-      
-      // Update conversation last message
+      console.log("dfdf --- ",msg)
+      get().addMessage(msg);
       get().updateConversationLastMessage(msg.senderId, msg.receiverId, msg);
     };
-    
     socket.on("msg-receive", handleReceive);
 
-    // Handle conversation updates
-    const handleConversationUpdate = (data) => {
-      console.log("Conversation updated:", data);
+    socket.on("conversation-updated", (data) => {
       get().updateConversation(data.conversationId, data.updates);
-    };
-    socket.on("conversation-updated", handleConversationUpdate);
+    });
 
-    // Handle new conversation
-    const handleNewConversation = (conversation) => {
-      console.log("New conversation:", conversation);
+    socket.on("new-conversation", (conversation) => {
       set((state) => ({
         conversations: [conversation, ...state.conversations],
       }));
-    };
-    socket.on("new-conversation", handleNewConversation);
+    });
 
-    // Handle message read status
-    const handleMessageRead = (data) => {
-      console.log("Messages marked as read:", data);
+    socket.on("messages-read", (data) => {
       get().markConversationAsRead(data.conversationId);
-    };
-    socket.on("messages-read", handleMessageRead);
+    });
 
     socket.on("online-users", (users) => {
       set({ onlineUsers: new Map(users) });
@@ -229,20 +236,13 @@ const useChatStore = create((set, get) => ({
       set({ error: "فشل في الاتصال بالخادم" });
     });
 
-    // Add connection success handler
-    socket.on("connect", () => {
-      console.log("Socket connected successfully");
-      set({ error: null });
-    });
-
     return () => {
       socket.off("msg-receive", handleReceive);
-      socket.off("conversation-updated", handleConversationUpdate);
-      socket.off("new-conversation", handleNewConversation);
-      socket.off("messages-read", handleMessageRead);
+      socket.off("conversation-updated");
+      socket.off("new-conversation");
+      socket.off("messages-read");
       socket.off("online-users");
       socket.off("connect_error");
-      socket.off("connect");
     };
   },
 }));

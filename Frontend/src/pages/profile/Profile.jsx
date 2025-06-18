@@ -252,7 +252,7 @@ export default function ProfilePage() {
                     <li>
                       <button
                         onClick={() => handleTabChange("RentalRequests")}
-                        className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "addHome"
+                        className={`w-full text-right py-3.5 px-4 flex items-center justify-between ${activeTab === "RentalRequests"
                           ? "bg-indigo-50 text-indigo-700 font-medium border-r-4 border-indigo-600"
                           : "text-gray-700 hover:bg-gray-50"
                           } transition-colors`}
