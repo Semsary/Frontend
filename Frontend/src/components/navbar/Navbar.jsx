@@ -11,7 +11,7 @@ const Navbar = ({ searchBar = true }) => {
 
   return (
     <>
-      <div className={`fixed top-0 left-0 w-full flex flex-row-reverse items-center justify-between px-2 sm:px-4 md:px-6 lg:px-32 border-b border-gray-200 bg-white z-30 ${navbarHeight}`}>
+      <div className={`px-5 fixed top-0 left-0 w-full flex flex-row-reverse items-center justify-between  sm:px-4 md:px-6 lg:px-32 border-b border-gray-200 bg-white z-30 ${navbarHeight}`}>
         <Logo />
         {searchBar && <SearchBar />}
         <Profile />

@@ -88,6 +88,7 @@ const Search = () => {
             <div className="flex-1 px-2 sm:px-3 md:px-4">
               <input
                 type="text"
+                dir="rtl"
                 placeholder="إلى أين تريد الذهاب؟"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
