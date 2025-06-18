@@ -105,9 +105,17 @@ const Search = () => {
         </div>
       </div>
 
-      {/* Expanded Search Form - Enhanced mobile positioning */}
-      <div className={`fixed inset-0 sm:top-4 sm:left-4 sm:right-4 sm:bottom-auto sm:inset-auto sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:max-w-[900px] sm:w-full z-50 transition-all duration-500 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-        <div className="bg-white sm:rounded-xl shadow-2xl border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 w-full h-full sm:h-auto max-h-full sm:max-h-[80vh] overflow-y-auto">
+      {/* Expanded Search Form - Fixed positioning */}
+      <div className={`fixed z-50 transition-all duration-500 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+        style={{
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '95vw',
+          maxWidth: '900px',
+          maxHeight: '90vh'
+        }}>
+        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 w-full max-h-full overflow-y-auto">
           {/* Header - Enhanced mobile spacing */}
           <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8" dir="rtl">
             <div>
@@ -236,7 +244,7 @@ const Search = () => {
           </div>
 
           {/* Quick Filters - Enhanced mobile layout */}
-          <div className="pt-3 sm:pt-4 md:pt-6 border-t border-gray-200" dir="rtl">
+          <div className="pt-3  sm:pt-4 md:pt-6 border-t border-gray-200" dir="rtl">
             <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 font-medium">عمليات بحث سريعة:</p>
             <div className="flex flex-wrap gap-1 sm:gap-2">
               {/*
@@ -244,7 +252,7 @@ const Search = () => {
                 { label: "الجيزة - إيجار شهري", filters: { governorate: "2", rentalType: "monthly" } },
                 { label: "الاسكندرية - إيجار يومي", filters: { governorate: "3", rentalType: "daily" } },
               */}
-              {GovernorateList.filter(g => g.id !== 0).map((quickFilter, index) => (
+              {/* {GovernorateList.filter(g => g.id !== 0).map((quickFilter, index) => (
                 <button
                   key={index}
                   onClick={() => setFilters(prev => ({ ...prev, governorate: quickFilter.id, rentalType: "daily" }))}
@@ -252,7 +260,7 @@ const Search = () => {
                 >
                   {quickFilter.name_ar} - إيجار يومي
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>

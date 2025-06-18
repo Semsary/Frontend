@@ -19,6 +19,7 @@ import {
   Share2
 } from 'lucide-react';
 import Loading from '../../components/loading/HomeLoading';
+import Footer from '../../components/footer/Footer';
 
 const PropertyDetailsPage = () => {
   const { id } = useParams();
@@ -518,6 +519,7 @@ const PropertyDetailsPage = () => {
           </div>
         </div>
       </div>
+      <Footer />  
     </div>
   );
 };

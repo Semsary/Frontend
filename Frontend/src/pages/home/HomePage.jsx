@@ -5,6 +5,7 @@ import Search from "./Search";
 import Hero from "../../components/hero/Hero";
 import { useEffect } from "react";
 import useHomesStore from "../../store/house.store";
+import Footer from "../../components/footer/Footer";
 
 const HomePage = () => {
   const { getAdvertisements } = useHomesStore();
@@ -19,6 +20,7 @@ const HomePage = () => {
       <Hero />
       {/* <Search /> */}
       <HomesGrid />
+      <Footer />
     </div>
   );
 };
