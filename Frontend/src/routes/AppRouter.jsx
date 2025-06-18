@@ -15,7 +15,7 @@ import SignupPage_tenant from "../pages/auth/tenant/SignUp.jsx";
 import SignUp_landlord from "../pages/auth/landlord/SignUp.jsx";
 import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 import ErrorElement from "../pages/errors/ErrorElement.jsx";
-import Profile from "../pages/profile/profile.jsx";
+import Profile from "../pages/profile/Profile.jsx";
 import ChatComponent2 from "../temp-testing/Chat copy.jsx";
 import Chat from "../temp-testing/CChat.jsx";
 import BookingPage from "../pages/home/BookingPage.jsx";

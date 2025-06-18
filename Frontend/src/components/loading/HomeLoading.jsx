@@ -1,7 +1,7 @@
 import React from "react";
 
 const Loading = () => {
-  const Logo = "../../../public/images/logo/white-square.png";
+  const Logo = "https://firebasestorage.googleapis.com/v0/b/luxor-uni.firebasestorage.app/o/Layer%201.png?alt=media&token=495bae35-91ff-4808-b376-428398168034";
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center overflow-hidden">

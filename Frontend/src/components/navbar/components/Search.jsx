@@ -10,8 +10,8 @@ const Search = () => {
   const { setSearchFilters, getAdvertisements } = useHomesStore();
   const GovernorateList = getAllGovernorates();
 
-  
- 
+
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -81,55 +81,55 @@ const Search = () => {
         />
       )}
 
-      {/* Compact Search Bar */}
+      {/* Compact Search Bar - Enhanced mobile responsiveness */}
       <div className={`transition-all duration-500 ${isExpanded ? 'opacity-0 pointer-events-none transform scale-95' : 'opacity-100 transform scale-100'}`}>
-        <div className="bg-white rounded-full shadow-lg border border-gray-200 p-1.5 w-80 sm:w-96 hover:shadow-xl transition-all duration-300">
+        <div className="bg-white rounded-full shadow-lg border border-gray-200 p-1 sm:p-1.5 w-48 sm:w-72 md:w-80 lg:w-96 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center">
-            <div className="flex-1 px-3 sm:px-4">
+            <div className="flex-1 px-2 sm:px-3 md:px-4">
               <input
                 type="text"
                 placeholder="إلى أين تريد الذهاب؟"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 onClick={toggleExpanded}
-                className="w-full text-sm placeholder-gray-500 border-none outline-none bg-transparent font-medium"
+                className="w-full text-xs sm:text-sm placeholder-gray-500 border-none outline-none bg-transparent font-medium"
               />
             </div>
             <button
               onClick={isExpanded ? handleSearch : toggleExpanded}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-2.5 sm:p-3 rounded-full transition-all duration-200 flex items-center justify-center"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-1.5 sm:p-2.5 md:p-3 rounded-full transition-all duration-200 flex items-center justify-center min-w-[28px] min-h-[28px] sm:min-w-[36px] sm:min-h-[36px]"
             >
-              <SearchIcon className="w-4 h-4" />
+              <SearchIcon className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Expanded Search Form - Fixed positioning */}
-      <div className={`fixed top-4 left-4 right-4 bottom-4 sm:top-[10%] sm:left-1/2 sm:right-auto sm:bottom-auto sm:transform sm:-translate-x-1/2 sm:max-w-[900px] sm:w-full z-50 transition-all duration-500 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-4 sm:p-6 lg:p-8 w-full h-full sm:h-auto max-h-full sm:max-h-[80vh] overflow-y-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6 sm:mb-8" dir="rtl">
+      {/* Expanded Search Form - Enhanced mobile positioning */}
+      <div className={`fixed inset-0 sm:top-4 sm:left-4 sm:right-4 sm:bottom-auto sm:inset-auto sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:max-w-[900px] sm:w-full z-50 transition-all duration-500 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+        <div className="bg-white sm:rounded-xl shadow-2xl border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 w-full h-full sm:h-auto max-h-full sm:max-h-[80vh] overflow-y-auto">
+          {/* Header - Enhanced mobile spacing */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8" dir="rtl">
             <div>
-              <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-1">
                 البحث عن العقارات
               </h3>
-              <p className="text-gray-600 text-sm">اكتشف أفضل الخيارات المتاحة للإيجار</p>
+              <p className="text-gray-600 text-xs sm:text-sm">اكتشف أفضل الخيارات المتاحة للإيجار</p>
             </div>
             <button
               onClick={() => setIsExpanded(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
-          {/* Search Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8" dir="rtl">
-            {/* Location */}
-            <div className={`relative p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'location' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <MapPin className="w-4 h-4 text-blue-600" />
+          {/* Search Inputs - Enhanced mobile grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8" dir="rtl">
+            {/* Location - Enhanced mobile touch targets */}
+            <div className={`relative p-2 sm:p-3 md:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'location' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                 المكان
               </label>
               <select
@@ -138,7 +138,7 @@ const Search = () => {
                 onChange={handleChange}
                 onFocus={() => setFocusedField('location')}
                 onBlur={() => setFocusedField(null)}
-                className="w-full text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700"
+                className="w-full text-xs sm:text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700 min-h-[24px]"
               >
                 <option value={0}>اختر المحافظة</option>
                 {GovernorateList.map((governorate) => (
@@ -150,9 +150,9 @@ const Search = () => {
             </div>
 
             {/* Rental Type */}
-            <div className={`relative p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'rental' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <Home className="w-4 h-4 text-blue-600" />
+            <div className={`relative p-2 sm:p-3 md:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'rental' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                <Home className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                 نوع الإيجار
               </label>
               <select
@@ -161,7 +161,7 @@ const Search = () => {
                 onChange={handleChange}
                 onFocus={() => setFocusedField('rental')}
                 onBlur={() => setFocusedField(null)}
-                className="w-full text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700"
+                className="w-full text-xs sm:text-sm border-none outline-none bg-transparent cursor-pointer text-gray-700 min-h-[24px]"
               >
                 <option value={null}>اختر المدة</option>
                 <option value={1}>إيجار يومي</option>
@@ -170,9 +170,9 @@ const Search = () => {
             </div>
 
             {/* Price From */}
-            <div className={`relative p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'priceFrom' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <DollarSign className="w-4 h-4 text-blue-600" />
+            <div className={`relative p-2 sm:p-3 md:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'priceFrom' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                 السعر من
               </label>
               <input
@@ -183,14 +183,14 @@ const Search = () => {
                 onFocus={() => setFocusedField('priceFrom')}
                 onBlur={() => setFocusedField(null)}
                 placeholder="الحد الأدنى"
-                className="w-full text-sm border-none outline-none bg-transparent placeholder-gray-400"
+                className="w-full text-xs sm:text-sm border-none outline-none bg-transparent placeholder-gray-400 min-h-[24px]"
               />
             </div>
 
             {/* Price To */}
-            <div className={`relative p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'priceTo' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <DollarSign className="w-4 h-4 text-blue-600" />
+            <div className={`relative p-2 sm:p-3 md:p-4 rounded-lg border-2 transition-all duration-200 ${focusedField === 'priceTo' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}`}>
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                 السعر إلى
               </label>
               <input
@@ -201,55 +201,56 @@ const Search = () => {
                 onFocus={() => setFocusedField('priceTo')}
                 onBlur={() => setFocusedField(null)}
                 placeholder="الحد الأقصى"
-                className="w-full text-sm border-none outline-none bg-transparent placeholder-gray-400"
+                className="w-full text-xs sm:text-sm border-none outline-none bg-transparent placeholder-gray-400 min-h-[24px]"
               />
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-4 sm:mb-6" dir="rtl">
+          {/* Action Buttons - Enhanced mobile layout */}
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6" dir="rtl">
             <button
               onClick={clearFilters}
-              className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base"
+              className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg font-medium transition-colors duration-200 text-xs sm:text-sm md:text-base min-h-[40px] sm:min-h-[44px]"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
               إعادة تعيين
             </button>
 
             <button
               onClick={handleSearch}
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-70 disabled:cursor-not-allowed text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-medium transition-all duration-200 min-w-[120px] sm:min-w-[140px] text-sm sm:text-base"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-70 disabled:cursor-not-allowed text-white px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-medium transition-all duration-200 min-w-[100px] sm:min-w-[120px] md:min-w-[140px] text-xs sm:text-sm md:text-base min-h-[40px] sm:min-h-[44px]"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                   جاري البحث...
                 </>
               ) : (
                 <>
-                  <SearchIcon className="w-4 h-4" />
+                  <SearchIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                   البحث
                 </>
               )}
             </button>
           </div>
 
-          {/* Quick Filters */}
-          <div className="pt-4 sm:pt-6 border-t border-gray-200" dir="rtl">
-            <p className="text-sm text-gray-600 mb-3 font-medium">عمليات بحث سريعة:</p>
-            <div className="flex flex-wrap gap-2">
-              {[
+          {/* Quick Filters - Enhanced mobile layout */}
+          <div className="pt-3 sm:pt-4 md:pt-6 border-t border-gray-200" dir="rtl">
+            <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 font-medium">عمليات بحث سريعة:</p>
+            <div className="flex flex-wrap gap-1 sm:gap-2">
+              {/*
                 { label: "القاهرة - إيجار يومي", filters: { governorate: "1", rentalType: "daily" } },
                 { label: "الجيزة - إيجار شهري", filters: { governorate: "2", rentalType: "monthly" } },
                 { label: "الاسكندرية - إيجار يومي", filters: { governorate: "3", rentalType: "daily" } },
-              ].map((quickFilter, index) => (
+              */}
+              {GovernorateList.filter(g => g.id !== 0).map((quickFilter, index) => (
                 <button
                   key={index}
-                  onClick={() => setFilters(prev => ({ ...prev, ...quickFilter.filters }))}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded-lg text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-all duration-200"
+                  onClick={() => setFilters(prev => ({ ...prev, governorate: quickFilter.id, rentalType: "daily" }))}
+                  className="px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded-lg text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-all duration-200 min-h-[28px] sm:min-h-[32px]"
                 >
-                  {quickFilter.label}
+                  {quickFilter.name_ar} - إيجار يومي
                 </button>
               ))}
             </div>
