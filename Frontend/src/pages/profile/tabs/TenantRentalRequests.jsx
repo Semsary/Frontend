@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, DollarSign, Home, Clock, Eye } from 'lucide-react';
+import { Calendar, User, DollarSign, Home, Clock, Eye, Star } from 'lucide-react';
 import RentalRequestsModal from '../components/RentalRequestsModal';
+import RatingModal from '../components/RatingModal';
 import useHouseStore from '../../../store/house.store';
+import { toast } from 'sonner';
 
 const TenantRentalRequests = () => {
   const [rentalRequests, setRentalRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { getTenantRentalRequests, cancelRentalRequest, acceptArivalRequest } = useHouseStore()
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedRatingRequest, setSelectedRatingRequest] = useState(null);
+  const { getTenantRentalRequests, cancelRentalRequest, acceptArivalRequest, handleRating } = useHouseStore()
 
   // Mock data - replace with actual API call
   useEffect(() => {
@@ -71,6 +75,53 @@ const TenantRentalRequests = () => {
 
   const handleRequestUpdate = (updatedRequests) => {
     setRentalRequests(updatedRequests);
+  };
+
+  const handleRateRequest = (request) => {
+    setSelectedRatingRequest(request);
+    setShowRatingModal(true);
+  };
+
+  const handleCloseRatingModal = () => {
+    setShowRatingModal(false);
+    setSelectedRatingRequest(null);
+  };
+
+  const handleRatingSubmit = async (rentalId, rating, comment) => {
+    try {
+      // Add your rating submission logic here
+      console.log('Submitting rating:', { rentalId, rating, comment });
+
+      const res = await handleRating(rentalId, rating, comment);
+
+      if (res) {
+        // Update the request status after successful rating
+        setRentalRequests((prevRequests) =>
+          prevRequests.map((request) =>
+            request.rentalId === rentalId ? { ...request, status: 6, rating, comment } : request
+          )
+        );
+        toast.success('تم إرسال التقييم بنجاح', {
+          position: 'top-right',
+          duration: 3000,
+          style: {
+            backgroundColor: '#f0f4f8',
+            color: '#333',
+            fontSize: '16px',
+            borderRadius: '8px',
+            padding: '12px 20px'
+          }
+        });
+      }
+
+
+
+      // You can add a success message here
+
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      throw error;
+    }
   };
 
   const formatDate = (dateString) => {
@@ -146,19 +197,43 @@ const TenantRentalRequests = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {request.firstname} {request.lastname}
+                      {request.houseName || request.houseName[0]}
                     </h3>
                     <p className="text-sm text-gray-500">طلب رقم #{request.rentalId}</p>
                   </div>
                 </div>
-                <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+                <span className={`text-xs font-medium px-2 py-1 rounded-full ${request.status === 0
+                    ? 'bg-yellow-100 text-yellow-800'  // قيد المراجعة
+                    : request.status === 1
+                      ? 'bg-green-100 text-green-800'  // تم الموافقة
+                      : request.status === 2
+                        ? 'bg-red-100 text-red-800'    // تم الرفض
+                        : request.status === 3
+                          ? 'bg-orange-100 text-orange-800'  // في انتظار موافقة الوصول
+                          : request.status === 4
+                            ? 'bg-yellow-100 text-yellow-800'  // قيم تجربتك
+                            : request.status === 5
+                              ? 'bg-red-100 text-red-800'    // تم رفض طلب الوصول
+                              : request.status === 6
+                                ? 'bg-blue-100 text-blue-800'  // تم التقييم
+                                : 'bg-gray-100 text-gray-800'  // حالة غير معروفة
+                  }`}>
                   {
                     request.status === 0
-                      ? ' قيد المراجعة'
+                      ? 'قيد المراجعة'
                       : request.status === 1
-                        ? ' تم الموافقة'
+                        ? 'تم الموافقة'
                         : request.status === 2
-                          ? ' تم الرفض' : ' غير معروف'
+                          ? request.statusText || 'تم الرفض'
+                          : request.status === 3
+                            ? 'في انتظار موافقة الوصول'
+                            : request.status === 4
+                              ? 'قيم تجربتك'
+                              : request.status === 5
+                                ? 'تم رفض طلب الوصول'
+                                : request.status === 6
+                                  ? 'تم التقييم'
+                                  : 'حالة غير معروفة'
                   }
                 </span>
               </div>
@@ -214,46 +289,75 @@ const TenantRentalRequests = () => {
                 </div>
               </div>
 
-              {/* /* Action Buttons */}
+              {/* Action Buttons */}
               <div className="flex flex-col gap-2">
                 {request.status === 0 ? (
+                  // قيد المراجعة - Under Review
                   <div className="flex gap-2">
-                    <button
+                    {/* <button
                       onClick={() => handleViewRequest(request)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                       <Eye className="w-4 h-4" />
-                      <span>عرض التفاصيل</span>
-                    </button>
+                      <span className="text-sm">عرض التفاصيل</span>
+                    </button> */}
                     <button
                       onClick={() => handleCancelRequest(request.rentalId)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm"
                     >
                       إلغاء الطلب
                     </button>
                   </div>
                 ) : request.status === 1 ? (
+                  // تم الموافقة - Approved
                   <button
                     onClick={() => handleAcceptRequest(request.rentalId)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                   >
-                    <span>تأكيد الإيجار</span>
                     <Calendar className="w-4 h-4" />
+                    <span className="text-sm">تأكيد الوصول</span>
                   </button>
                 ) : request.status === 2 ? (
-                  <div className="w-full bg-gray-100 border-2 border-dashed border-gray-300 text-gray-500 font-medium py-2.5 px-4 rounded-lg text-center">
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                  // تم الرفض - Rejected
+                  <div className="w-full bg-red-50 border-2 border-red-200 text-red-700 font-medium py-3 px-4 rounded-lg text-center">
+                    <span className="flex items-center justify-center gap-2 text-sm">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                       تم رفض الطلب
                     </span>
                   </div>
+                ) : request.status === 3 ? (
+                  // في انتظار موافقة الوصول - Waiting for Arrival Approval
+                  <div className="w-full bg-orange-50 border-2 border-orange-200 text-orange-700 font-medium py-3 px-4 rounded-lg text-center">
+                    <span className="flex items-center justify-center gap-2 text-sm">
+                      <Clock className="w-4 h-4 animate-spin" />
+                      في انتظار موافقة الوصول
+                    </span>
+                  </div>
+                ) : request.status === 4 ? (
+                  // المؤجر في انتظارك - Rate Experience
+                  <button
+                    onClick={() => handleRateRequest(request)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    <Star className="w-4 h-4" />
+                    <span className="text-sm">قيم تجربتك</span>
+                  </button>
+                ) : request.status === 5 ? (
+                  // تم رفض طلب الوصول - Arrival Request Rejected
+                  <div className="w-full bg-red-50 border-2 border-red-200 text-red-700 font-medium py-3 px-4 rounded-lg text-center">
+                    <span className="flex items-center justify-center gap-2 text-sm">
+                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      تم رفض طلب الوصول
+                    </span>
+                  </div>
                 ) : (
+                  // حالة غير معروفة - Unknown Status
                   <button
                     onClick={() => handleViewRequest(request)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-all duration-200 border-2 border-gray-300"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>عرض التفاصيل واتخاذ إجراء</span>
+                    <span className="text-sm">عرض التفاصيل</span>
                   </button>
                 )}
               </div>
@@ -268,6 +372,15 @@ const TenantRentalRequests = () => {
           request={selectedRequest}
           closeModal={handleCloseModal}
           onRequestUpdate={handleRequestUpdate}
+        />
+      )}
+
+      {/* Rating Modal */}
+      {showRatingModal && selectedRatingRequest && (
+        <RatingModal
+          request={selectedRatingRequest}
+          closeModal={handleCloseRatingModal}
+          onRatingSubmit={handleRatingSubmit}
         />
       )}
     </div>

@@ -575,7 +575,7 @@ const BookingPage = () => {
                           </>
                         ) : (
                           <>
-                            تأكيد الحجز - {calculatedData.estimatedPrice.toLocaleString()} ج.م
+                            تأكيد الحجز 
                           </>
                         )}
                       </button>

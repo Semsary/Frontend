@@ -23,7 +23,7 @@ const DEFAULT_USERS = [
     type: "admin"
   },
   {
-    id: "sales1",
+    id: "landlord2",
     name: "قسم المبيعات",
     avatar: 'https://avatar.iran.liara.run/public/girl?username=المبيعات',
     lastMessage: "كيف يمكنني مساعدتك في الشراء؟",

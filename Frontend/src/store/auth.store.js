@@ -4,12 +4,10 @@ import axiosInstance from "./../config/api/axiosInstance";
 import { translateError } from "../functions/HandleServerErorrs";
 import useNotificationStore from "./notification.store";
 
-
 /**
  * Auth Store to manage user authentication and profile data
  * This store handles login, registration, password reset, and user data loading
  */
-
 
 const fcmStore = useNotificationStore.getState();
 const DeviceTokens = fcmStore.FCMToken || "";
@@ -24,16 +22,13 @@ const useAuthStore = create(
       email: null,
       rest_pass_email: null,
 
-
-
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
           const response = await axiosInstance.post("/Auth/login", {
             email,
             password,
-            deviceToken:DeviceTokens
-
+            deviceToken: DeviceTokens,
           });
           // console.log("Login response:", response);
           const { data } = response;
@@ -58,7 +53,7 @@ const useAuthStore = create(
             lastName,
             email,
             password,
-          DeviceTokens: "" 
+            DeviceTokens: "",
           });
           console.log(response);
           set({ loading: false, email: email });
@@ -181,7 +176,6 @@ const useAuthStore = create(
         try {
           const response1 = await axiosInstance.get("/Auth/GetUserInfo");
 
-
           set({ user: response1.data, loading: false });
         } catch (err) {
           set({
@@ -191,7 +185,7 @@ const useAuthStore = create(
         }
       },
 
-      getUser:async () => {
+      getUser: async () => {
         const token = get().token;
         if (!token) return null;
         try {
@@ -219,11 +213,19 @@ const useAuthStore = create(
       //   }
       // },
 
+      // Add authentication check method
+      isAuthenticated: () => {
+        const { token, user } = get();
+        return !!(token && user);
+      },
+
       logout: () => {
         localStorage.removeItem("auth-storage");
         localStorage.removeItem("user-storage");
-        set({ token: null, user: null });
+        set({ token: null, user: null, error: null });
         console.log("User logged out successfully");
+        // Optionally redirect to home page
+        window.location.href = "/";
       },
     }),
     {

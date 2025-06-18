@@ -156,7 +156,7 @@ const BookingSuccess = ({
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <button
-                        onClick={() => navigate('/profile/bookings')}
+                        onClick={() => navigate('/profile?tab=TenantRentalRequests')}
                         className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl flex items-center justify-center"
                     >
                         <CreditCard className="w-5 h-5 ml-2" />

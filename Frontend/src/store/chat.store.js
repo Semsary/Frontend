@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import axiosChat from "./../config/api/axiosChat.jsx";
+import axiosInstance from "../config/api/axiosInstance.jsx";
 
 let data = localStorage.getItem("auth-storage");
 let token = null;
@@ -128,6 +129,7 @@ const useChatStore = create((set, get) => ({
       const { data } = await axiosChat.get(
         `/messages?senderId=${senderId}&receiverId=${receiverId}`
       );
+      console.log("Fetched messages:", data);
       console.log("Fetched messages:", data.messages);
       set({ messages: data.messages });
     } catch (err) {
@@ -137,6 +139,17 @@ const useChatStore = create((set, get) => ({
       set({ isLoading: false });
     }
   },
+
+  getUserData: async (userId) => {
+    try {
+      const { data } = await axiosInstance.get(`/Chat/User/Info/${userId}`);
+      return data;
+    } catch (err) {
+      console.error("Fetch user data error:", err);
+      throw new Error("فشل في تحميل بيانات المستخدم");
+    }
+  },
+  
 
   setupSocketConnection: (currentUserId) => {
     if (!socket) {
@@ -169,9 +182,19 @@ const useChatStore = create((set, get) => ({
     socket.emit("add-user", currentUserId);
 
     const handleReceive = (msg) => {
-      get().addMessage(msg);
+      console.log("Message received from socket:", msg);
+      
+      // Immediately add message to the UI
+      get().addMessage({
+        ...msg,
+        id: msg.id || Date.now(),
+        timestamp: msg.timestamp || new Date().toISOString()
+      });
+      
+      // Update conversation last message
       get().updateConversationLastMessage(msg.senderId, msg.receiverId, msg);
     };
+    
     socket.on("msg-receive", handleReceive);
 
     // Handle conversation updates
@@ -206,6 +229,12 @@ const useChatStore = create((set, get) => ({
       set({ error: "فشل في الاتصال بالخادم" });
     });
 
+    // Add connection success handler
+    socket.on("connect", () => {
+      console.log("Socket connected successfully");
+      set({ error: null });
+    });
+
     return () => {
       socket.off("msg-receive", handleReceive);
       socket.off("conversation-updated", handleConversationUpdate);
@@ -213,6 +242,7 @@ const useChatStore = create((set, get) => ({
       socket.off("messages-read", handleMessageRead);
       socket.off("online-users");
       socket.off("connect_error");
+      socket.off("connect");
     };
   },
 }));

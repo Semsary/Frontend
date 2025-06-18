@@ -35,12 +35,20 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <SignupPage_tenant />,
+        element: (
+          <ProtectedRoute requireAuth={false}>
+            <SignupPage_tenant />
+          </ProtectedRoute>
+        ),
         errorElement: <ErrorElement />,
       },
       {
         path: "landlord",
-        element: <SignUp_landlord type="landlord" />,
+        element: (
+          <ProtectedRoute requireAuth={false}>
+            <SignUp_landlord type="landlord" />
+          </ProtectedRoute>
+        ),
         errorElement: <ErrorElement />,
       },
     ],
@@ -60,7 +68,7 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorElement />,
   },
-  
+
   {
     path: "/dashboard",
     element: (
@@ -72,71 +80,97 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
-    // errorElement: (
-    //   <ErrorElement errorMessage="Login failed" title="Authentication Error" />
-    // ),
+    element: (
+      <ProtectedRoute requireAuth={false}>
+        <Login />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/forgot-password",
-    element: <ForgotPassword />,
-    // errorElement: <ErrorElement errorMessage="Password recovery failed" />,
+    element: (
+      <ProtectedRoute requireAuth={false}>
+        <ForgotPassword />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/verify-code",
-    element: <VerifyCode />,
-    // errorElement: <ErrorElement errorMessage="Verification failed" />,
+    element: (
+      <ProtectedRoute requireAuth={false}>
+        <VerifyCode />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/Chat",
-    element: <Chat />,
-    // errorElement: <ErrorElement errorMessage="Verification failed" />,
+    element: (
+      <ProtectedRoute>
+        <Chat />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorElement />,
+  },
+  {
+    path: "/Chat/:id",
+    element: (
+      <ProtectedRoute>
+        <Chat />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/reset-password",
-    element: <ResetPassword />,
-    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    element: (
+      <ProtectedRoute requireAuth={false}>
+        <ResetPassword />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/ad/:id",
     element: <PropertyDetailsPage />,
-    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
     errorElement: <ErrorElement />,
   },
   {
     path: "/booking/:id",
-    element: <BookingPage />,
-    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    element: (
+      <ProtectedRoute>
+        <BookingPage />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/notifications",
-    element: <Notifications />,
-    // errorElement: <ErrorElement errorMessage="Password reset failed" />,
+    element: (
+      <ProtectedRoute>
+        <Notifications />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorElement />,
   },
   {
     path: "/wallet",
     element: (
-      // <ProtectedRoute>
+      <ProtectedRoute>
         <BalanceManagement />
-      // </ProtectedRoute>
+      </ProtectedRoute>
     ),
-  }
-  ,
+  },
   {
     path: "/*",
     element: <Page404 />,
     errorElement: <ErrorElement />,
   },
 
-  
- 
+
+
 ]);
 
 const AppRouter = () => {

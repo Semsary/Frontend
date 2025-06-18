@@ -469,9 +469,6 @@ const useHouseStore = create(
         }
       },
       
-
-
-
       acceptRentalRequest: async (requestId, status) => {
         set({ loading: true, error: null });
         console.log("Accepting Rental Request:", {
@@ -504,6 +501,51 @@ const useHouseStore = create(
           return false;
         }
       },
+
+      handleRating: async (requestId, rating, comment) => {
+        set({ loading: true, error: null });
+     
+
+        try {
+          const response = await axiosInstance.post(
+            `/Tenant/Set/Rate/${requestId}`,
+            {
+              starsNumber: rating,
+            }
+          );
+          const commentResponse = await axiosInstance.post(
+            `//Tenant/Add/Comment/${requestId}`,
+            {
+              commentDetails: comment,
+            }
+          );
+          if (commentResponse.status !== 200) {
+            throw new Error("Failed to add comment");
+          }
+          console.log("Comment Response:", commentResponse.data);
+          if (response.status !== 200) {
+            throw new Error("Failed to submit rating");
+          }
+          // Successfully submitted the rating
+
+
+          set({ loading: false });
+          console.log("Rating Response:", response.data);
+          return true;
+        } catch (err) {
+          console.error("Error submitting rating:", err);
+          set({
+            error:
+              err.response?.data?.message || "حدث خطأ أثناء إرسال التقييم",
+            loading: false,
+          });
+          return false;
+        }
+      },
+
+
+
+
     }),
     {
       name: "house-storage",
