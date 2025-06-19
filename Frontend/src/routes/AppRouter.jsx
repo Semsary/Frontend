@@ -36,18 +36,18 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <ProtectedRoute requireAuth={false}>
-            <SignupPage_tenant />
-          </ProtectedRoute>
+          // <ProtectedRoute requireAuth={false}>
+          <SignupPage_tenant />
+          // </ProtectedRoute>
         ),
         errorElement: <ErrorElement />,
       },
       {
         path: "landlord",
         element: (
-          <ProtectedRoute requireAuth={false}>
-            <SignUp_landlord type="landlord" />
-          </ProtectedRoute>
+          // <ProtectedRoute requireAuth={false}>
+          <SignUp_landlord type="landlord" />
+          // </ProtectedRoute>
         ),
         errorElement: <ErrorElement />,
       },
@@ -81,9 +81,9 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <ProtectedRoute requireAuth={false}>
-        <Login />
-      </ProtectedRoute>
+      // <ProtectedRoute requireAuth={false}>
+      <Login />
+      // </ProtectedRoute>
     ),
     errorElement: <ErrorElement />,
   },
@@ -99,9 +99,9 @@ const router = createBrowserRouter([
   {
     path: "/verify-code",
     element: (
-      <ProtectedRoute requireAuth={false}>
-        <VerifyCode />
-      </ProtectedRoute>
+      // <ProtectedRoute requireAuth={false}>
+      <VerifyCode />
+      // </ProtectedRoute>
     ),
     errorElement: <ErrorElement />,
   },
@@ -126,9 +126,9 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: (
-      <ProtectedRoute requireAuth={false}>
-        <ResetPassword />
-      </ProtectedRoute>
+      // <ProtectedRoute requireAuth={false}>
+      <ResetPassword />
+      // </ProtectedRoute>
     ),
     errorElement: <ErrorElement />,
   },

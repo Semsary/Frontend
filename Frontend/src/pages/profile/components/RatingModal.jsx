@@ -30,7 +30,10 @@ const RatingModal = ({ request, closeModal, onRatingSubmit }) => {
 
         setLoading(true);
         try {
-            await onRatingSubmit(request.rentalId, rating, comment);
+            await onRatingSubmit(request.rentalId, rating, comment, request.houseId);
+            // console.log('Rating submitted:', {
+            //     request
+            // })
             
             closeModal();
         } catch (error) {

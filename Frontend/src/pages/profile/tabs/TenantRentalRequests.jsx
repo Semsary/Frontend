@@ -89,12 +89,12 @@ const TenantRentalRequests = () => {
     setSelectedRatingRequest(null);
   };
 
-  const handleRatingSubmit = async (rentalId, rating, comment) => {
+  const handleRatingSubmit = async (rentalId, rating, comment, houseId) => {
     try {
       // Add your rating submission logic here
-      console.log('Submitting rating:', { rentalId, rating, comment });
+      console.log('Submitting rating:', { rentalId, rating, comment, houseId });
 
-      const res = await handleRating(rentalId, rating, comment);
+      const res = await handleRating(rentalId, rating, comment, houseId);
 
       if (res) {
         // Update the request status after successful rating

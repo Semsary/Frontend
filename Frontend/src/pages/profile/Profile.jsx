@@ -146,7 +146,7 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
               <div className="flex flex-col items-center">
                 <div className="relative mb-4 group">
-                  <div className={`w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-500 p-1 relative
+                  <div className={`w-24 h-24 rounded-full overflow-hidden border-4 border-ind igo-500 p-1 relative
                     ${userData?.isPremium
                       ? "border-amber-500"
                       : "border-indigo-500"

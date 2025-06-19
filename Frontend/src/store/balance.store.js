@@ -213,7 +213,7 @@ const useBalanceStore = create((set, get) => ({
 
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post(`/api/Auth/request-premium`);
+      const response = await axiosInstance.put(`/Tenant/premium`);
 
       set({ loading: false });
       return response.data;

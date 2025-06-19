@@ -502,19 +502,19 @@ const useHouseStore = create(
         }
       },
 
-      handleRating: async (requestId, rating, comment) => {
+      handleRating: async (requestId, rating, comment, houseId) => {
         set({ loading: true, error: null });
      
 
         try {
           const response = await axiosInstance.post(
-            `/Tenant/Set/Rate/${requestId}`,
+            `/Tenant/Set/Rate/${houseId}`,
             {
               starsNumber: rating,
             }
           );
           const commentResponse = await axiosInstance.post(
-            `//Tenant/Add/Comment/${requestId}`,
+            `/Tenant/Add/Comment/${houseId}`,
             {
               commentDetails: comment,
             }

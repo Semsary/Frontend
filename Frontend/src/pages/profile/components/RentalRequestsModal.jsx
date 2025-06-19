@@ -8,32 +8,41 @@ const RentalRequestsModal = ({ request, closeModal, onRequestUpdate }) => {
     const [actionType, setActionType] = useState(null); // 'approve' or 'reject'
     const { acceptRentalRequest } = useHouseStore();
 
-    const handleAction = async (action) => {
-        const actionValue = action === 'approve' ? 1 : 2;
-        const actionText = action === 'approve' ? 'موافقة' : 'رفض';
+    // Check if this is an arrival request (status 3)
+    const isArrivalRequest = request.status === 3;
 
-        const confirmMessage = `هل أنت متأكد من ${actionText} طلب الإيجار؟`;
+    const handleAction = async (action) => {
+        let actionValue, actionText;
+
+        if (isArrivalRequest) {
+            actionValue = action === 'approve' ? 4 : 5;
+            actionText = action === 'approve' ? 'الموافقة على طلب الوصول' : 'رفض طلب الوصول';
+        } else {
+            actionValue = action === 'approve' ? 1 : 2;
+            actionText = action === 'approve' ? 'موافقة' : 'رفض';
+        }
+
+        const confirmMessage = `هل أنت متأكد من ${actionText}؟`;
         if (!window.confirm(confirmMessage)) return;
 
         setLoading(true);
         setActionType(action);
 
         try {
-            // Simulate API call - replace with actual API
             console.log(`Processing ${actionText} for request ID: ${request.rentalId}`);
             const success = await acceptRentalRequest(request.rentalId, actionValue);
             if (success) {
-                toast.success(`تم ${actionText} طلب الإيجار بنجاح`);
+                toast.success(`تم ${actionText} بنجاح`);
                 onRequestUpdate((prevRequests) =>
                     prevRequests.filter(req => req.rentalId !== request.rentalId)
                 );
                 closeModal();
             } else {
-                toast.error(`فشل في ${actionText} طلب الإيجار`);
+                toast.error(`فشل في ${actionText}`);
             }
         } catch (error) {
             console.error('Error processing rental request:', error);
-            toast.error(`حدث خطأ أثناء ${actionText} طلب الإيجار`);
+            toast.error(`حدث خطأ أثناء ${actionText}`);
         } finally {
             setLoading(false);
             setActionType(null);
@@ -80,7 +89,9 @@ const RentalRequestsModal = ({ request, closeModal, onRequestUpdate }) => {
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-900">تفاصيل طلب الإيجار</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        {isArrivalRequest ? 'تفاصيل طلب الوصول' : 'تفاصيل طلب الإيجار'}
+                    </h2>
                     <button
                         onClick={closeModal}
                         className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -91,13 +102,18 @@ const RentalRequestsModal = ({ request, closeModal, onRequestUpdate }) => {
 
                 <div className="p-6 space-y-6">
                     {/* Request Status Alert */}
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className={`${isArrivalRequest ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-200'} border rounded-lg p-4`}>
                         <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                            <span className="font-medium text-yellow-800">طلب قيد المراجعة</span>
+                            <AlertTriangle className={`w-5 h-5 ${isArrivalRequest ? 'text-blue-600' : 'text-yellow-600'}`} />
+                            <span className={`font-medium ${isArrivalRequest ? 'text-blue-800' : 'text-yellow-800'}`}>
+                                {isArrivalRequest ? 'طلب وصول قيد المراجعة' : 'طلب قيد المراجعة'}
+                            </span>
                         </div>
-                        <p className="text-sm text-yellow-700 mt-1">
-                            يرجى مراجعة التفاصيل بعناية قبل اتخاذ قرار الموافقة أو الرفض
+                        <p className={`text-sm ${isArrivalRequest ? 'text-blue-700' : 'text-yellow-700'} mt-1`}>
+                            {isArrivalRequest
+                                ? 'يرجى مراجعة طلب الوصول والموافقة عليه أو رفضه'
+                                : 'يرجى مراجعة التفاصيل بعناية قبل اتخاذ قرار الموافقة أو الرفض'
+                            }
                         </p>
                     </div>
 
@@ -202,7 +218,10 @@ const RentalRequestsModal = ({ request, closeModal, onRequestUpdate }) => {
                         ) : (
                             <Check className="w-4 h-4" />
                         )}
-                        {loading && actionType === 'approve' ? 'جاري الموافقة...' : 'موافقة'}
+                        {loading && actionType === 'approve'
+                            ? (isArrivalRequest ? 'جاري الموافقة على الوصول...' : 'جاري الموافقة...')
+                            : (isArrivalRequest ? 'الموافقة على الوصول' : 'موافقة')
+                        }
                     </button>
 
                     <button
@@ -215,7 +234,10 @@ const RentalRequestsModal = ({ request, closeModal, onRequestUpdate }) => {
                         ) : (
                             <XCircle className="w-4 h-4" />
                         )}
-                        {loading && actionType === 'reject' ? 'جاري الرفض...' : 'رفض'}
+                        {loading && actionType === 'reject'
+                            ? (isArrivalRequest ? 'جاري رفض الوصول...' : 'جاري الرفض...')
+                            : (isArrivalRequest ? 'رفض الوصول' : 'رفض')
+                        }
                     </button>
 
                     <button

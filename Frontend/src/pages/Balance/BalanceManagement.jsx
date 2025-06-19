@@ -118,11 +118,11 @@ const BalanceManagement = () => {
     setSuccessMessage('');
     clearError();
 
-    if (!verified) {
-      // Redirect to profile verification
-      window.location.href = '/profile?tab=identity';
-      return;
-    }
+    // if (!verified) {
+    //   // Redirect to profile verification
+    //   window.location.href = '/profile?tab=identity';
+    //   return;
+    // }
 
     const result = await requestPremium();
     if (result) {

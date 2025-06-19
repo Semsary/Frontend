@@ -62,9 +62,9 @@ const HomesGrid = ({ homes }) => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
               {/* Compact Favorite Button */}
-              <button className="absolute top-3 left-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-105 transition-all duration-200 shadow-lg">
+              {/* <button className="absolute top-3 left-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-105 transition-all duration-200 shadow-lg">
                 <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors duration-200" />
-              </button>
+              </button> */}
 
               {/* Compact Rating Badge */}
               {home.houseRate > 0 && (

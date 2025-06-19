@@ -46,7 +46,11 @@ const SecurityTab = ({ userData, showSuccess }) => {
                   كلمة المرور كل 90 يومًا.
                 </p>
                 <button
-                  onClick={showSuccess}
+                  onClick={
+                    () => {
+                      window.location.href = "/forgot-password";
+                    }
+                  }
                   className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-indigo-200"
                 >
                   تغيير كلمة المرور
@@ -69,14 +73,18 @@ const SecurityTab = ({ userData, showSuccess }) => {
                   وزيادة الثقة في حسابك.
                 </p>
                 <button
-                  onClick={showSuccess}
+                  onClick={
+                  () => {
+                    window.location.href = "/profile?tab=identity";
+                        }
+                  }
                   className={
-                    userData.verificationStatus === "تم التحقق"
+                    userData?.verificationStatus === "تم التحقق"
                       ? "bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg flex items-center gap-2 cursor-default"
                       : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-indigo-200"
                   }
                 >
-                  {userData.verificationStatus === "تم التحقق" ? (
+                  {userData?.verificationStatus === "تم التحقق" ? (
                     <>
                       <CheckCircle className="h-4 w-4" />
                       <span>تم التحقق</span>

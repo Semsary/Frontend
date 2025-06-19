@@ -126,9 +126,15 @@ const Profile = () => {
             )}
           </DropdownMenuItem>
 
-          <DropdownMenuItem dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">الفواتير</DropdownMenuItem>
-          <DropdownMenuItem dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">الفريق</DropdownMenuItem>
-          <DropdownMenuItem dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">الاشتراك</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => window.location.href = "/wallet"}
+            dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">الفواتير</DropdownMenuItem>
+
+
+          <DropdownMenuItem onClick={() => window.location.href = "/profile?tab=TenantRentalRequests"} dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">
+            طلبات الإيجار
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => window.location.href = "/chat"} dir="rtl" className="text-right text-sm sm:text-base py-2 sm:py-3">الدردشة</DropdownMenuItem>
 
           {user?.balance !== undefined && (
             <>

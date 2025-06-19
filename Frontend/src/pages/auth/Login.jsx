@@ -34,7 +34,7 @@ export default function ArabicLoginPage() {
     try {
       const res = await login(data.email, data.password);
       if (res) {
-        navigate("/profile");
+        navigate("/");
       }
     } catch (err) {
       console.error("Login failed:", err);

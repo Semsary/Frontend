@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, DollarSign, Home, Clock, Eye } from 'lucide-react';
+import { Calendar, User, DollarSign, Home, Clock, Eye, MessageCircle } from 'lucide-react';
 import RentalRequestsModal from '../components/RentalRequestsModal';
 import useHouseStore from '../../../store/house.store';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const RentalRequests = () => {
   const [rentalRequests, setRentalRequests] = useState([]);
@@ -9,6 +11,21 @@ const RentalRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const { getRentalRequests } = useHouseStore()
+  const navigate = useNavigate();
+
+
+
+  const handleContactTenant = (request) => {
+    if (request.username) {
+      navigate(`/chat/${request.username}`);
+    } else {
+      toast.error('معلومات المالك غير متوفرة', {
+        position: 'top-right',
+        duration: 3000,
+      });
+    }
+  };
+
 
   // Mock data - replace with actual API call
   useEffect(() => {
@@ -178,6 +195,14 @@ const RentalRequests = () => {
               </div>
 
               {/* Action Button */}
+                <button
+                                onClick={() => handleContactTenant(request)}
+                                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md mb-2"
+                              >
+                                <MessageCircle className="w-4 h-4" />
+                                <span className="text-sm">تواصل مع المستأجر</span>
+                              </button>
+              
               <button
                 onClick={() => handleViewRequest(request)}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"

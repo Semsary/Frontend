@@ -11,24 +11,24 @@ const DEFAULT_USERS = [
   {
     id: "CustomerService1",
     name: "خدمة العملاء",
-    avatar: 'https://avatar.iran.liara.run/public/boy?username=خدمة العملاء',
+    avatar: 'https://avatar.iran.liara.run/public/boy?username=customer_service',
     lastMessage: "مرحباً، كيف يمكنني مساعدتك؟",
     type: "support"
   },
-  {
-    id: "landlord3",
-    name: "المدير",
-    avatar: 'https://avatar.iran.liara.run/public/boy?username=المدير',
-    lastMessage: "أهلاً وسهلاً بك",
-    type: "admin"
-  },
-  {
-    id: "landlord2",
-    name: "قسم المبيعات",
-    avatar: 'https://avatar.iran.liara.run/public/girl?username=المبيعات',
-    lastMessage: "كيف يمكنني مساعدتك في الشراء؟",
-    type: "sales"
-  }
+  // {
+  //   id: "landlord3",
+  //   name: "المدير",
+  //   avatar: 'https://avatar.iran.liara.run/public/boy?username=المدير',
+  //   lastMessage: "أهلاً وسهلاً بك",
+  //   type: "admin"
+  // },
+  // {
+  //   id: "landlord2",
+  //   name: "قسم المبيعات",
+  //   avatar: 'https://avatar.iran.liara.run/public/girl?username=المبيعات',
+  //   lastMessage: "كيف يمكنني مساعدتك في الشراء؟",
+  //   type: "sales"
+  // }
 ];
 
 const ChatPage = () => {
@@ -464,7 +464,7 @@ const ChatPage = () => {
                     </div>
                   ))
                 )}
-              </div>}
+              </div>
 
             </div>
             <div className="mt-4 text-center text-gray-500 bg-white rounded-2xl shadow-md p-3 border border-gray-200">

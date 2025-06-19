@@ -131,6 +131,7 @@ const PropertyDetailsPage = () => {
     // Fetch property data based on the ID
     const fetchPropertyData = async () => {
       const data = await getHouseById(id);
+      console.log('Fetched property data:', data);
       setPropertyData(data);
     };
 
@@ -182,13 +183,13 @@ const PropertyDetailsPage = () => {
     label: `سرير ${i + 1}`
   }));
 
-  const toggleBed = (bedId) => {
-    setSelectedBeds(prev =>
-      prev.includes(bedId)
-        ? prev.filter(id => id !== bedId)
-        : [...prev, bedId]
-    );
-  };
+  // const toggleBed = (bedId) => {
+  //   setSelectedBeds(prev =>
+  //     prev.includes(bedId)
+  //       ? prev.filter(id => id !== bedId)
+  //       : [...prev, bedId]
+  //   );
+  // };
 
   const handleBookingClick = () => {
     console.log('Booking clicked for property ID:', id);
@@ -493,33 +494,84 @@ const PropertyDetailsPage = () => {
             </div>
 
             {/* Quick Facts */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">معلومات إضافية</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">رقم العقار</span>
-                  <span className="font-medium">{houseInspectionInfo.houseId.slice(-8)}</span>
+            <div className="bg-gradient-to-br from-white to-blue-50 rounded-3xl p-6 shadow-lg border border-blue-100">
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center mr-3">
+                  <span className="text-white text-lg font-bold">💰</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">نوع الإيجار</span>
-                  <span className="font-medium">
-                    {houseMainInfo.rentalType === 0 ? 'يومي' : 'شهري'}
-                  </span>
+                <h3 className="text-lg font-bold text-gray-900">السعر المقدر</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-600 font-medium">السعر المقدر للعقار</span>
+                    {houseMainInfo.showEstimatedPrice ? (
+                      <div className="text-left">
+                        <div className="text-2xl font-bold text-green-600">
+                          {houseInspectionInfo.estimatedPrice?.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-500">جنيه مصري</div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse mr-2"></div>
+                        <span className="text-amber-700 bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1 rounded-full text-xs font-semibold border border-amber-200">
+                          عضوية مميزة مطلوبة
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {houseMainInfo.showEstimatedPrice && (
+                    <div className="flex items-center text-xs text-gray-500 mt-2">
+                      <div className="w-1 h-1 bg-green-500 rounded-full mr-2"></div>
+                      تم التحديث حديثاً • دقة عالية
+                      <br />
+                      هذا السعر يعتمد على بيانات السوق الحالية وتقديرات الذكاء الاصطناعي
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">عدد الشرفات</span>
-                  <span className="font-medium">{houseInspectionInfo.numberOfBalacons}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">عدد الكراسي</span>
-                  <span className="font-medium">{houseInspectionInfo.numberOfChairs}</span>
-                </div>
+
+                {!houseMainInfo.showEstimatedPrice && (
+                  <div className="relative overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-4">
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-yellow-100/20"></div>
+                    <div className="relative text-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                        <span className="text-white text-xl">⭐</span>
+                      </div>
+                      <h4 className="text-amber-800 text-sm font-bold mb-2">
+                        اكتشف القيمة الحقيقية للعقار
+                      </h4>
+                      <p className="text-amber-700 text-xs mb-4 leading-relaxed">
+                        احصل على تقديرات دقيقة مبنية على الذكاء الاصطناعي<br />
+                        وبيانات السوق المحدثة باستمرار
+                      </p>
+                      <button
+                        onClick={() => navigate('/wallet')}
+                        className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                        ترقية للعضوية المميزة
+                      </button>
+                      <div className="mt-3 flex items-center justify-center text-xs text-amber-600">
+                        <div className="flex items-center space-x-1 space-x-reverse">
+                          <span>✓</span>
+                          <span>تقديرات فورية</span>
+                        </div>
+                        <div className="w-1 h-1 bg-amber-400 rounded-full mx-2"></div>
+                        <div className="flex items-center space-x-1 space-x-reverse">
+                          <span>✓</span>
+                          <span>تحليلات متقدمة</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <Footer />  
+      <Footer />
     </div>
   );
 };
