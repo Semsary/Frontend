@@ -153,6 +153,9 @@ const PropertyDetailsPage = () => {
 
   const { houseMainInfo, houseInspectionInfo, rentalUnitInfo } = propertyData;
 
+  // Extract comments from propertyData
+  const comments = propertyData.comments || houseMainInfo.comments || [];
+
   // Get active features from the houseFeature value
   const activeFeatures = getActiveFeatures(houseInspectionInfo.houseFeature);
 
@@ -339,50 +342,87 @@ const PropertyDetailsPage = () => {
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-4">تقييمات الشقة</h2>
               <div className="space-y-4">
-                {/* Sample comments for apartment */}
-                <div className="border-b border-gray-100 pb-4 last:border-b-0">
-                  <div className="flex items-start mb-2">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
-                      أ
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center mb-1">
-                        <span className="font-semibold text-gray-900 mr-2">أحمد محمد</span>
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
-                          ))}
+                {comments && comments.length > 0 ? (
+                  // Display real comments
+                  comments.map((comment, index) => (
+                    <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex items-start mb-2">
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                          {comment.firstname.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <span className="font-semibold text-gray-900 mr-2">
+                              {comment.firstname} {comment.lastname}
+                            </span>
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-1">
+                            {comment.commentDetails}
+                          </p>
+                          <span className="text-gray-400 text-xs">
+                            {new Date(comment.commentDate).toLocaleDateString('ar-EG', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </span>
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-1">
-                        شقة ممتازة ونظيفة، الموقع مناسب جداً والخدمات متوفرة. أنصح بها بشدة.
-                      </p>
-                      <span className="text-gray-400 text-xs">منذ أسبوعين</span>
                     </div>
-                  </div>
-                </div>
-                <div className="border-b border-gray-100 pb-4 last:border-b-0">
-                  <div className="flex items-start mb-2">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
-                      س
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center mb-1">
-                        <span className="font-semibold text-gray-900 mr-2">سارة علي</span>
-                        <div className="flex items-center">
-                          {[...Array(4)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
-                          ))}
-                          <Star className="w-4 h-4 text-gray-300" />
+                  ))
+                ) : (
+                  // Display default comments
+                  <>
+                    <div className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex items-start mb-2">
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                          أ
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <span className="font-semibold text-gray-900 mr-2">أحمد محمد</span>
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-1">
+                            شقة ممتازة ونظيفة، الموقع مناسب جداً والخدمات متوفرة. أنصح بها بشدة.
+                          </p>
+                          <span className="text-gray-400 text-xs">منذ أسبوعين</span>
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-1">
-                        مكان هادئ ومريح، لكن قد تحتاج لبعض التحديثات البسيطة في الأثاث.
-                      </p>
-                      <span className="text-gray-400 text-xs">منذ شهر</span>
                     </div>
-                  </div>
-                </div>
+                    <div className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex items-start mb-2">
+                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                          س
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <span className="font-semibold text-gray-900 mr-2">سارة علي</span>
+                            <div className="flex items-center">
+                              {[...Array(4)].map((_, i) => (
+                                <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
+                              ))}
+                              <Star className="w-4 h-4 text-gray-300" />
+                            </div>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-1">
+                            مكان هادئ ومريح، لكن قد تحتاج لبعض التحديثات البسيطة في الأثاث.
+                          </p>
+                          <span className="text-gray-400 text-xs">منذ شهر</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

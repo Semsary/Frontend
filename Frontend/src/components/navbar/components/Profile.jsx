@@ -67,41 +67,84 @@ const Profile = () => {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center space-x-2 sm:space-x-4 border-[1px] px-1 pr-2 sm:pr-5 py-1 rounded-full shadow-xs hover:shadow-md transition-shadow min-h-[36px] sm:min-h-[40px]">
-            <img
-              src={user?.picture || "../../../public/images/test/avatar.png"}
-              alt="صورة المستخدم"
-              className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover"
-            />
+          <button className={`flex items-center space-x-2 sm:space-x-4 border-[1px] px-1 pr-2 sm:pr-5 py-1 rounded-full shadow-xs hover:shadow-md transition-shadow min-h-[36px] sm:min-h-[40px] ${user?.isPremium
+              ? 'border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-yell ow-50 shadow-amb er-200'
+              : ''
+            }`}>
+            <div className="relative">
+              <img
+                src={user?.picture || "../../../public/images/test/avatar.png"}
+                alt="صورة المستخدم"
+                className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover ${user?.isPremium
+                    ? 'ring-2 ring-amber-400 ring-offset-1'
+                    : ''
+                  }`}
+              />
+              {user?.isPremium && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-am ber-500 to-yel low-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">👑</span>
+                </div>
+              )}
+            </div>
             <div className="text-right hidden lg:block">
-              <p className="text-xs sm:text-sm font-medium">
+              <p className={`text-xs sm:text-sm font-medium ${user?.isPremium ? 'text-amber-800' : ''
+                }`}>
                 {user?.firstName} {user?.lastName}
+                {user?.isPremium && (
+                  <span className="mr-1 text-amber-600">⭐</span>
+                )}
               </p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+              <p className={`text-xs ${user?.isPremium ? 'text-amber-600' : 'text-gray-500'
+                }`}>{user?.email}</p>
             </div>
             <AlignJustify size={16} className="sm:w-5 sm:h-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="text-right w-56 sm:w-64 z-50 mr-2 sm:mr-0">
+        <DropdownMenuContent className={`text-right w-56 sm:w-64 z-50 mr-2 sm:mr-0 ${user?.isPremium
+          ? 'bg-gradient-to-b from-white to-white border border-amber-200'
+            : ''
+          }`}>
           <DropdownMenuLabel>
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <img
-                src={user?.picture || "../../../public/images/test/avatar.png"}
-                alt="صورة المستخدم"
-                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={user?.picture || "../../../public/images/test/avatar.png"}
+                  alt="صورة المستخدم"
+                  className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover ${user?.isPremium
+                      ? 'ring-2 ring-amber-400 ring-offset-2'
+                      : ''
+                    }`}
+                />
+                {user?.isPremium && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white text-sm">👑</span>
+                  </div>
+                )}
+              </div>
               <div>
-                <p className="font-medium text-sm sm:text-base">
+                <p className={`font-medium text-sm sm:text-base ${user?.isPremium ? 'text-amber-800' : ''
+                  }`}>
                   {user?.firstName} {user?.lastName}
+                  {user?.isPremium && (
+                    <span className="mr-1 text-amber-600">⭐</span>
+                  )}
                 </p>
-                <p className="text-xs sm:text-sm text-gray-500">{user?.email}</p>
-                <p className="text-xs text-blue-500">
-                  {user?.userType === 1
-                    ? "مستأجر"
-                    : user?.userType === 2
-                      ? "مالك"
-                      : "خدمة العملاء"}
-                </p>
+                <p className={`text-xs sm:text-sm ${user?.isPremium ? 'text-amber-600' : 'text-gray-500'
+                  }`}>{user?.email}</p>
+                <div className="flex items-center">
+                  <p className="text-xs text-blue-500">
+                    {user?.userType === 1
+                      ? "مستأجر"
+                      : user?.userType === 2
+                        ? "مالك"
+                        : "خدمة العملاء"}
+                  </p>
+                  {user?.isPremium && (
+                    <span className="mr-2 text-xs bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-2 py-0.5 rounded-full font-semibold shadow-sm">
+                      عضو مميز
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </DropdownMenuLabel>
